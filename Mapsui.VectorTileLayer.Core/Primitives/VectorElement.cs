@@ -54,6 +54,7 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
 
         public void Add(MPoint point)
         {
+            // TODO: Check for correct values
             if (IsPoint && (point.X < 0 || point.X > 4096 || point.Y < 0 || point.Y > 4096))
                 return;
 
