@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="monaco.mbtiles" />
+    <None Remove="Styles\Fonts\Roboto Condensed Italic.ttf" />
+    <None Remove="Styles\Fonts\Roboto Medium.ttf" />
+    <None Remove="Styles\Fonts\Roboto Regular.ttf" />
+    <None Remove="Styles\osm-liberty.json" />
+    <None Remove="Styles\Sprites\osm-liberty%402x.json" />
+    <None Remove="Styles\Sprites\osm-liberty%402x.png" />
+    <None Remove="Styles\Sprites\osm-liberty.json" />
+    <None Remove="Styles\Sprites\osm-liberty.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MbTiles\monaco.mbtiles">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="Styles\Fonts\Roboto Medium.ttf" />
+    <EmbeddedResource Include="Styles\Fonts\Roboto Regular.ttf" />
+    <EmbeddedResource Include="Styles\Fonts\Roboto Condensed Italic.ttf" />
+    <EmbeddedResource Include="Styles\osm-liberty.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Styles\Sprites\osm-liberty.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Styles\Sprites\osm-liberty.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Styles\Sprites\osm-liberty@2x.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Styles\Sprites\osm-liberty@2x.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BruTile.MbTiles" Version="4.0.0" />
+    <PackageReference Include="Mapsui" Version="3.0.0-build.2631" />
+    <PackageReference Include="Mapsui.Wpf" Version="3.0.0-build.2631" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj" />
+    <ProjectReference Include="..\Mapsui.VectorTileLayer.Mapbox\Mapsui.VectorTileLayer.Mapbox.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Mapsui.VectorTileLayer.MapboxGL</AssemblyName>
+    <RootNamespace>Mapsui.VectorTileLayer.MapboxGL</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BruTile.MbTiles" Version="4.0.0" />
+    <PackageReference Include="Mapsui" Version="3.0.0-build.2631" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="protobuf-net" Version="3.0.101" />
+    <PackageReference Include="RBush" Version="2.0.46" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.148" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mapsui\Mapsui.Core\Mapsui.Core.csproj" />
+    <ProjectReference Include="..\..\Mapsui\Mapsui.Geometries\Mapsui.Geometries.csproj" />
+    <ProjectReference Include="..\..\Mapsui\Mapsui.Layers.Tiling\Mapsui.Layers.Tiling.csproj" />
+    <ProjectReference Include="..\..\Mapsui\Mapsui.Rendering.Skia\Mapsui.Rendering.Skia.csproj" />
+    <ProjectReference Include="..\..\Mapsui\Mapsui\Mapsui.csproj" />
+    <ProjectReference Include="..\Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj" />
+  </ItemGroup>
+
+</Project>
