@@ -18,7 +18,8 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
     {
 #if DEBUG
         SKPaint testPaintRect = new SKPaint { Style = SKPaintStyle.Stroke, StrokeWidth = 4 ,Color = SKColors.Red };
-        SKPaint testPaintText = new SKPaint { Style = SKPaintStyle.StrokeAndFill, TextSize = 40, Color = SKColors.Red };
+        SKPaint testPaintTextStroke = new SKPaint { Style = SKPaintStyle.Stroke, StrokeWidth = 4, TextSize = 40, Color = SKColors.White };
+        SKPaint testPaintTextFill = new SKPaint { Style = SKPaintStyle.StrokeAndFill, TextSize = 40, Color = SKColors.Red };
 #endif
 
         private SKRect clipRect = new SKRect(0, 0, 512, 512);
@@ -130,7 +131,8 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
 
 #if DEBUG
                 canvas.DrawRect(clipRect, testPaintRect);
-                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintText);
+                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
+                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
 #endif
 
                 canvas.Restore();
