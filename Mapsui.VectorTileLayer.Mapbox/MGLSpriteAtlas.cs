@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using Mapsui.VectorTileLayer.Core.Interfaces;
+using Mapsui.VectorTileLayer.Core.Enums;
 
 namespace Mapsui.VectorTileLayer.MapboxGL
 {
@@ -19,29 +20,41 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         /// Add a MapboxGL source to atlas
         /// </summary>
         /// <param name="source">Url or path name to get sprites definition and atlas from</param>
-        public void AddSpriteSource(string source, Assembly assemblyToUse)
+        public void AddSpriteSource(string source, Func<LocalContentType, string, Stream> getLocalContent)
         {
-            Stream streamJson;
-            Stream streamAtlas;
+            Stream streamJson = null;
+            Stream streamAtlas = null;
 
             // First check for @2x
             var nameJson = source + "@2x.json";
             var nameAtlas = source + "@2x.png";
 
-            (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, assemblyToUse);
-
-            if (streamJson == null || streamAtlas == null)
+            try
             {
-                // Perhaps there are no @2x versions
-                nameJson = source + ".json";
-                nameAtlas = source + ".png";
+                (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, getLocalContent);
 
-                (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, assemblyToUse);
+                if (streamJson == null || streamAtlas == null)
+                {
+                    // One of them could be != null
+                    streamJson?.Dispose();
+                    streamAtlas?.Dispose();
+
+                    // Perhaps there are no @2x versions
+                    nameJson = source + ".json";
+                    nameAtlas = source + ".png";
+
+                    (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, getLocalContent);
+                }
+
+                if (streamJson != null && streamAtlas != null)
+                {
+                    CreateSprites(streamJson, streamAtlas);
+                }
             }
-
-            if (streamJson != null && streamAtlas != null)
+            finally
             {
-                CreateSprites(streamJson, streamAtlas);
+                streamJson?.Dispose();
+                streamAtlas?.Dispose();
             }
         }
 
@@ -106,7 +119,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             }
         }
 
-        private (Stream, Stream) GetStreams(string nameJson, string nameAtlas, Assembly assemblyToUse)
+        private (Stream, Stream) GetStreams(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
         {
             Stream streamJson;
             Stream streamAtlas;
@@ -120,14 +133,14 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                 nameJson = nameJson.Substring(7);
                 nameAtlas = nameAtlas.Substring(7);
 
-                (streamJson, streamAtlas) = GetStreamsFromFile(nameJson, nameAtlas);
+                (streamJson, streamAtlas) = GetStreamsFromFile(nameJson, nameAtlas, getLocalContent);
             }
             else if (nameJson.StartsWith("embedded://"))
             {
                 nameJson = nameJson.Substring(11).Replace('/', '.');
                 nameAtlas = nameAtlas.Substring(11).Replace('/', '.');
 
-                (streamJson, streamAtlas) = GetStreamsFromResource(nameJson, nameAtlas, assemblyToUse);
+                (streamJson, streamAtlas) = GetStreamsFromResource(nameJson, nameAtlas, getLocalContent);
             }
             else
             {
@@ -138,39 +151,40 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             return (streamJson, streamAtlas);
         }
 
-        private (Stream streamJson, Stream streamAtlas) GetStreamsFromResource(string nameJson, string nameAtlas, Assembly assemblyToUse)
-        {
-            Stream streamJson = null;
-            Stream streamAtlas = null;
-
-            var resourceNames = assemblyToUse?.GetManifestResourceNames();
-
-            var resourceName = resourceNames?.FirstOrDefault(s => s.EndsWith(nameJson, StringComparison.CurrentCultureIgnoreCase));
-
-            if (!string.IsNullOrEmpty(resourceName))
-            {
-                streamJson = assemblyToUse.GetManifestResourceStream(resourceName);
-            }
-
-            resourceName = resourceNames?.FirstOrDefault(s => s.EndsWith(nameAtlas, StringComparison.CurrentCultureIgnoreCase));
-
-            if (!string.IsNullOrEmpty(resourceName))
-            {
-                streamAtlas = assemblyToUse.GetManifestResourceStream(resourceName);
-            }
-
-            return (streamJson, streamAtlas);
-        }
-
-        private (Stream, Stream) GetStreamsFromFile(string nameJson, string nameAtlas)
+        private (Stream streamJson, Stream streamAtlas) GetStreamsFromResource(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
         {
             Stream streamJson;
             Stream streamAtlas;
 
+            if (getLocalContent == null)
+                throw new ArgumentException($"{nameof(getLocalContent)} should not be null");
+
+            streamJson = getLocalContent(LocalContentType.Resource, nameJson);
+            streamAtlas = getLocalContent(LocalContentType.Resource, nameAtlas);
+
+            return (streamJson, streamAtlas);
+        }
+
+        private (Stream, Stream) GetStreamsFromFile(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
+        {
+            Stream streamJson;
+            Stream streamAtlas;
+
+            if (getLocalContent == null)
+                throw new ArgumentNullException($"{nameof(getLocalContent)} must not be null");
+
             try
             {
-                streamJson = File.OpenRead(nameJson);
-                streamAtlas = File.OpenRead(nameAtlas);
+                streamJson = getLocalContent(LocalContentType.File, nameJson);
+
+                if (streamJson == null)
+                    throw new FileNotFoundException($"File '{nameJson}' not found");
+
+                streamAtlas = getLocalContent(LocalContentType.File, nameJson);
+
+                if (streamAtlas == null)
+                    throw new FileNotFoundException($"File '{nameAtlas}' not found");
+
             }
             catch (Exception)
             {

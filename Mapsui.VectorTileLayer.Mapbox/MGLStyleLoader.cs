@@ -29,12 +29,20 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         public static string DirectoryForFiles = "";
 
         /// <summary>
+        /// Function to access local content like files and embedded resources
+        /// </summary>
+        /// <remarks>
+        /// Stream is at end of using disposed
+        /// </remarks>
+        public static Func<LocalContentType, string, Stream> GetLocalContent = null;
+
+        /// <summary>
         /// Load a Mapbox GL Json style file
         /// </summary>
         /// <param name="input">Stream with Mapbox GL Json style file</param>
         /// <param name="assemblyToUse">Assembly to use if there are embedded resources</param>
         /// <returns>Mapbox GL Style File</returns>
-        public static MGLStyleFile Load(Stream input, Assembly assemblyToUse)
+        public static MGLStyleFile Load(Stream input)
         {
             JsonStyleFile jsonStyle;
 
@@ -45,15 +53,15 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             {
 
                 // Extract the main part from the JSON file
-                // TODO: Convert jsonStyle.Center[0], jsonStyle.Center[1] from WGS84 to Mapsui
+                // TODO: Convert jsonStyle.Center[0], jsonStyle.Center[1] from WGS84 to native format
                 Center = jsonStyle.Center != null ? new MPoint(jsonStyle.Center[0], jsonStyle.Center[1]) : new MPoint(0, 0),
             };
 
             // Extract sprite atlas
-            ExtractSprites(jsonStyle, mglStyleFile.SpriteAtlas, assemblyToUse);
+            ExtractSprites(jsonStyle, mglStyleFile.SpriteAtlas);
 
             // Extract glyphs
-            ExtractGlyphs(jsonStyle, mglStyleFile.GlyphAtlas, assemblyToUse);
+            ExtractGlyphs(jsonStyle, mglStyleFile.GlyphAtlas);
 
             // Extract background
             var backgroundTileLayer = CreateBackgroundTileLayer(jsonStyle.StyleLayers, mglStyleFile.SpriteAtlas);
@@ -61,23 +69,23 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                 mglStyleFile.TileLayers.Add(backgroundTileLayer);
 
             // Extract all sources in this JSON file
-            mglStyleFile.TileLayers.AddRange(ExtractLayers(jsonStyle, jsonStyle.Sources, mglStyleFile.SpriteAtlas, assemblyToUse));
+            mglStyleFile.TileLayers.AddRange(ExtractLayers(jsonStyle, jsonStyle.Sources, mglStyleFile.SpriteAtlas));
 
             return mglStyleFile;
         }
 
-        private static void ExtractSprites(JsonStyleFile jsonStyle, MGLSpriteAtlas spriteAtlas, Assembly assemblyToUse)
+        private static void ExtractSprites(JsonStyleFile jsonStyle, MGLSpriteAtlas spriteAtlas)
         {
             // Save urls for sprite and glyphs
             var spriteUrl = jsonStyle.Sprite;
 
             if (!string.IsNullOrEmpty(spriteUrl))
             {
-                spriteAtlas.AddSpriteSource(spriteUrl, assemblyToUse);
+                spriteAtlas.AddSpriteSource(spriteUrl, GetLocalContent);
             }
         }
 
-        private static void ExtractGlyphs(JsonStyleFile jsonStyle, object glyphAtlas, Assembly assemblyToUse)
+        private static void ExtractGlyphs(JsonStyleFile jsonStyle, object glyphAtlas)
         {
             // Save urls for glyphs
             var glyphsUrl = jsonStyle.Glyphs;
@@ -91,7 +99,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         /// <summary>
         /// Extract all given sources (background, raster, vector and so on) given by this JSON file
         /// </summary>
-        private static List<TileLayer> ExtractLayers(JsonStyleFile jsonStyle, Dictionary<string, JsonSource> sources, MGLSpriteAtlas spriteAtlas, Assembly assemblyToUse)
+        private static List<TileLayer> ExtractLayers(JsonStyleFile jsonStyle, Dictionary<string, JsonSource> sources, MGLSpriteAtlas spriteAtlas)
         {
             List<TileLayer> tileLayers = new List<TileLayer>();
 
@@ -103,12 +111,12 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                 switch (source.Value.Type)
                 {
                     case "raster":
-                        var rasterTileLayer = CreateRasterTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas, assemblyToUse);
+                        var rasterTileLayer = CreateRasterTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas);
                         if (rasterTileLayer != null)
                             tileLayers.Add(rasterTileLayer);
                         break;
                     case "vector":
-                        var vectorTileLayer = CreateVectorTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas, assemblyToUse);
+                        var vectorTileLayer = CreateVectorTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas);
                         if (vectorTileLayer != null)
                             tileLayers.Add(vectorTileLayer);
                         break;
@@ -160,7 +168,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             return null;
         }
         
-        private static TileLayer CreateRasterTileLayer(JsonStyleFile jsonStyle, string name, JsonSource source, MGLSpriteAtlas spriteAtlas, Assembly assemblyToUse)
+        private static TileLayer CreateRasterTileLayer(JsonStyleFile jsonStyle, string name, JsonSource source, MGLSpriteAtlas spriteAtlas)
         {
             //if (!string.IsNullOrEmpty(source.Url))
             //{
@@ -176,7 +184,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                 return null;
 
             // Add only first style to this layer
-            var rasterStyleLayer = ExtractStyles(name, jsonStyle.StyleLayers, spriteAtlas, assemblyToUse).FirstOrDefault();
+            var rasterStyleLayer = ExtractStyles(name, jsonStyle.StyleLayers, spriteAtlas).FirstOrDefault();
             if (rasterStyleLayer != null)
             {
                 // Replace color with white for opacity
@@ -189,7 +197,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             return rasterTileLayer;
         }
 
-        private static TileLayer CreateVectorTileLayer(JsonStyleFile jsonStyle, string name, JsonSource source, MGLSpriteAtlas spriteAtlas, Assembly assemblyToUse)
+        private static TileLayer CreateVectorTileLayer(JsonStyleFile jsonStyle, string name, JsonSource source, MGLSpriteAtlas spriteAtlas)
         {
             JsonSource jsonSource = null;
 
@@ -241,7 +249,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             if (tileSource == null)
                 return null;
 
-            var vectorStyleLayers = ExtractStyles(tileSource.Name, jsonStyle.StyleLayers, spriteAtlas, assemblyToUse);
+            var vectorStyleLayers = ExtractStyles(tileSource.Name, jsonStyle.StyleLayers, spriteAtlas);
 
             int minMaxZoom = 0;
             int maxMinZoom = 30;
@@ -305,7 +313,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             return tileSource;
         }
 
-        private static List<MGLStyleLayer> ExtractStyles(string sourceName, IEnumerable<JsonStyleLayer> jsonStyleLayers, MGLSpriteAtlas spriteAtlas, Assembly assemblyToUse)
+        private static List<MGLStyleLayer> ExtractStyles(string sourceName, IEnumerable<JsonStyleLayer> jsonStyleLayers, MGLSpriteAtlas spriteAtlas)
         {
             var styleLayers = new List<MGLStyleLayer>();
 

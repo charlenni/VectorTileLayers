@@ -8,36 +8,36 @@
 
   <ItemGroup>
     <None Remove="monaco.mbtiles" />
-    <None Remove="Styles\Fonts\Roboto Condensed Italic.ttf" />
-    <None Remove="Styles\Fonts\Roboto Medium.ttf" />
-    <None Remove="Styles\Fonts\Roboto Regular.ttf" />
-    <None Remove="Styles\osm-liberty.json" />
-    <None Remove="Styles\Sprites\osm-liberty%402x.json" />
-    <None Remove="Styles\Sprites\osm-liberty%402x.png" />
-    <None Remove="Styles\Sprites\osm-liberty.json" />
-    <None Remove="Styles\Sprites\osm-liberty.png" />
+    <None Remove="styles\fonts\Roboto Condensed Italic.ttf" />
+    <None Remove="styles\fonts\Roboto Medium.ttf" />
+    <None Remove="styles\fonts\Roboto Regular.ttf" />
+    <None Remove="styles\osm-liberty.json" />
+    <None Remove="styles\sprites\osm-liberty%402x.json" />
+    <None Remove="styles\sprites\osm-liberty%402x.png" />
+    <None Remove="styles\sprites\osm-liberty.json" />
+    <None Remove="styles\sprites\osm-liberty.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="MbTiles\monaco.mbtiles">
+    <Content Include="mbtiles\monaco.mbtiles">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="Styles\Fonts\Roboto Medium.ttf" />
-    <EmbeddedResource Include="Styles\Fonts\Roboto Regular.ttf" />
-    <EmbeddedResource Include="Styles\Fonts\Roboto Condensed Italic.ttf" />
-    <EmbeddedResource Include="Styles\osm-liberty.json">
+    <EmbeddedResource Include="styles\fonts\Roboto Medium.ttf" />
+    <EmbeddedResource Include="styles\fonts\Roboto Regular.ttf" />
+    <EmbeddedResource Include="styles\fonts\Roboto Condensed Italic.ttf" />
+    <EmbeddedResource Include="styles\osm-liberty.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Styles\Sprites\osm-liberty.json">
+    <EmbeddedResource Include="styles\sprites\osm-liberty.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Styles\Sprites\osm-liberty.png">
+    <EmbeddedResource Include="styles\sprites\osm-liberty.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Styles\Sprites\osm-liberty@2x.json">
+    <EmbeddedResource Include="styles\sprites\osm-liberty@2x.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Styles\Sprites\osm-liberty@2x.png">
+    <EmbeddedResource Include="styles\sprites\osm-liberty@2x.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
