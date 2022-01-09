@@ -1,18 +1,24 @@
-﻿using Mapsui.VectorTileLayer.Core.Interfaces;
+﻿using Mapsui.Styles;
+using Mapsui.VectorTileLayer.Core.Extensions;
+using Mapsui.VectorTileLayer.Core.Interfaces;
 
 namespace Mapsui.VectorTileLayer.Core.Styles
 {
-    public class BackgroundTileStyle : TileStyle
+    public class BackgroundTileStyle : IStyle
     {
-        private IExpression _color;
-        private IExpression _opacity;
-        private IExpression _pattern;
+        public IVectorPaint Paint { get; }
 
-        public BackgroundTileStyle(float? minZoom, float? maxZoom, IExpression color, IExpression opacity, IExpression pattern) : base(minZoom, maxZoom)
+        public double MinVisible { get => 24.ToResolution(); set { } }
+
+        public double MaxVisible { get => 0.ToResolution(); set { } }
+
+        public bool Enabled { get; set; } = true;
+
+        float IStyle.Opacity { get; set; }
+
+        public BackgroundTileStyle(IVectorPaint paint)
         {
-            _color = color;
-            _opacity = opacity;
-            _pattern = pattern;
+            Paint = paint;
         }
     }
 }

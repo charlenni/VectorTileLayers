@@ -1,6 +1,5 @@
 ﻿using Mapsui.Layers;
 using Mapsui.VectorTileLayer.Core.Enums;
-using Mapsui.VectorTileLayer.Core.Extensions;
 using Mapsui.VectorTileLayer.Core.Styles;
 using System;
 using System.IO;
@@ -35,8 +34,8 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                         break;
                 }
 
-                tileLayer.MinVisible = tileLayer.MaxVisible < 24.ToResolution() ? 24.ToResolution() : tileLayer.MinVisible;
-                tileLayer.MaxVisible = tileLayer.MaxVisible > 0.ToResolution() ? 0.ToResolution() : tileLayer.MaxVisible;
+                //tileLayer.MinVisible = tileLayer.MaxVisible < 24.ToResolution() ? 24.ToResolution() : tileLayer.MinVisible;
+                //tileLayer.MaxVisible = tileLayer.MaxVisible > 0.ToResolution() ? 0.ToResolution() : tileLayer.MaxVisible;
                 
                 Add(tileLayer);
             }

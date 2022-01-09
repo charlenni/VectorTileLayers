@@ -153,7 +153,7 @@ namespace Mapsui.VectorTileLayer.Core
             return (tileData, overzoom);
         }
 
-        private VectorTileFeature? ToVectorTileFeature(TileInfo tileInfo, Overzoom overzoom, ref byte[]? tileData)
+        private VectorTile? ToVectorTileFeature(TileInfo tileInfo, Overzoom overzoom, ref byte[]? tileData)
         {
             // A TileSource may return a byte array that is null. This is currently only implemented
             // for MbTilesTileSource. It is to indicate that the tile is not present in the source,
@@ -166,7 +166,7 @@ namespace Mapsui.VectorTileLayer.Core
             if (tileData == null) 
                 return null;
 
-            var sink = new VectorTileFeature(tileInfo, TileSize, ref _style, ref tileData, new MRect(0, 0, 0, 0));
+            var sink = new VectorTile(tileInfo, TileSize, ref _style, ref tileData, new MRect(0, 0, 0, 0));
 
             // Parse tile and convert it to a feature list
             Stream stream = new MemoryStream(tileData);

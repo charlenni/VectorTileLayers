@@ -16,6 +16,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Converter
 
             var brush = new MGLPaint(jsonStyleLayer.Id);
 
+            brush.SetFixStyle(SKPaintStyle.Fill);
             brush.SetFixColor(new SKColor(0, 0, 0, 0));
             brush.SetFixOpacity(1);
 

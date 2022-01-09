@@ -37,9 +37,9 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         public List<ITileSource> TileSources { get; } = new List<ITileSource>();
 
         /// <summary>
-        /// List of all TileLayers, that this style file contains
+        /// List of all ILayers, that this style file contains
         /// </summary>
-        public List<TileLayer> TileLayers { get; } = new List<TileLayer>();
+        public List<ILayer> TileLayers { get; } = new List<ILayer>();
 
         /// <summary>
         /// SpriteAtlas containing all sprites of this style file

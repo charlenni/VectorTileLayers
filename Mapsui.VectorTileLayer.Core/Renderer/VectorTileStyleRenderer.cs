@@ -32,7 +32,7 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
         {
             try
             {
-                var vectorTileFeature = (VectorTileFeature)feature;
+                var vectorTileFeature = (VectorTile)feature;
                 var extent = feature.Extent;
 
                 if (extent == null)
@@ -67,7 +67,7 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
 
                 var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
 
-                foreach (var pair in ((VectorTileFeature)feature).Buckets)
+                foreach (var pair in ((VectorTile)feature).Buckets)
                 {
                     if (pair.Value is LineBucket lineBucket)
                     {
@@ -110,7 +110,7 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
                 var tree = new RBush<Symbol>(9);
 
                 // Check SymbolBuckts in reverse order, because the last is the most important
-                foreach (var pair in ((VectorTileFeature)feature).Buckets.Reverse())
+                foreach (var pair in ((VectorTile)feature).Buckets.Reverse())
                 {
                     if (pair.Value is SymbolBucket symbolBucket)
                     {

@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Mapsui.VectorTileLayer.MapboxGL
 {
@@ -134,7 +133,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             return tileLayers;
         }
 
-        private static TileLayer CreateBackgroundTileLayer(IEnumerable<JsonStyleLayer> styleLayers, MGLSpriteAtlas spriteAtlas)
+        private static ILayer CreateBackgroundTileLayer(IEnumerable<JsonStyleLayer> styleLayers, MGLSpriteAtlas spriteAtlas)
         {
             string name = "background";
 
@@ -146,21 +145,17 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                     // visibility
                     //   Optional enum. One of visible, none. Defaults to visible.
                     //   The display of this layer. none hides this layer.
-                    if (styleLayer.Layout?.Visibility != "none" && styleLayer.Paint.BackgroundColor != null)
-                    {
-                        // Background should be visible, so create a MGLBackgroundSource
-                        var backgroundSource = new MGLBackgroundTileSource();
-                        
-                        var backgroundTileLayer =  new TileLayer(backgroundSource);
-                        backgroundTileLayer.Style = new BackgroundTileStyle(
-                            styleLayer.MinZoom,
-                            styleLayer.MaxZoom,
-                            styleLayer.Paint.BackgroundColor,
-                            styleLayer.Paint.BackgroundOpacity,
-                            styleLayer.Paint.BackgroundPattern);
+                    if (styleLayer.Layout?.Visibility == "none")
+                        return null;
 
-                        return backgroundTileLayer;
-                    }
+                    var paint = StyleLayerConverter.ConvertBackgroundLayer(styleLayer, spriteAtlas);
+
+                    if (paint == null)
+                        return null;
+
+                    var backgroundTileLayer =  new MGLBackgroundLayer(paint[0]);
+
+                    return backgroundTileLayer;
                 }
             }
 
