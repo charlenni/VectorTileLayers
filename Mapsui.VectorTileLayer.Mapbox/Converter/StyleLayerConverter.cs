@@ -61,8 +61,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Converter
                         else
                         {
                             // Log information
-                            // TODO
-                            // Logging.Logger.Log(Logging.LogLevel.Information, $"Fill pattern {name} not found");
+                            Logging.Logger.Log(Logging.LogLevel.Information, $"Fill pattern {name} not found");
                             // No sprite found
                             return null;
                         }
