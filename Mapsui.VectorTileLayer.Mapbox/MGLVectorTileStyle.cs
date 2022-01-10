@@ -6,7 +6,7 @@ using Mapsui.VectorTileLayer.Core.Primitives;
 
 namespace Mapsui.VectorTileLayer.MapboxGL
 {
-    public class MGLStyleLayer : IVectorStyleLayer
+    public class MGLVectorTileStyle : IVectorTileStyle
     {
         public string Id { get; internal set; }
 
@@ -26,7 +26,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
 
         public bool IsVisible { get; internal set; } = true;
 
-        public MGLStyleLayer()
+        public MGLVectorTileStyle()
         {
         }
 
