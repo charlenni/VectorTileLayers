@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayer.Core.Interfaces
 {
-    public interface IVectorTileStyle
+    public interface IVectorTileStyle : Mapsui.Styles.IStyle
     {
         /// <summary>
         /// Minimal zoom from which this style layer is used
