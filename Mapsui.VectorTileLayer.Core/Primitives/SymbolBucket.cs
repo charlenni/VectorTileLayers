@@ -7,12 +7,12 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
 {
     public class SymbolBucket : IBucket
     {
-        IVectorStyleLayer styleLayer;
+        IVectorTileStyle styleLayer;
         IVectorSymbolStyler styler;
 
         public List<Symbol> Symbols = new List<Symbol>();
 
-        public SymbolBucket(IVectorStyleLayer style)
+        public SymbolBucket(IVectorTileStyle style)
         {
             styleLayer = style;
             styler = style.SymbolStyler;
@@ -20,12 +20,6 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
 
         public void AddElement(VectorElement element, EvaluationContext context = null)
         {
-            // TODO: Remove, is only for tests
-            if (styleLayer.SourceLayer == "poi")
-            {
-                var t10 = 10;
-            }
-
             switch (element.Type)
             {
                 case GeometryType.Point:
@@ -74,6 +68,12 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
                     var t4 = styleLayer.SourceLayer;
                     break;
             }
+        }
+
+        public void Dispose()
+        {
+            foreach (var symbol in Symbols)
+                symbol.Dispose();
         }
 
         public void OnDraw(SKCanvas canvas, EvaluationContext context)

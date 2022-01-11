@@ -28,5 +28,13 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
                 }
             }
         }
+
+        public void Dispose()
+        {
+            foreach (var path in Paths)
+                path.Dispose();
+
+            Path.Dispose();
+        }
     }
 }

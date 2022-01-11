@@ -18,5 +18,10 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
             if (element.Type == GeometryType.LineString)
                 element.AddToPath(Path);
         }
+
+        public void Dispose()
+        {
+            Path.Dispose();
+        }
     }
 }
