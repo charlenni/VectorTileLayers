@@ -227,6 +227,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
 
             var fieldName = ReplaceWithTags(TextField, tags, context);
+            fieldName = ReplaceWithTransforms(fieldName, TextTransform);
 
             if (fieldName == string.Empty)
                 return null;
@@ -350,6 +351,19 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                     return text.Replace($"{{{val}}}", (string)tags["name:" + code]);
                 if (tags.ContainsKey("name_" + code))
                     return text.Replace($"{{{val}}}", (string)tags["name_" + code]);
+            }
+
+            return text;
+        }
+
+        private string ReplaceWithTransforms(string text, TextTransform textTransform)
+        {
+            switch (textTransform)
+            {
+                case TextTransform.Uppercase:
+                    return text.ToUpper();
+                case TextTransform.Lowercase:
+                    return text.ToLower();
             }
 
             return text;

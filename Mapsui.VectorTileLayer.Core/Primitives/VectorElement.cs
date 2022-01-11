@@ -14,19 +14,21 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
     /// </summary>
     public class VectorElement : IVectorElement
     {
-        List<MPoint> points = new List<MPoint>(512);
-        List<int> index = new List<int>(64);
-        TileClipper tileClipper;
+        readonly List<MPoint> _points = new List<MPoint>(512);
+        readonly List<int> _index = new List<int>(64);
+        readonly TileClipper _tileClipper;
+        readonly float _tileSizeOfData;
 
-        public VectorElement(TileClipper clipper, TileIndex tileIndex)
+        public VectorElement(TileClipper clipper, TileIndex tileIndex, float tileSizeOfData)
         {
-            tileClipper = clipper;
-            index.Add(0);
+            _tileClipper = clipper;
+            _index.Add(0);
+            _tileSizeOfData = tileSizeOfData;
 
             TileIndex = tileIndex;
         }
 
-        public VectorElement(TileClipper clipper, TileIndex index, string layer, string id) : this(clipper, index)
+        public VectorElement(TileClipper clipper, TileIndex index, float TileSizeOfData, string layer, string id) : this(clipper, index, TileSizeOfData)
         {
             Layer = layer;
             Id = id;
@@ -42,7 +44,7 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
 
         public TagsCollection Tags { get; } = new TagsCollection();
 
-        public List<MPoint> Points { get => IsPoint ? new List<MPoint>(points) : new List<MPoint>(); }
+        public List<MPoint> Points { get => IsPoint ? new List<MPoint>(_points) : new List<MPoint>(); }
 
         public bool IsPoint { get => Type == GeometryType.Point; }
 
@@ -50,16 +52,16 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
 
         public bool IsPolygon { get => Type == GeometryType.Polygon; }
 
-        public int Count { get => IsPoint ? points.Count : index.Count; }
+        public int Count { get => IsPoint ? _points.Count : _index.Count; }
 
         public void Add(MPoint point)
         {
             // TODO: Check for correct values
-            if (IsPoint && (point.X < 0 || point.X > 4096 || point.Y < 0 || point.Y > 4096))
+            if (IsPoint && (point.X < 0 || point.X > _tileSizeOfData || point.Y < 0 || point.Y > _tileSizeOfData))
                 return;
 
-            points.Add(point);
-            index[index.Count - 1]++;
+            _points.Add(point);
+            _index[_index.Count - 1]++;
         }
 
         public void Add(float x, float y)
@@ -76,16 +78,16 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
         public MPoint Get(int index)
         {
             if (index >= 0 && index < Count)
-                return points[index];
+                return _points[index];
 
             return new MPoint(0, 0);
         }
 
         public void Clear()
         {
-            index.Clear();
-            index.Add(0);
-            points.Clear();
+            _index.Clear();
+            _index.Add(0);
+            _points.Clear();
             Tags.Clear();
             Type = GeometryType.Unknown;
         }
@@ -94,21 +96,21 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
         {
             int start = 0;
 
-            for (int i = 0; i < index.Count; i++)
+            for (int i = 0; i < _index.Count; i++)
             {
-                if (index[i] > 0)
+                if (_index[i] > 0)
                 {
                     if (IsPolygon)
-                        path.AddPoly(tileClipper.ReducePolygonPointsToClipRect(points.GetRange(start, index[i])).ToArray().ToSKPoints(), true);
+                        path.AddPoly(_tileClipper.ReducePolygonPointsToClipRect(_points.GetRange(start, _index[i])).ToArray().ToSKPoints(), true);
                     else if (IsLine)
                     {
-                        var lines = tileClipper.ReduceLinePointsToClipRect(points.GetRange(start, index[i]));
+                        var lines = _tileClipper.ReduceLinePointsToClipRect(_points.GetRange(start, _index[i]));
                         foreach (var line in lines)
                             path.AddPoly(line.ToArray().ToSKPoints(), false);
                     }
                 }
 
-                start += index[i];
+                start += _index[i];
             }
         }
 
@@ -129,9 +131,9 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
             if (factor == 1)
                 return;
 
-            for (int i = 0; i < points.Count; i++)
+            for (int i = 0; i < _points.Count; i++)
             {
-                points[i] = new MPoint(points[i].X * factor, points[i].Y * factor);
+                _points[i] = new MPoint(_points[i].X * factor, _points[i].Y * factor);
             }
         }
 
@@ -144,16 +146,16 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
         {
             SetOrCheckMode(GeometryType.LineString);
 
-            if (index[index.Count - 1] > 0)
-                index.Add(0);
+            if (_index[_index.Count - 1] > 0)
+                _index.Add(0);
         }
 
         public void StartPolygon()
         {
             SetOrCheckMode(GeometryType.Polygon);
 
-            if (index[index.Count - 1] > 0)
-                index.Add(0);
+            if (_index[_index.Count - 1] > 0)
+                _index.Add(0);
         }
 
         public void StartHole()
@@ -161,8 +163,8 @@ namespace Mapsui.VectorTileLayer.Core.Primitives
             if (Type != GeometryType.Polygon)
                 throw new ArgumentException($"Wrong type mode. Expected {GeometryType.Polygon}, but get {Type}.");
 
-            if (index[index.Count - 1] > 0)
-                index.Add(0);
+            if (_index[_index.Count - 1] > 0)
+                _index.Add(0);
         }
 
         void SetOrCheckMode(GeometryType type)

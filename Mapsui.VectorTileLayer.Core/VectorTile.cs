@@ -1,53 +1,52 @@
 ﻿using BruTile;
 using Mapsui.Extensions;
+using Mapsui.Logging;
 using Mapsui.Styles;
 using Mapsui.VectorTileLayer.Core.Enums;
 using Mapsui.VectorTileLayer.Core.Interfaces;
 using Mapsui.VectorTileLayer.Core.Primitives;
 using Mapsui.VectorTileLayer.Core.Styles;
-using System;
 using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayer.Core
 {
-    public class VectorTile : IFeature, ITileDataSink
+    /// <summary>
+    /// VectorTile holds all buckets for a given vector tile
+    /// </summary>
+    /// <remarks>
+    /// There are only buckets for a styles, if there are vector elements 
+    /// for the style on this zoom level. So each VectorTile belongs tile 
+    /// in a given zoom level.
+    /// </remarks>
+    public class VectorTile : ITileDataSink
     {
-        private readonly IEnumerable<IVectorStyleLayer> _styles;
+        private readonly IEnumerable<IVectorTileStyle> _styles;
         private readonly TileInfo _tileInfo;
-        private readonly int _tileSize;
-        private EvaluationContext _context;
-        private Dictionary<IVectorStyleLayer, IBucket> _buckets = new Dictionary<IVectorStyleLayer, IBucket>();
+        private readonly float _scale;
+        private readonly EvaluationContext _context;
+        private readonly Dictionary<IVectorTileStyle, IBucket> _buckets = new Dictionary<IVectorTileStyle, IBucket>();
 
-        public VectorTile(TileInfo tileInfo, int tileSize, ref VectorTileStyle style, ref byte[] tileData, MRect extent)
+        public VectorTile(TileInfo tileInfo, int tileSize, float tileSizeOfData, IStyle style)
         {
-            _styles = style.VectorStyles;
-            _tileSize = tileSize;
+            _styles = ((VectorTileStyle)style).VectorTileStyles;
+            _scale = tileSize / tileSizeOfData;
             _tileInfo = tileInfo;
             _context = new EvaluationContext(_tileInfo.Index.Level);
             Extent = _tileInfo.Extent.ToMRect();
         }
 
-        public Dictionary<IVectorStyleLayer, IBucket> Buckets => _buckets;
+        public Dictionary<IVectorTileStyle, IBucket> Buckets => _buckets;
 
         public TileInfo TileInfo => _tileInfo;
 
-        public object this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public ICollection<IStyle> Styles => null;
-
-        public IEnumerable<string> Fields => throw new NotImplementedException();
-
         public MRect Extent { get; }
-
-        public IDictionary<IStyle, object> RenderedGeometry => throw new NotImplementedException();
-
-        public void CoordinateVisitor(Action<double, double, CoordinateSetter> visit)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Dispose()
         {
+            foreach (var bucket in _buckets)
+            {
+                bucket.Value.Dispose();
+            }
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace Mapsui.VectorTileLayer.Core
         /// <param name="element">VectorElement, which contains the geometry</param>
         public void Process(VectorElement element)
         {
-            element.Scale(_tileSize / 4096.0f);
+            element.Scale(_scale);
 
             // Now process this element and check, for which style layers it is ok
             foreach (var style in _styles)
@@ -68,12 +67,6 @@ namespace Mapsui.VectorTileLayer.Core
                 // Is this style layer relevant for this feature?
                 if (style.SourceLayer != element.Layer)
                     continue;
-
-                // TODO: Remove, only for testing
-                if (style.Type == StyleType.Symbol && style.SourceLayer == "poi")
-                {
-                    var name = style.SourceLayer;
-                }
 
                 // Fullfill element filter for this style layer
                 if (!style.Filter.Evaluate(element))
@@ -100,7 +93,7 @@ namespace Mapsui.VectorTileLayer.Core
                         {
                             // This are things like height of a building
                             // We don't use this up to now
-                            //System.Diagnostics.Debug.WriteLine(element.Tags.ToString());
+                            Logger.Log(LogLevel.Information, $"Unknown element found. Tags [{element.Tags.ToString()}");
                         }
                         break;
                     case StyleType.Fill:
@@ -115,11 +108,11 @@ namespace Mapsui.VectorTileLayer.Core
                         {
                             // This are things like height of a building
                             // We don't use this up to now
-                            //System.Diagnostics.Debug.WriteLine(element.Tags.ToString());
+                            Logger.Log(LogLevel.Information, $"Unknown element found. Tags [{element.Tags}");
                         }
                         break;
                     default:
-                        // throw new Exception("Unknown style type");
+                        Logger.Log(LogLevel.Information, $"Element with unknown style found. Tags [{element.Tags}");
                         break;
                 }
             }
@@ -129,7 +122,7 @@ namespace Mapsui.VectorTileLayer.Core
         {
             if (result == QueryResult.Succes)
             {
-                List<IVectorStyleLayer> remove = new List<IVectorStyleLayer>();
+                List<IVectorTileStyle> remove = new List<IVectorTileStyle>();
 
                 // Delete empty buckets
                 foreach (var bucket in _buckets)

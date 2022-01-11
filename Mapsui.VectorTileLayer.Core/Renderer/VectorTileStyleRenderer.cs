@@ -1,4 +1,5 @@
-﻿using Mapsui.Layers;
+﻿using Mapsui.Extensions;
+using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Rendering;
 using Mapsui.Rendering.Skia.SkiaStyles;
@@ -32,88 +33,144 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
         {
             try
             {
-                var vectorTileFeature = (VectorTile)feature;
-                var extent = feature.Extent;
+                var vectorTileFeature = (VectorTileFeature)feature;
+                var tree = new RBush<Symbol>(9);
 
-                if (extent == null)
-                    return false;
-
-                MRect destination;
-
-                if (viewport.IsRotated)
+                foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
                 {
-                    var matrix = CreateRotationMatrix(viewport, extent, canvas.TotalMatrix);
-
-                    canvas.SetMatrix(matrix);
-
-                    destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
-                }
-                else
-                {
-                    destination = WorldToScreen(viewport, extent);
-                }
-
-                var scale = (float)(destination.MaxX - destination.MinX) / 512;
-
-                canvas.Translate((float)destination.MinX, (float)destination.MinY);
-                canvas.Scale(scale);
-
-                canvas.Save();
-                canvas.ClipRect(clipRect);
-
-                //canvas.DrawRect(clipRect, new SKPaint { Style = SKPaintStyle.Fill, Color = SKColors.LightGray });
-
-                var index = vectorTileFeature.TileInfo.Index;
-
-                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
-
-                foreach (var pair in ((VectorTile)feature).Buckets)
-                {
-                    if (pair.Value is LineBucket lineBucket)
+                    foreach (var tile in vectorTileFeature.Tiles)
                     {
-                        foreach (var paint in pair.Key.Paints)
-                        {
-                            var skPaint = paint.CreatePaint(context);
+                        var vectorTile = vectorTileFeature.Cache.Find(tile.Index);
 
-                            canvas.DrawPath(lineBucket.Path, skPaint);
+                        if (vectorTile == null)
+                            continue;
+
+                        if (!vectorTile.Buckets.ContainsKey(vectorStyle))
+                            continue;
+
+                        var extent = tile?.Extent.ToMRect();
+
+                        MRect destination;
+
+                        if (viewport.IsRotated)
+                        {
+                            var matrix = CreateRotationMatrix(viewport, extent, canvas.TotalMatrix);
+
+                            canvas.SetMatrix(matrix);
+
+                            destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
                         }
-                    }
-                    if (pair.Value is FillBucket fillBucket)
-                    {
-                        foreach (var paint in pair.Key.Paints)
+                        else
                         {
-                            var skPaint = paint.CreatePaint(context);
+                            destination = WorldToScreen(viewport, extent);
+                        }
 
-                            //System.Diagnostics.Debug.WriteLine($"Number of polygons for Tile {index.Col}/{index.Row}/{index.Level}: {fillBucket.Paths.Count}");
+                        var scale = (float)(destination.MaxX - destination.MinX) / 512;
 
-                            //canvas.DrawPath(fillBucket.Path, skPaint);
+                        canvas.Save();
 
-                            if (skPaint.IsStroke)
+                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
+                        canvas.Scale(scale);
+
+                        canvas.ClipRect(clipRect);
+
+                        var index = tile.Index;
+
+                        var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
+
+                        vectorStyle.Update(context);
+
+                        var bucket = vectorTile.Buckets[vectorStyle];
+
+                        if (bucket is LineBucket lineBucket)
+                        {
+                            foreach (var paint in vectorStyle.Paints)
                             {
-                                canvas.DrawPath(fillBucket.Path, skPaint);
+                                var skPaint = paint.CreatePaint(context);
+
+                                canvas.DrawPath(lineBucket.Path, skPaint);
                             }
-                            else
+                        }
+                        if (bucket is FillBucket fillBucket)
+                        {
+                            foreach (var paint in vectorStyle.Paints)
                             {
-                                foreach (var path in fillBucket.Paths)
+                                var skPaint = paint.CreatePaint(context);
+
+                                if (skPaint.IsStroke)
                                 {
-                                    canvas.DrawPath(path, skPaint);
+                                    canvas.DrawPath(fillBucket.Path, skPaint);
+                                }
+                                else
+                                {
+                                    foreach (var path in fillBucket.Paths)
+                                    {
+                                        canvas.DrawPath(path, skPaint);
+                                    }
                                 }
                             }
                         }
+
+#if DEBUG
+                        canvas.DrawRect(clipRect, testPaintRect);
+                        canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
+                        canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
+#endif
+
+                        // Remove clipping for symbols
+                        canvas.Restore();
                     }
                 }
 
-                // Remove clipping for symbols
-                canvas.Restore();
-                canvas.Save();
-
-                var tree = new RBush<Symbol>(9);
+                // Now draw symbols
 
                 // Check SymbolBuckts in reverse order, because the last is the most important
-                foreach (var pair in ((VectorTile)feature).Buckets.Reverse())
+                foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles.Reverse())
                 {
-                    if (pair.Value is SymbolBucket symbolBucket)
+                    foreach (var tile in vectorTileFeature.Tiles)
                     {
+                        var vectorTile = vectorTileFeature.Cache.Find(tile.Index);
+
+                        if (vectorTile == null)
+                            continue;
+
+                        if (!vectorTile.Buckets.ContainsKey(vectorStyle))
+                            continue;
+
+                        if (!(vectorTile.Buckets[vectorStyle] is SymbolBucket symbolBucket))
+                            continue;
+
+                        if (symbolBucket.Symbols.Count == 0)
+                            continue;
+
+                        var extent = tile?.Extent.ToMRect();
+
+                        MRect destination;
+
+                        if (viewport.IsRotated)
+                        {
+                            var matrix = CreateRotationMatrix(viewport, extent, canvas.TotalMatrix);
+
+                            canvas.SetMatrix(matrix);
+
+                            destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
+                        }
+                        else
+                        {
+                            destination = WorldToScreen(viewport, extent);
+                        }
+
+                        var scale = (float)(destination.MaxX - destination.MinX) / 512;
+
+                        canvas.Save();
+
+                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
+                        canvas.Scale(scale);
+
+                        var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
+
+                        vectorStyle.Update(context);
+
                         foreach (var symbol in symbolBucket.Symbols)
                         {
                             // Calculate envelope
@@ -126,16 +183,10 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
                                 result.AddEnvelope(tree);
                             }
                         }
+
+                        canvas.Restore();
                     }
                 }
-
-#if DEBUG
-                canvas.DrawRect(clipRect, testPaintRect);
-                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
-                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
-#endif
-
-                canvas.Restore();
 
                 return true;
             }

@@ -101,21 +101,29 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         private static List<ILayer> ExtractLayers(JsonStyleFile jsonStyle, Dictionary<string, JsonSource> sources, MGLSpriteAtlas spriteAtlas)
         {
             List<ILayer> tileLayers = new List<ILayer>();
+            List<string> usedSources = new List<string>();
+
+            // Get all sources in correct order
+            foreach (var vectorTileStyle in jsonStyle.StyleLayers)
+            {
+                if (vectorTileStyle.Source != null && vectorTileStyle.Source != string.Empty && !usedSources.Contains(vectorTileStyle.Source))
+                    usedSources.Add(vectorTileStyle.Source);
+            }
 
             // Read all tile sources
-            foreach (var source in sources)
+            foreach (var source in usedSources)
             {
-                var jsonSource = source.Value;
+                var jsonSource = jsonStyle.Sources[source];
 
-                switch (source.Value.Type)
+                switch (jsonSource.Type)
                 {
                     case "raster":
-                        var rasterTileLayer = CreateRasterTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas);
+                        var rasterTileLayer = CreateRasterTileLayer(jsonStyle, source, jsonSource, spriteAtlas);
                         if (rasterTileLayer != null)
                             tileLayers.Add(rasterTileLayer);
                         break;
                     case "vector":
-                        var vectorTileLayer = CreateVectorTileLayer(jsonStyle, source.Key, source.Value, spriteAtlas);
+                        var vectorTileLayer = CreateVectorTileLayer(jsonStyle, source, jsonSource, spriteAtlas);
                         if (vectorTileLayer != null)
                             tileLayers.Add(vectorTileLayer);
                         break;
@@ -126,7 +134,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                     case "video":
                         break;
                     default:
-                        throw new ArgumentException($"{source.Value.Type} isn't a valid source");
+                        throw new ArgumentException($"{jsonSource.Type} isn't a valid source");
                 }
             }
 

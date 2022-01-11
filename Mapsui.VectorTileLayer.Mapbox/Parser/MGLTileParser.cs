@@ -25,7 +25,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Parser
             // Get tile information from Pbf format
             var tile = Serializer.Deserialize<Tile>(stream);
 
-            VectorElement vectorElement = new VectorElement(clipper, tileInfo.Index);
+            VectorElement vectorElement = new VectorElement(clipper, tileInfo.Index, 4096);
 
             foreach (var layer in tile.Layers)
             {

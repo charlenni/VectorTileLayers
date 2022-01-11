@@ -7,23 +7,23 @@ namespace Mapsui.VectorTileLayer.Core.Styles
 {
     public class VectorTileStyle : TileStyle
     {
-        public VectorTileStyle(float minZoom, float maxZoom, IEnumerable<IVectorStyleLayer> vectorStyles) : base(minZoom, maxZoom)
+        public VectorTileStyle(float minZoom, float maxZoom, IEnumerable<IVectorTileStyle> vectorStyles) : base(minZoom, maxZoom)
         {
-            VectorStyles = new List<IVectorStyleLayer>();
+            VectorTileStyles = new List<IVectorTileStyle>();
 
             foreach (var styleLayer in vectorStyles)
-                ((List<IVectorStyleLayer>)VectorStyles).Add(styleLayer);
+                ((List<IVectorTileStyle>)VectorTileStyles).Add(styleLayer);
         }
 
-        public IEnumerable<IVectorStyleLayer> VectorStyles { get; }
+        public IEnumerable<IVectorTileStyle> VectorTileStyles { get; }
 
         public void UpdateStyles(IViewport viewport)
         {
             EvaluationContext context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel());
 
-            foreach (var vectorStyleLayer in VectorStyles)
+            foreach (var vectorTileStyle in VectorTileStyles)
             {
-                vectorStyleLayer.Update(context);
+                vectorTileStyle.Update(context);
             }
         }
     }

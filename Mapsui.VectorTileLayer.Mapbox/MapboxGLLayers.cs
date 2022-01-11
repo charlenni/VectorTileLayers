@@ -13,10 +13,10 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             if (styleFile == null)
                 throw new ArgumentNullException($"{nameof(styleFile)} should not be null");
 
-            MGLStyleLoader.GetLocalContent = getLocalContent;
+            MGLStyleFileLoader.GetLocalContent = getLocalContent;
 
             // Get Mapbox GL Style File
-            var mglStyleFile = MGLStyleLoader.Load(styleFile);
+            var mglStyleFile = MGLStyleFileLoader.Load(styleFile);
 
             if (mglStyleFile == null)
                 return;

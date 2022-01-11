@@ -30,7 +30,13 @@ namespace Sample.WPF
         {
             InitializeComponent();
 
-            Logger.LogDelegate = (level, text, exception) => System.Diagnostics.Debug.WriteLine($"{level}: {text}, {exception}");
+            Logger.LogDelegate = (level, text, exception) =>
+            {
+                if (level == LogLevel.Information)
+                    return;
+
+                System.Diagnostics.Debug.WriteLine($"{level}: {text}, {exception}");
+            };
 
             var map = new Map
             {
@@ -68,9 +74,9 @@ namespace Sample.WPF
         public void LoadMapboxGL()
         {
             var filename = "monaco.mbtiles";
-            MGLStyleLoader.DirectoryForFiles = ".\\mbtiles";
+            MGLStyleFileLoader.DirectoryForFiles = ".\\mbtiles";
 
-            CheckForMBTilesFile(filename, MGLStyleLoader.DirectoryForFiles);
+            CheckForMBTilesFile(filename, MGLStyleFileLoader.DirectoryForFiles);
 
             var stream = EmbeddedResourceLoader.Load("styles.osm-liberty.json", GetType()) ?? throw new FileNotFoundException($"styles.osm - liberty.json not found");
 

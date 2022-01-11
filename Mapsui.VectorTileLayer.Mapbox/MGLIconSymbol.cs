@@ -1,7 +1,6 @@
 ﻿using Mapsui.VectorTileLayer.Core.Primitives;
 using RBush;
 using SkiaSharp;
-using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayer.MapboxGL
 {

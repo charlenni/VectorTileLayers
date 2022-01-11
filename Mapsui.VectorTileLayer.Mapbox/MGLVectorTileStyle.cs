@@ -41,7 +41,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
 
         public void Update(EvaluationContext context)
         {
-            throw new System.NotImplementedException();
+            // TODO: Update style
         }
     }
 }
