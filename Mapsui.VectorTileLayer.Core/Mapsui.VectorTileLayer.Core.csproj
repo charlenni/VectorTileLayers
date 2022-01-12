@@ -11,12 +11,4 @@
     <PackageReference Include="RBush" Version="2.0.46" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Core\Mapsui.Core.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Geometries\Mapsui.Geometries.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Layers.Tiling\Mapsui.Layers.Tiling.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Rendering.Skia\Mapsui.Rendering.Skia.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui\Mapsui.csproj" />
-  </ItemGroup>
-
 </Project>
