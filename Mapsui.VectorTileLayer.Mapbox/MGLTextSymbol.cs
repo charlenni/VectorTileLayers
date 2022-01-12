@@ -1,7 +1,7 @@
 ﻿using Mapsui.VectorTileLayer.Core.Primitives;
+using Mapsui.VectorTileLayer.MapboxGL.Expressions;
 using RBush;
 using SkiaSharp;
-using System.Collections.Generic;
 using Topten.RichTextKit;
 
 namespace Mapsui.VectorTileLayer.MapboxGL
@@ -23,6 +23,12 @@ namespace Mapsui.VectorTileLayer.MapboxGL
         public TextBlock TextBlock { get; }
 
         public bool TextOptional { get; set; }
+
+        public StoppedFloat TextHaloBlur { get; set; } = new StoppedFloat() { SingleVal = 0 };
+
+        public StoppedColor TextHaloColor { get; set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+
+        public StoppedFloat TextHaloWidth { get; set; } = new StoppedFloat() { SingleVal = 0 };
 
         public override void AddEnvelope(RBush<Symbol> tree)
         {
@@ -61,11 +67,14 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             {
                 canvas.Save();
                 canvas.Translate((float)Point.X, (float)Point.Y);
-                canvas.Scale(1 / canvas.TotalMatrix.ScaleX, 1 / canvas.TotalMatrix.ScaleY);
+                canvas.Scale(context.Scale, context.Scale);
                 // TextBlock.Paint draws always with MaxWidth bounds
                 canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
                 var paint = Paint.CreatePaint(context);
                 TextStyle.TextColor = paint.Color;
+                TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
+                TextStyle.HaloColor = (SKColor)TextHaloColor.Evaluate(context);
+                TextStyle.HaloWidth = (float)TextHaloWidth.Evaluate(context);
                 TextBlock.Paint(canvas);
                 canvas.Restore();
 
