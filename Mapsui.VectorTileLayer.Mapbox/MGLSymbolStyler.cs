@@ -153,22 +153,58 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             {
                 return;
             }
+        }
 
-            textStyle = new Style();
-
+        private Style CreateTextStyle()
+        {
             var font = TextFont.FirstOrDefault();
+            var textStyle = new Style();
 
             if (font == null)
             {
-                return;
+                return textStyle;
             }
 
             // TODO: Create correct family name
-            var familyName = font.ToLower().Contains("condensed") ? font.Substring(0, font.IndexOf(" ", font.IndexOf(" ") + 1)) : font.Substring(0, font.IndexOf(" "));
+            var fontFamilyName = font;
 
-            textStyle.FontFamily = familyName;
-            textStyle.FontWeight = font.ToLower().Contains("medium") ? 500 : font.ToLower().Contains("bold") ? 700 : 400;
-            textStyle.FontItalic = font.ToLower().Contains("italic");
+            if (fontFamilyName.Contains("condensed", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                textStyle.FontWidth = SKFontStyleWidth.Condensed;
+                fontFamilyName = fontFamilyName.Replace("condensed", "", System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            textStyle.FontWeight = 400;
+
+            if (fontFamilyName.Contains("regular", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                textStyle.FontWeight = 400;
+                fontFamilyName = fontFamilyName.Replace("regular", "", System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (fontFamilyName.Contains("medium", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                textStyle.FontWeight = 500;
+                fontFamilyName = fontFamilyName.Replace("medium", "", System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (fontFamilyName.Contains("bold", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                textStyle.FontWeight = 500;
+                fontFamilyName = fontFamilyName.Replace("bold", "", System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (fontFamilyName.Contains("italic", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                textStyle.FontItalic = true;
+                fontFamilyName = fontFamilyName.Replace("italic", "", System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            fontFamilyName = fontFamilyName.Replace("  ", " ").Trim();
+
+            textStyle.FontFamily = fontFamilyName;
+
+            return textStyle;
         }
 
         public Symbol CreateIconSymbol(MPoint point, TagsCollection tags, EvaluationContext context)
@@ -219,6 +255,8 @@ namespace Mapsui.VectorTileLayer.MapboxGL
                 return null;
 
             var textBlock = new TextBlock();
+
+            textStyle = CreateTextStyle();
 
             var result = new MGLTextSymbol(textBlock, textStyle);
 
@@ -276,6 +314,9 @@ namespace Mapsui.VectorTileLayer.MapboxGL
             result.Padding = (float)TextPadding.Evaluate(context);
 
             result.TextOptional = TextOptional;
+            result.TextHaloBlur = TextHaloBlur;
+            result.TextHaloColor = TextHaloColor;
+            result.TextHaloWidth = TextHaloWidth;
             result.IsVisible = IsVisible;
 
             var paint = new MGLPaint(result.Name);
