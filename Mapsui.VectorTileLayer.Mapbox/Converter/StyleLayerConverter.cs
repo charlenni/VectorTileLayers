@@ -818,27 +818,27 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Converter
             //   Optional number. Units in pixels. Defaults to 0. Requires text-field. Exponential.
             //   Fade out the halo towards the outside.
             //   See https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#paint-symbol-text-halo-blur
-            if (layout?.TextField != null && layout?.TextHaloBlur != null)
+            if (layout?.TextField != null && paint?.TextHaloBlur != null)
             {
-                symbolStyler.TextHaloBlur = layout.TextHaloBlur;
+                symbolStyler.TextHaloBlur = paint.TextHaloBlur;
             }
 
             // text-halo-color
             //   Optional color. Defaults to rgba(0, 0, 0, 0). Requires text-field. Exponential.
             //   The color of the text's halo.
             //   See https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#paint-symbol-text-halo-color
-            if (layout?.TextField != null && layout?.TextHaloColor != null)
+            if (layout?.TextField != null && paint?.TextHaloColor != null)
             {
-                symbolStyler.TextHaloColor = layout.TextHaloColor;
+                symbolStyler.TextHaloColor = paint.TextHaloColor;
             }
 
             // text-halo-width
             //   Optional number. Units in pixels. Defaults to 0. Requires text-field. Exponential.
             //   Distance of halo to the text outline.
             //   See https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#paint-symbol-text-halo-width
-            if (layout?.TextField != null && layout?.TextHaloWidth != null)
+            if (layout?.TextField != null && paint?.TextHaloWidth != null)
             {
-                symbolStyler.TextHaloWidth = layout.TextHaloWidth;
+                symbolStyler.TextHaloWidth = paint.TextHaloWidth;
             }
 
             // text-ignore-placement
