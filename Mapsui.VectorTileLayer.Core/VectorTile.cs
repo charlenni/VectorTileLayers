@@ -60,9 +60,9 @@ namespace Mapsui.VectorTileLayer.Core
             // Now process this element and check, for which style layers it is ok
             foreach (var style in _styles)
             {
-                // Is this style relevant or is it outside the zoom range
-                if (!style.IsVisible || style.MinZoom > _tileInfo.Index.Level || style.MaxZoom < _tileInfo.Index.Level)
-                    continue;
+                // Is this element a line or polygon and is this style relevant or is it outside the zoom range
+                //if (!element.IsPoint && (!style.IsVisible || style.MinZoom > _tileInfo.Index.Level || style.MaxZoom < _tileInfo.Index.Level))
+                //    continue;
 
                 // Is this style layer relevant for this feature?
                 if (style.SourceLayer != element.Layer)
