@@ -35,6 +35,7 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
             {
                 var vectorTileFeature = (VectorTileFeature)feature;
                 var tree = new RBush<Symbol>(9);
+                var zoomLevel = (int)viewport.Resolution.ToZoomLevel();
 
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
                 {
@@ -127,6 +128,9 @@ namespace Mapsui.VectorTileLayer.Core.Renderer
                 // Check SymbolBuckts in reverse order, because the last is the most important
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles.Reverse())
                 {
+                    if (!vectorStyle.IsVisible || vectorStyle.MinZoom > zoomLevel || vectorStyle.MaxZoom < zoomLevel)
+                        continue;
+
                     foreach (var tile in vectorTileFeature.Tiles)
                     {
                         var vectorTile = vectorTileFeature.Cache.Find(tile.Index);
