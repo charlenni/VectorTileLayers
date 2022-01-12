@@ -80,7 +80,7 @@ namespace Sample.WPF
 
             var stream = EmbeddedResourceLoader.Load("styles.osm-liberty.json", GetType()) ?? throw new FileNotFoundException($"styles.osm - liberty.json not found");
 
-            var layers = new OpenMapTilesLayers(stream, GetLocalContent);
+            var layers = new OpenMapTilesLayer(stream, GetLocalContent);
 
             foreach (var layer in layers)
                 mapControl.Map.Layers.Add(layer);

@@ -6,9 +6,9 @@ using System.IO;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OpenMapTilesLayers : LayerCollection
+    public class OpenMapTilesLayer : LayerCollection
     {
-        public OpenMapTilesLayers(Stream styleFile, Func<LocalContentType, string, Stream> getLocalContent = null)
+        public OpenMapTilesLayer(Stream styleFile, Func<LocalContentType, string, Stream> getLocalContent = null)
         {
             if (styleFile == null)
                 throw new ArgumentNullException($"{nameof(styleFile)} should not be null");
