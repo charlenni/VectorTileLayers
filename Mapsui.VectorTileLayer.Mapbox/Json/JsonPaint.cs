@@ -66,8 +66,9 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Json
         [JsonProperty("text-halo-color")]
         public StoppedColor TextHaloColor { get; set; }
 
+        [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-halo-blur")]
-        public float? TextHaloBlur { get; set; }
+        public StoppedFloat TextHaloBlur { get; set; }
 
         [JsonConverter(typeof(StoppedBooleanConverter))]
         [JsonProperty("fill-antialias")]
