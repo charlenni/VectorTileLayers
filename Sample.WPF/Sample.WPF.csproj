@@ -51,8 +51,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj" />
-    <ProjectReference Include="..\Mapsui.VectorTileLayer.OpenMapTiles\Mapsui.VectorTileLayer.OpenMapTiles.csproj" />
+    <ProjectReference Include="..\Mapsui.VectorTileLayers.Core\Mapsui.VectorTileLayers.Core.csproj" />
+    <ProjectReference Include="..\Mapsui.VectorTileLayers.OpenMapTiles\Mapsui.VectorTileLayers.OpenMapTiles.csproj" />
   </ItemGroup>
 
 </Project>
