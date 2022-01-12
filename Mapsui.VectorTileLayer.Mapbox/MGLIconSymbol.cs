@@ -57,7 +57,7 @@ namespace Mapsui.VectorTileLayer.MapboxGL
 
             canvas.Save();
             canvas.Translate((float)Point.X, (float)Point.Y);
-            canvas.Scale(1 / canvas.TotalMatrix.ScaleX, 1 / canvas.TotalMatrix.ScaleY);
+            canvas.Scale(context.Scale, context.Scale);
             canvas.Translate((float)Anchor.X, (float)Anchor.Y);
             // Offset could be in relation to Map or Viewport
             canvas.Translate((float)Offset.X, (float)Offset.Y);
