@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.WPF", "Sample.WPF\Sample.WPF.csproj", "{00003F93-7E97-4C35-AD73-82D06A2F616B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapsui.VectorTileLayer.Mapbox", "Mapsui.VectorTileLayer.Mapbox\Mapsui.VectorTileLayer.Mapbox.csproj", "{F2EA3100-2544-4722-B254-BAFE58A62A73}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapsui.VectorTileLayer.Core", "Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj", "{06FB64B4-81D0-4DF0-AFDE-29FF0BBCBDC0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapsui.VectorTileLayer.OpenMapTiles", "Mapsui.VectorTileLayer.OpenMapTiles\Mapsui.VectorTileLayer.OpenMapTiles.csproj", "{039EE725-0691-420C-A263-D642CAD8F92A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{00003F93-7E97-4C35-AD73-82D06A2F616B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00003F93-7E97-4C35-AD73-82D06A2F616B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00003F93-7E97-4C35-AD73-82D06A2F616B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2EA3100-2544-4722-B254-BAFE58A62A73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2EA3100-2544-4722-B254-BAFE58A62A73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2EA3100-2544-4722-B254-BAFE58A62A73}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2EA3100-2544-4722-B254-BAFE58A62A73}.Release|Any CPU.Build.0 = Release|Any CPU
 		{06FB64B4-81D0-4DF0-AFDE-29FF0BBCBDC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{06FB64B4-81D0-4DF0-AFDE-29FF0BBCBDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06FB64B4-81D0-4DF0-AFDE-29FF0BBCBDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06FB64B4-81D0-4DF0-AFDE-29FF0BBCBDC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{039EE725-0691-420C-A263-D642CAD8F92A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{039EE725-0691-420C-A263-D642CAD8F92A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{039EE725-0691-420C-A263-D642CAD8F92A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{039EE725-0691-420C-A263-D642CAD8F92A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

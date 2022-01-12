@@ -52,7 +52,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj" />
-    <ProjectReference Include="..\Mapsui.VectorTileLayer.Mapbox\Mapsui.VectorTileLayer.Mapbox.csproj" />
+    <ProjectReference Include="..\Mapsui.VectorTileLayer.OpenMapTiles\Mapsui.VectorTileLayer.OpenMapTiles.csproj" />
   </ItemGroup>
 
 </Project>

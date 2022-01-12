@@ -6,7 +6,7 @@ using Mapsui.Utilities;
 using Mapsui.VectorTileLayer.Core.Enums;
 using Mapsui.VectorTileLayer.Core.Renderer;
 using Mapsui.VectorTileLayer.Core.Styles;
-using Mapsui.VectorTileLayer.MapboxGL;
+using Mapsui.VectorTileLayer.OpenMapTiles;
 using Mapsui.Widgets.PerformanceWidget;
 using Mapsui.Widgets.ScaleBar;
 using SkiaSharp;
@@ -74,13 +74,13 @@ namespace Sample.WPF
         public void LoadMapboxGL()
         {
             var filename = "monaco.mbtiles";
-            MGLStyleFileLoader.DirectoryForFiles = ".\\mbtiles";
+            OMTStyleFileLoader.DirectoryForFiles = ".\\mbtiles";
 
-            CheckForMBTilesFile(filename, MGLStyleFileLoader.DirectoryForFiles);
+            CheckForMBTilesFile(filename, OMTStyleFileLoader.DirectoryForFiles);
 
             var stream = EmbeddedResourceLoader.Load("styles.osm-liberty.json", GetType()) ?? throw new FileNotFoundException($"styles.osm - liberty.json not found");
 
-            var layers = new MapboxGLLayers(stream, GetLocalContent);
+            var layers = new OpenMapTilesLayers(stream, GetLocalContent);
 
             foreach (var layer in layers)
                 mapControl.Map.Layers.Add(layer);
@@ -116,10 +116,8 @@ namespace Sample.WPF
                         return File.OpenRead(name);
                     else
                         return null;
-                    break;
                 case LocalContentType.Resource:
                     return EmbeddedResourceLoader.Load(name, GetType());
-                    break;
             }
 
             return null;
@@ -141,7 +139,7 @@ namespace Sample.WPF
 
                     if (typeface != null)
                     {
-                        MGLSymbolStyler.SpecialFonts.Add(resourceName, typeface);
+                        OMTSymbolStyler.SpecialFonts.Add(resourceName, typeface);
                     }
                 }
             }
