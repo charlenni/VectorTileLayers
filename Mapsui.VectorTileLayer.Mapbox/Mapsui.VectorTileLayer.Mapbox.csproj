@@ -13,15 +13,10 @@
     <PackageReference Include="protobuf-net" Version="3.0.101" />
     <PackageReference Include="RBush" Version="2.0.46" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.148" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.149" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Core\Mapsui.Core.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Geometries\Mapsui.Geometries.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Layers.Tiling\Mapsui.Layers.Tiling.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui.Rendering.Skia\Mapsui.Rendering.Skia.csproj" />
-    <ProjectReference Include="..\..\Mapsui\Mapsui\Mapsui.csproj" />
     <ProjectReference Include="..\Mapsui.VectorTileLayer.Core\Mapsui.VectorTileLayer.Core.csproj" />
   </ItemGroup>
 
