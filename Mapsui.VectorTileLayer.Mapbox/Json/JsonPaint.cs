@@ -86,12 +86,17 @@ namespace Mapsui.VectorTileLayer.MapboxGL.Json
         [JsonProperty("line-translate")]
         public IList<int> LineTranslate { get; set; }
 
+        [JsonConverter(typeof(StoppedFloatConverter))]
+        [JsonProperty("icon-halo-blur")]
+        public StoppedFloat IconHaloBlur { get; set; }
+
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("icon-halo-color")]
         public StoppedColor IconHaloColor { get; set; }
 
+        [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("icon-halo-width")]
-        public int? IconHaloWidth { get; set; }
+        public StoppedFloat IconHaloWidth { get; set; }
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-opacity")]
