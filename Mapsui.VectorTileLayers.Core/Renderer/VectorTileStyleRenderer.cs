@@ -50,8 +50,11 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                             continue;
 
                         var extent = tile?.Extent.ToMRect();
+                        var scale = 1f;
 
                         MRect destination;
+
+                        canvas.Save();
 
                         if (viewport.IsRotated)
                         {
@@ -59,19 +62,18 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                             canvas.SetMatrix(matrix);
 
-                            destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
+                            scale = (float)(extent.Width) / 512f;
+                            canvas.Scale(scale);
                         }
                         else
                         {
                             destination = WorldToScreen(viewport, extent);
+
+                            scale = (float)(destination.MaxX - destination.MinX) / 512;
+
+                            canvas.Translate((float)destination.MinX, (float)destination.MinY);
+                            canvas.Scale(scale);
                         }
-
-                        var scale = (float)(destination.MaxX - destination.MinX) / 512;
-
-                        canvas.Save();
-
-                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
-                        canvas.Scale(scale);
 
                         canvas.ClipRect(clipRect);
 
@@ -148,8 +150,11 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                             continue;
 
                         var extent = tile?.Extent.ToMRect();
+                        var scale = 1f;
 
                         MRect destination;
+
+                        canvas.Save();
 
                         if (viewport.IsRotated)
                         {
@@ -157,19 +162,20 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                             canvas.SetMatrix(matrix);
 
-                            destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
+                            destination = WorldToScreen(viewport, extent);
+
+                            scale = (float)((destination.MaxX - destination.MinX) / 512 * Math.Cos(viewport.Rotation * Math.PI / 180.0));
+                            canvas.Scale(1 / canvas.TotalMatrix.ScaleX * scale);
                         }
                         else
                         {
                             destination = WorldToScreen(viewport, extent);
+
+                            scale = (float)(destination.MaxX - destination.MinX) / 512;
+
+                            canvas.Translate((float)destination.MinX, (float)destination.MinY);
+                            canvas.Scale(scale);
                         }
-
-                        var scale = (float)(destination.MaxX - destination.MinX) / 512;
-
-                        canvas.Save();
-
-                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
-                        canvas.Scale(scale);
 
                         var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
 

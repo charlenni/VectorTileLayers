@@ -4,7 +4,6 @@ using Mapsui.Extensions;
 using Mapsui.Fetcher;
 using Mapsui.Layers;
 using Mapsui.Logging;
-using Mapsui.Rendering;
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
@@ -200,6 +199,12 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (propertyChangedEventArgs.PropertyName == nameof(Busy))
             {
                 Busy = _tileFetchDispatcher.Busy;
+                
+                // Check, if Busy is false. Then start with layout process of symbols
+                if (!Busy)
+                {
+                    var temp = true;
+                }
             }
         }
 

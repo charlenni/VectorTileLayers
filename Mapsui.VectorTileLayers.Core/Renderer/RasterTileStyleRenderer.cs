@@ -69,7 +69,10 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                     var destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
                     foreach (var paint in rasterTileStyle.StyleLayer.Paints)
+                    {
                         canvas.DrawImage(bitmapInfo.Bitmap, destination.ToSkia(), paint.CreatePaint(context));
+                        canvas.DrawRect(destination.ToSkia(), new SKPaint { Color = SKColors.Blue, Style = SKPaintStyle.Stroke, StrokeWidth = 2 });
+                    }
 
                     canvas.SetMatrix(priorMatrix);
                 }
@@ -77,7 +80,9 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 {
                     var destination = WorldToScreen(viewport, extent);
                     foreach (var paint in rasterTileStyle.StyleLayer.Paints)
+                    {
                         canvas.DrawImage(bitmapInfo.Bitmap, destination.ToSkia(), paint.CreatePaint(context));
+                    }
                 }
             }
             catch (Exception ex)

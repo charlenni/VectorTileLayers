@@ -31,11 +31,14 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 foreach (var tile in ((VectorTileFeature)feature).Tiles)
                 {
                     var extent = tile.Extent.ToMRect();
+                    var scale = 1f;
 
                     if (extent == null)
                         continue;
 
                     MRect destination;
+
+                    canvas.Save();
 
                     if (viewport.IsRotated)
                     {
@@ -43,19 +46,18 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                         canvas.SetMatrix(matrix);
 
-                        destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
+                        scale = (float)(extent.Width) / 512f;
+                        canvas.Scale(scale);
                     }
                     else
                     {
                         destination = WorldToScreen(viewport, extent);
+
+                        scale = (float)(destination.MaxX - destination.MinX) / 512;
+
+                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
+                        canvas.Scale(scale);
                     }
-
-                    var scale = (float)(destination.MaxX - destination.MinX) / 512;
-
-                    canvas.Save();
-
-                    canvas.Translate((float)destination.MinX, (float)destination.MinY);
-                    canvas.Scale(scale);
 
                     canvas.DrawRect(tileRect, paint);
 

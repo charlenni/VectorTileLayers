@@ -4,6 +4,7 @@ using Mapsui.Logging;
 using Mapsui.Rendering.Skia.SkiaWidgets;
 using Mapsui.Utilities;
 using Mapsui.VectorTileLayers.Core.Enums;
+using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Renderer;
 using Mapsui.VectorTileLayers.Core.Styles;
 using Mapsui.VectorTileLayers.OpenMapTiles;
@@ -68,7 +69,8 @@ namespace Sample.WPF
             LoadMapboxGL();
 
             mapControl.Navigator.CenterOn(825890.75, 5423194.65);
-            mapControl.Navigator.ZoomTo(1.2);
+            mapControl.Navigator.ZoomTo(0.ToResolution()); // 1.2);
+            mapControl.Navigator.RotateTo(0);
         }
 
         public void LoadMapboxGL()
