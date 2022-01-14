@@ -53,7 +53,7 @@ namespace Mapsui.VectorTileLayers.Core.Utilities
             }
         }
 
-        public bool TryTake([NotNullWhen(true)] out Action? method)
+        public bool TryTake(out Action? method)
         {
             lock (_lockRoot)
             {

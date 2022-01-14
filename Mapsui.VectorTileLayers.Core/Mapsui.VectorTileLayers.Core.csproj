@@ -1,13 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Mapsui.VectorTileLayers.Core</AssemblyName>
     <RootNamespace>Mapsui.VectorTileLayers.Core</RootNamespace>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapsui" Version="3.0.0-build.2631" />
+    <PackageReference Include="Mapsui" Version="3.0.0-build.2653" />
     <PackageReference Include="RBush" Version="2.0.46" />
   </ItemGroup>
 

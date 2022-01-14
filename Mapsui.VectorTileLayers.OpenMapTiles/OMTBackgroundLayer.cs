@@ -54,7 +54,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-
         public OMTBackgroundLayer(OMTPaint paint)
         {
             Resolutions = new double[25];
@@ -91,6 +90,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public void RefreshData(FetchInfo fetchInfo)
         {
+        }
+
+        public bool UpdateAnimations()
+        {
+            return false;
         }
     }
 }

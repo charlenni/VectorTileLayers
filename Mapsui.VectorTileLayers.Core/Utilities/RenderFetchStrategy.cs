@@ -3,6 +3,7 @@ using System.Linq;
 using BruTile;
 using BruTile.Cache;
 using Mapsui.Extensions;
+using Mapsui.Layers;
 using Mapsui.Rendering;
 
 namespace Mapsui.VectorTileLayers.Core.Utilities
@@ -65,6 +66,11 @@ namespace Mapsui.VectorTileLayers.Core.Utilities
         }
 
         public IList<IFeature> Get(MRect extent, double resolution, ITileSchema schema, ITileCache<IFeature> memoryCache)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IList<IFeature> Get(MRect extent, double resolution, ITileSchema schema, ITileCache<RasterFeature> memoryCache)
         {
             throw new System.NotImplementedException();
         }
