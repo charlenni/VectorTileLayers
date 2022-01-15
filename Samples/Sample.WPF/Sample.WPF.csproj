@@ -45,7 +45,7 @@
   <ItemGroup>
     <PackageReference Include="BruTile.MbTiles" Version="4.0.0" />
     <PackageReference Include="Mapsui" Version="3.0.0-build.2653" />
-    <PackageReference Include="Mapsui.Wpf" Version="3.0.0-build.2631" />
+    <PackageReference Include="Mapsui.Wpf" Version="3.0.0-build.2653" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
     <PackageReference Include="Topten.RichTextKit" Version="0.4.149" />
   </ItemGroup>
