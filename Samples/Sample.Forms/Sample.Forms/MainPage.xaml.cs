@@ -44,7 +44,7 @@ namespace Sample.Forms
                 CRS = "EPSG:3857"
             };
 
-            map.Layers.Add(OpenStreetMap.CreateTileLayer());
+            //map.Layers.Add(OpenStreetMap.CreateTileLayer());
 
             // Add ScaleBarWidget
             map.Widgets.Add(new ScaleBarWidget(map)
