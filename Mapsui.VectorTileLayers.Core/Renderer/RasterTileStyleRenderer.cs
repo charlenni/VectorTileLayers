@@ -17,8 +17,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 {
     public class RasterTileStyleRenderer : ISkiaStyleRenderer
     {
-        private readonly IDictionary<object, BitmapInfo?> _tileCache =
-            new Dictionary<object, BitmapInfo?>(new IdentityComparer<object>());
+        private readonly IDictionary<object, BitmapInfo?> _tileCache = new Dictionary<object, BitmapInfo?>(new IdentityComparer<object>());
 
         public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache)
         {
@@ -57,32 +56,13 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 if (bitmapInfo.Bitmap == null)
                     return false;
 
-                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel());
+                var scale = CreateMatrix(canvas, viewport, extent);
 
-                if (viewport.IsRotated)
+                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), scale);
+
+                foreach (var paint in rasterTileStyle.StyleLayer.Paints)
                 {
-                    var priorMatrix = canvas.TotalMatrix;
-
-                    var matrix = CreateRotationMatrix(viewport, extent, priorMatrix);
-
-                    canvas.SetMatrix(matrix);
-
-                    var destination = new MRect(0.0, 0.0, extent.Width, extent.Height);
-                    foreach (var paint in rasterTileStyle.StyleLayer.Paints)
-                    {
-                        canvas.DrawImage(bitmapInfo.Bitmap, destination.ToSkia(), paint.CreatePaint(context));
-                        canvas.DrawRect(destination.ToSkia(), new SKPaint { Color = SKColors.Blue, Style = SKPaintStyle.Stroke, StrokeWidth = 2 });
-                    }
-
-                    canvas.SetMatrix(priorMatrix);
-                }
-                else
-                {
-                    var destination = WorldToScreen(viewport, extent);
-                    foreach (var paint in rasterTileStyle.StyleLayer.Paints)
-                    {
-                        canvas.DrawImage(bitmapInfo.Bitmap, destination.ToSkia(), paint.CreatePaint(context));
-                    }
+                    canvas.DrawImage(bitmapInfo.Bitmap, 0, 0, paint.CreatePaint(context));
                 }
             }
             catch (Exception ex)
@@ -95,51 +75,22 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             return true;
         }
 
-        private static SKMatrix CreateRotationMatrix(IReadOnlyViewport viewport, MRect rect, SKMatrix priorMatrix)
+        private float CreateMatrix(SKCanvas canvas, IReadOnlyViewport viewport, MRect extent)
         {
-            // The front-end sets up the canvas with a matrix based on screen scaling (e.g. retina).
-            // We need to retain that effect by combining our matrix with the incoming matrix.
+            var destinationTopLeft = viewport.WorldToScreen(extent.TopLeft);
+            var destinationTopRight = viewport.WorldToScreen(extent.TopRight);
 
-            // We'll create four matrices in addition to the incoming matrix. They perform the
-            // zoom scale, focal point offset, user rotation and finally, centering in the screen.
+            var dx = destinationTopRight.X - destinationTopLeft.X;
+            var dy = destinationTopRight.Y - destinationTopLeft.Y;
 
-            var userRotation = SKMatrix.CreateRotationDegrees((float)viewport.Rotation);
-            var focalPointOffset = SKMatrix.CreateTranslation(
-                (float)(rect.Left - viewport.Center.X),
-                (float)(viewport.Center.Y - rect.Top));
-            var zoomScale = SKMatrix.CreateScale((float)(1.0 / viewport.Resolution), (float)(1.0 / viewport.Resolution));
-            var centerInScreen = SKMatrix.CreateTranslation((float)(viewport.Width / 2.0), (float)(viewport.Height / 2.0));
+            var scale = (float)Math.Sqrt(dx * dx + dy * dy) / 512f;
 
-            // We'll concatenate them like so: incomingMatrix * centerInScreen * userRotation * zoomScale * focalPointOffset
+            canvas.Translate((float)destinationTopLeft.X, (float)destinationTopLeft.Y);
+            if (viewport.IsRotated)
+                canvas.RotateDegrees((float)viewport.Rotation);
+            canvas.Scale(scale);
 
-            var matrix = SKMatrix.Concat(zoomScale, focalPointOffset);
-            matrix = SKMatrix.Concat(userRotation, matrix);
-            matrix = SKMatrix.Concat(centerInScreen, matrix);
-            matrix = SKMatrix.Concat(priorMatrix, matrix);
-
-            return matrix;
-        }
-
-        private static MRect WorldToScreen(IReadOnlyViewport viewport, MRect rect)
-        {
-            var first = viewport.WorldToScreen(rect.Min.X, rect.Min.Y);
-            var second = viewport.WorldToScreen(rect.Max.X, rect.Max.Y);
-            return new MRect
-            (
-                Math.Min(first.X, second.X),
-                Math.Min(first.Y, second.Y),
-                Math.Max(first.X, second.X),
-                Math.Max(first.Y, second.Y)
-            );
-        }
-
-        private static MRect RoundToPixel(MRect boundingBox)
-        {
-            return new MRect(
-                (float)Math.Round(boundingBox.Left),
-                (float)Math.Round(Math.Min(boundingBox.Top, boundingBox.Bottom)),
-                (float)Math.Round(boundingBox.Right),
-                (float)Math.Round(Math.Max(boundingBox.Top, boundingBox.Bottom)));
+            return scale;
         }
     }
 }

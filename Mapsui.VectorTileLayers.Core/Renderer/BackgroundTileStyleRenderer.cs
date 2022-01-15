@@ -31,33 +31,13 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 foreach (var tile in ((VectorTileFeature)feature).Tiles)
                 {
                     var extent = tile.Extent.ToMRect();
-                    var scale = 1f;
 
                     if (extent == null)
                         continue;
 
-                    MRect destination;
-
                     canvas.Save();
 
-                    if (viewport.IsRotated)
-                    {
-                        var matrix = CreateRotationMatrix(viewport, extent, canvas.TotalMatrix);
-
-                        canvas.SetMatrix(matrix);
-
-                        scale = (float)(extent.Width) / 512f;
-                        canvas.Scale(scale);
-                    }
-                    else
-                    {
-                        destination = WorldToScreen(viewport, extent);
-
-                        scale = (float)(destination.MaxX - destination.MinX) / 512;
-
-                        canvas.Translate((float)destination.MinX, (float)destination.MinY);
-                        canvas.Scale(scale);
-                    }
+                    var scale = CreateMatrix(canvas, viewport, extent);
 
                     canvas.DrawRect(tileRect, paint);
 
@@ -72,56 +52,24 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             }
 
             return true;
-
-
         }
 
-        private static SKMatrix CreateRotationMatrix(IReadOnlyViewport viewport, MRect rect, SKMatrix priorMatrix)
-            {
-                // The front-end sets up the canvas with a matrix based on screen scaling (e.g. retina).
-                // We need to retain that effect by combining our matrix with the incoming matrix.
+        private float CreateMatrix(SKCanvas canvas, IReadOnlyViewport viewport, MRect extent)
+        {
+            var destinationTopLeft = viewport.WorldToScreen(extent.TopLeft);
+            var destinationTopRight = viewport.WorldToScreen(extent.TopRight);
 
-                // We'll create four matrices in addition to the incoming matrix. They perform the
-                // zoom scale, focal point offset, user rotation and finally, centering in the screen.
+            var dx = destinationTopRight.X - destinationTopLeft.X;
+            var dy = destinationTopRight.Y - destinationTopLeft.Y;
 
-                var userRotation = SKMatrix.CreateRotationDegrees((float)viewport.Rotation);
-                var focalPointOffset = SKMatrix.CreateTranslation(
-                    (float)(rect.Left - viewport.Center.X),
-                    (float)(viewport.Center.Y - rect.Top));
-                var zoomScale = SKMatrix.CreateScale((float)(1.0 / viewport.Resolution), (float)(1.0 / viewport.Resolution));
-                var centerInScreen = SKMatrix.CreateTranslation((float)(viewport.Width / 2.0), (float)(viewport.Height / 2.0));
+            var scale = (float)Math.Sqrt(dx * dx + dy * dy) / 512f;
 
-                // We'll concatenate them like so: incomingMatrix * centerInScreen * userRotation * zoomScale * focalPointOffset
+            canvas.Translate((float)destinationTopLeft.X, (float)destinationTopLeft.Y);
+            if (viewport.IsRotated)
+                canvas.RotateDegrees((float)viewport.Rotation);
+            canvas.Scale(scale);
 
-                var matrix = SKMatrix.Concat(zoomScale, focalPointOffset);
-                matrix = SKMatrix.Concat(userRotation, matrix);
-                matrix = SKMatrix.Concat(centerInScreen, matrix);
-                matrix = SKMatrix.Concat(priorMatrix, matrix);
-
-                return matrix;
-            }
-
-            private static MRect WorldToScreen(IReadOnlyViewport viewport, MRect rect)
-            {
-                var first = viewport.WorldToScreen(rect.Min.X, rect.Min.Y);
-                var second = viewport.WorldToScreen(rect.Max.X, rect.Max.Y);
-                return new MRect
-                (
-                    Math.Min(first.X, second.X),
-                    Math.Min(first.Y, second.Y),
-                    Math.Max(first.X, second.X),
-                    Math.Max(first.Y, second.Y)
-                );
-            }
-
-            private static MRect RoundToPixel(MRect boundingBox)
-            {
-                return new MRect(
-                    (float)Math.Round(boundingBox.Left),
-                    (float)Math.Round(Math.Min(boundingBox.Top, boundingBox.Bottom)),
-                    (float)Math.Round(boundingBox.Right),
-                    (float)Math.Round(Math.Max(boundingBox.Top, boundingBox.Bottom)));
-            }
-
+            return scale;
         }
     }
+}
