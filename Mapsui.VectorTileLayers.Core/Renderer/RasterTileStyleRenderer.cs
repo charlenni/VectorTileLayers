@@ -2,7 +2,6 @@
 using Mapsui.Logging;
 using Mapsui.Rendering;
 using Mapsui.Rendering.Skia;
-using Mapsui.Rendering.Skia.Extensions;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
 using Mapsui.VectorTileLayers.Core.Extensions;
