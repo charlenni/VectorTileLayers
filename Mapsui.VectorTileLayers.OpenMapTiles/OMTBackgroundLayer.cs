@@ -67,7 +67,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             for (var i = 0; i <= 24; i++)
             {
                 ((double[])Resolutions)[i] = i.ToResolution();
-                _schema.Resolutions.Add(i, new Resolution(i, i.ToResolution(), 512, 512));
+                _schema.Resolutions.Add(i, new Resolution(i, i.ToResolution(), 256, 256));
             }
 
             Style = new BackgroundTileStyle(paint);
