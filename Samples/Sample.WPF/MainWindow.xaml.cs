@@ -65,11 +65,13 @@ namespace Sample.WPF
 
             mapControl.Map = map;
 
+            Topten.RichTextKit.FontMapper.Default = new Mapsui.VectorTileLayers.OpenMapTiles.Utilities.FontMapper();
+
             LoadFontResources(Assembly.GetAssembly(GetType()));
             LoadMapboxGL();
 
             mapControl.Navigator.CenterOn(825890.75, 5423194.65);
-            mapControl.Navigator.ZoomTo(0.ToResolution()); // 1.2);
+            mapControl.Navigator.ZoomTo(17.ToResolution()); // 1.2);
             mapControl.Navigator.RotateTo(0);
         }
 
@@ -141,7 +143,7 @@ namespace Sample.WPF
 
                     if (typeface != null)
                     {
-                        OMTSymbolStyler.SpecialFonts.Add(resourceName, typeface);
+                        ((Mapsui.VectorTileLayers.OpenMapTiles.Utilities.FontMapper)Topten.RichTextKit.FontMapper.Default).Add(typeface);
                     }
                 }
             }
