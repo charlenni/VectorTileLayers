@@ -1,7 +1,10 @@
 ﻿using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
+using RBush;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Mapsui.VectorTileLayers.Core.Styles
 {

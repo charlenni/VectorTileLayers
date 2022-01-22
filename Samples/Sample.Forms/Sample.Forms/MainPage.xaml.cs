@@ -69,7 +69,7 @@ namespace Sample.Forms
             LoadMapboxGL();
 
             mapControl.Navigator.CenterOn(825890.75, 5423194.65);
-            mapControl.Navigator.ZoomTo(0.ToResolution()); // 1.2);
+            mapControl.Navigator.ZoomTo(17.ToResolution()); // 1.2);
             mapControl.Navigator.RotateTo(0);
         }
 
@@ -145,7 +145,7 @@ namespace Sample.Forms
 
                     if (typeface != null)
                     {
-                        OMTSymbolStyler.SpecialFonts.Add(resourceName, typeface);
+                        //((Mapsui.VectorTileLayers.OpenMapTiles.Utilities.FontMapper)Topten.RichTextKit.FontMapper.Default).Add(typeface);
                     }
                 }
             }

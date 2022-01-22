@@ -329,82 +329,42 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             //   The display of line endings.
             if (layout?.LineCap != null)
             {
-                if (layout.LineCap.Stops != null)
+                switch (layout.LineCap)
                 {
-                    line.SetVariableStrokeCap((context) =>
-                    {
-                        switch (layout.LineCap.Evaluate(context.Zoom))
-                        {
-                            case "butt":
-                                return SKStrokeCap.Butt;
-                            case "round":
-                                return SKStrokeCap.Round;
-                            case "square":
-                                return SKStrokeCap.Square;
-                            default:
-                                return SKStrokeCap.Butt;
-                        }
-                    });
-                }
-                else
-                {
-                    switch (layout.LineCap.SingleVal)
-                    {
-                        case "butt":
-                            line.SetFixStrokeCap(SKStrokeCap.Butt);
-                            break;
-                        case "round":
-                            line.SetFixStrokeCap(SKStrokeCap.Round);
-                            break;
-                        case "square":
-                            line.SetFixStrokeCap(SKStrokeCap.Square);
-                            break;
-                        default:
-                            line.SetFixStrokeCap(SKStrokeCap.Butt);
-                            break;
-                    }
+                    case "butt":
+                        line.SetFixStrokeCap(SKStrokeCap.Butt);
+                        break;
+                    case "round":
+                        line.SetFixStrokeCap(SKStrokeCap.Round);
+                        break;
+                    case "square":
+                        line.SetFixStrokeCap(SKStrokeCap.Square);
+                        break;
+                    default:
+                        line.SetFixStrokeCap(SKStrokeCap.Butt);
+                        break;
                 }
             }
 
             // line-join
-            //   Optional enum. One of bevel, round, miter. Defaults to miter. Interval.
+            //   Optional enum. One of bevel, round, miter. Defaults to miter.
             //   The display of lines when joining.
             if (layout?.LineJoin != null)
             {
-                if (layout.LineJoin.Stops != null)
+                switch (layout.LineJoin)
                 {
-                    line.SetVariableStrokeJoin((context) =>
-                    {
-                        switch (layout.LineJoin.Evaluate(context.Zoom))
-                        {
-                            case "bevel":
-                                return SKStrokeJoin.Bevel;
-                            case "round":
-                                return SKStrokeJoin.Round;
-                            case "mitter":
-                                return SKStrokeJoin.Miter;
-                            default:
-                                return SKStrokeJoin.Miter;
-                        }
-                    });
-                }
-                else
-                {
-                    switch (layout.LineJoin.SingleVal)
-                    {
-                        case "bevel":
-                            line.SetFixStrokeJoin(SKStrokeJoin.Bevel);
-                            break;
-                        case "round":
-                            line.SetFixStrokeJoin(SKStrokeJoin.Round);
-                            break;
-                        case "mitter":
-                            line.SetFixStrokeJoin(SKStrokeJoin.Miter);
-                            break;
-                        default:
-                            line.SetFixStrokeJoin(SKStrokeJoin.Miter);
-                            break;
-                    }
+                    case "bevel":
+                        line.SetFixStrokeJoin(SKStrokeJoin.Bevel);
+                        break;
+                    case "round":
+                        line.SetFixStrokeJoin(SKStrokeJoin.Round);
+                        break;
+                    case "mitter":
+                        line.SetFixStrokeJoin(SKStrokeJoin.Miter);
+                        break;
+                    default:
+                        line.SetFixStrokeJoin(SKStrokeJoin.Miter);
+                        break;
                 }
             }
 
@@ -535,7 +495,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             if (layout?.IconImage != null && layout?.IconAllowOverlap != null)
             {
                 // TODO
-                symbolStyler.IconAllowOverlap = (bool)layout.IconAllowOverlap.SingleVal;
+                symbolStyler.IconAllowOverlap = layout.IconAllowOverlap;
             }
 
             // icon-anchor

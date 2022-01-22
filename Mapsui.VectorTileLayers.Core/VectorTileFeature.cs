@@ -1,6 +1,8 @@
 ﻿using BruTile;
 using BruTile.Cache;
 using Mapsui.Styles;
+using Mapsui.VectorTileLayers.Core.Primitives;
+using RBush;
 using System;
 using System.Collections.Generic;
 
@@ -17,6 +19,8 @@ namespace Mapsui.VectorTileLayers.Core
     public class VectorTileFeature : IFeature
     {
         public IEnumerable<TileInfo> Tiles { get; set; }
+
+        public RBush<Symbol> Tree { get; set; }
 
         public MemoryCache<VectorTile> Cache { get; set; }
 

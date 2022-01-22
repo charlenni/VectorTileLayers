@@ -46,6 +46,10 @@ namespace Sample.WPF
 
             //map.Layers.Add(OpenStreetMap.CreateTileLayer());
 
+            // Add handler for zoom buttons
+            btnZoomIn.Click += BtnZoomIn_Click;
+            btnZoomOut.Click += BtnZoomOut_Click;
+
             // Add ScaleBarWidget
             map.Widgets.Add(new ScaleBarWidget(map)
             {
@@ -73,6 +77,16 @@ namespace Sample.WPF
             mapControl.Navigator.CenterOn(825890.75, 5423194.65);
             mapControl.Navigator.ZoomTo(17.ToResolution()); // 1.2);
             mapControl.Navigator.RotateTo(0);
+        }
+
+        private void BtnZoomIn_Click(object sender, RoutedEventArgs e)
+        {
+            mapControl.Navigator.ZoomIn(0);
+        }
+
+        private void BtnZoomOut_Click(object sender, RoutedEventArgs e)
+        {
+            mapControl.Navigator.ZoomOut(0);
         }
 
         public void LoadMapboxGL()

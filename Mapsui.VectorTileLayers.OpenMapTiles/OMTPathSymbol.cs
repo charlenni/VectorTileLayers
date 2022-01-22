@@ -2,7 +2,6 @@
 using Mapsui.VectorTileLayers.Core.Primitives;
 using RBush;
 using SkiaSharp;
-using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
@@ -16,12 +15,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Id = id;
         }
 
+        public override void Update(EvaluationContext context)
+        {
+        }
+
         public override void AddEnvelope(RBush<Symbol> tree)
         {
             //throw new System.NotImplementedException();
         }
 
-        public override void CalcEnvelope(float scale, float rotation)
+        public override void CalcEnvelope(float scale, float rotation, MPoint offset)
         {
             //throw new NotImplementedException();
         }

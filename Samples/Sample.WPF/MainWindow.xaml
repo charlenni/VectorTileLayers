@@ -9,5 +9,9 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <mapsuiwpf:MapControl x:Name="mapControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <StackPanel>
+            <Button x:Name="btnZoomIn" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">+</Button>
+            <Button x:Name="btnZoomOut" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">-</Button>
+        </StackPanel>
     </Grid>
 </Window>

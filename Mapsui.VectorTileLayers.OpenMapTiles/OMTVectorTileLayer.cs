@@ -11,12 +11,15 @@ using Mapsui.VectorTileLayers.Core.Primitives;
 using Mapsui.VectorTileLayers.Core.Styles;
 using Mapsui.VectorTileLayers.Core.Utilities;
 using Mapsui.VectorTileLayers.OpenMapTiles.Parser;
+using RBush;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
@@ -28,12 +31,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         private readonly Core.Utilities.RenderFetchStrategy _renderFetchStrategy;
         private readonly int _minExtraTiles;
         private readonly int _maxExtraTiles;
+        private int _treeZoomLevel = -1;
+        private int _treeMinCol = int.MaxValue, _treeMaxCol = int.MinValue, _treeMinRow = int.MaxValue, _treeMaxRow = int.MinValue;
         private int _numberTilesNeeded;
         private readonly TileFetchDispatcher<VectorTile> _tileFetchDispatcher;
         private readonly VectorTileFeature[] _features = { new VectorTileFeature() };
         private readonly ITileDataParser _tileDataParser = new MGLTileParser();
         private VectorTileStyle _style;
         private TileSchema _schema;
+        private RBush<Symbol> _tree;
+        private CancellationTokenSource _cancelToken;
 
         /// <summary>
         /// Create tile layer for given vector tile source
@@ -112,45 +119,80 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             UpdateMemoryCacheMinAndMax();
 
-            var zoomLevel = resolution.ToZoomLevel();
+            var zoomLevel = (int)resolution.ToZoomLevel();
 
-            //IEnumerable<TileInfo> tiles;
-
-            //if (zoomLevel <= _tileSource.Schema.Resolutions.Last().Key)
-            //{
-            //    tiles = _tileSource.Schema.GetTileInfos(extent.ToExtent(), (int)resolution.ToZoomLevel());
-            //}
-            //else 
-            //{
-            //    tiles = _schema.GetTileInfos(extent.ToExtent(), (int)resolution.ToZoomLevel());
-            //}
-
-            //foreach (var tile in tiles)
-            //{
-            //    if (MemoryCache.Find(tile.Index) == null)
-            //    {
-
-            //    }
-            //}
-
-            //_features[0].Tiles = tiles;
-            // Get all tiles, that fill this extent. If one tile isn't loaded, then use one from a lower zoom level 
-            //var schema = new BruTile.Predefined.GlobalSphericalMercator(_tileSource.Schema.Resolutions[0].0, 24);
-
-            //_features[0].Tiles = schema.GetTileInfos(extent.ToExtent(), (int)resolution.ToZoomLevel());
-
-            //            _features[0].Tiles = _tileSource.Schema.GetTileInfos(extent.ToExtent(), (int)resolution.ToZoomLevel());
+            var minCol = int.MaxValue;
+            var minRow = int.MaxValue;
+            var maxCol = int.MinValue;
+            var maxRow = int.MinValue;
 
             var tiles = new List<TileInfo>();
+            var vectorTiles = _renderFetchStrategy.Get<VectorTile>(extent, resolution, _tileSource.Schema, MemoryCache);
 
-            foreach (var vectorTile in _renderFetchStrategy.Get<VectorTile>(extent, resolution, _tileSource.Schema, MemoryCache))
+            foreach (var vectorTile in vectorTiles)
             {
                 tiles.Add(vectorTile.TileInfo);
+
+                // Only update, if all tiles belong to the same zoom level
+                minCol = Math.Min(vectorTile.TileInfo.Index.Col, minCol);
+                minRow = Math.Min(vectorTile.TileInfo.Index.Row, minRow);
+                maxCol = Math.Max(vectorTile.TileInfo.Index.Col, minCol);
+                maxRow = Math.Max(vectorTile.TileInfo.Index.Row, minRow);
             }
 
             _features[0].Tiles = tiles;
 
+            if (zoomLevel != _treeZoomLevel || minCol != _treeMinCol || minRow != _treeMinRow || maxCol != _treeMaxCol || maxRow != _treeMaxRow)
+            {
+                // Something changed, so the tree should be updated
+                RefreshTree(vectorTiles, zoomLevel, minCol, minRow, maxCol, maxRow);
+            }
+
+            _features[0].Tree = _tree;
+
             return _features;
+        }
+
+        private void RefreshTree(IEnumerable<VectorTile> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
+        {
+            if (_cancelToken != null)
+            {
+                // There is already a layouter running, so cancel it
+                _cancelToken.Cancel();
+                _cancelToken = null;
+            }
+
+            _cancelToken = new CancellationTokenSource();
+            var token = _cancelToken.Token;
+
+            var task = new Task(() =>
+            {
+                var watch = new System.Diagnostics.Stopwatch();
+
+                watch.Start();
+
+                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)Style).VectorTileStyles, vectorTiles, zoomLevel, minCol, minRow, token);
+
+                if (!token.IsCancellationRequested)
+                {
+                    watch.Stop();
+
+                    _tree = tree;
+
+                    _treeMinCol = minCol;
+                    _treeMinRow = minRow;
+                    _treeMaxCol = maxCol;
+                    _treeMaxRow = maxRow;
+
+                    _treeZoomLevel = zoomLevel;
+
+                    Logger.Log(LogLevel.Warning, $"Created a new tree in {watch.ElapsedMilliseconds} ms");
+
+                    OnDataChanged(new DataChangedEventArgs());
+                }
+            }, token);
+
+            task.Start();
         }
 
         /// <inheritdoc />
@@ -203,7 +245,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 // Check, if Busy is false. Then start with layout process of symbols
                 if (!Busy)
                 {
-                    var temp = true;
                 }
             }
         }

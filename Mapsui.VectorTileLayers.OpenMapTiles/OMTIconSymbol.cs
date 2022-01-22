@@ -9,6 +9,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 #if DEBUG
         // TODO: Only for testing
         SKPaint testPaint = new SKPaint { Color = SKColors.Red, Style = SKPaintStyle.Stroke, StrokeWidth = 0 };
+        SKRect testRect;
 #endif
         public SKImage Image { get; set; }
 
@@ -16,12 +17,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public float IconSize { get; set; } = 1;
 
+        public override void Update(EvaluationContext context)
+        {
+        }
+
         public override void AddEnvelope(RBush<Symbol> tree)
         {
             tree.Insert(this);
         }
 
-        public override void CalcEnvelope(float scale, float rotation)
+        public override void CalcEnvelope(float scale, float rotation, MPoint offset)
         {
             if (Image == null)
             {
@@ -30,24 +35,23 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
 
             // Convert tile coordinates to pixel
-            var newPoint = new MPoint(Point.X * scale, Point.Y * scale);
+            var newPoint = Point.Clone(); // new MPoint(Point.X * scale, Point.Y * scale);
             // Add anchor and offset in pixel
-            newPoint.X += Anchor.X + Offset.X;
-            newPoint.Y += Anchor.Y + Offset.Y;
+            newPoint.X += (Anchor.X + Offset.X) / scale;
+            newPoint.Y += (Anchor.Y + Offset.Y) / scale;
             // Add real size in pixel
-            var width = Image.Width * IconSize;
-            var height = Image.Height * IconSize;
-            var minX = newPoint.X - Padding;
-            var minY = newPoint.Y - Padding;
-            var maxX = minX + width + Padding * 2;
-            var maxY = minY + height + Padding * 2;
-            // Convert back in tile coordinates
-            minX /= scale;
-            minY /= scale;
-            maxX /= scale;
-            maxY /= scale;
+            var width = Image.Width * IconSize / scale;
+            var height = Image.Height * IconSize / scale;
+            var padding = Padding / scale;
+            var minX = (float)(newPoint.X - padding);
+            var minY = (float)(newPoint.Y - padding);
+            var maxX = (float)(minX + width + padding * 2);
+            var maxY = (float)(minY + height + padding * 2);
             // Create envelope
-            _envelope = new Envelope(minX, minY, maxX, maxY);
+            _envelope = new Envelope(minX + offset.X, minY + offset.Y, maxX + offset.X, maxY + offset.Y);
+#if DEBUG
+            testRect = new SKRect(minX, minY, maxX, maxY);
+#endif
         }
 
         public override void Draw(SKCanvas canvas, EvaluationContext context)
@@ -67,8 +71,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             canvas.Restore();
 
 #if DEBUG
-            // TODO: Only for testing
-            canvas.DrawRect(new SKRect((float)_envelope.MinX, (float)_envelope.MinY, (float)_envelope.MaxX, (float)_envelope.MaxY), testPaint);
+            canvas.DrawRect(testRect, testPaint);
 #endif
         }
 

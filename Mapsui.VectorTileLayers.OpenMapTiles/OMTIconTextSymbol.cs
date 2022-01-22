@@ -1,12 +1,27 @@
-﻿using Mapsui.VectorTileLayers.Core.Primitives;
+﻿using BruTile;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using RBush;
 using SkiaSharp;
-using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public class OMTIconTextSymbol : Symbol
     {
+        /// <summary>
+        /// Index of tile to which this symbols belongs
+        /// </summary>
+        public override TileIndex Index
+        {
+            get => IconSymbol?.Index ?? TextSymbol?.Index ?? new TileIndex();
+            set
+            {
+                if (IconSymbol != null)
+                    IconSymbol.Index = value;
+                if (TextSymbol != null)
+                    TextSymbol.Index = value;
+            }
+        }
+
         public OMTIconSymbol IconSymbol { get; }
 
         public OMTTextSymbol TextSymbol { get; }
@@ -17,6 +32,12 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             TextSymbol = text;
         }
 
+        public override void Update(EvaluationContext context)
+        {
+            IconSymbol?.Update(context);
+            TextSymbol?.Update(context);
+        }
+
         public override void AddEnvelope(RBush<Symbol> tree)
         {
             if (IconSymbol != null)
@@ -25,10 +46,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 tree.Insert(TextSymbol);
         }
 
-        public override void CalcEnvelope(float scale, float rotation)
+        public override void CalcEnvelope(float scale, float rotation, MPoint offset)
         {
-            IconSymbol?.CalcEnvelope(scale, rotation);
-            TextSymbol?.CalcEnvelope(scale, rotation);
+            IconSymbol?.CalcEnvelope(scale, rotation, offset);
+            TextSymbol?.CalcEnvelope(scale, rotation, offset);
         }
 
         public override void Draw(SKCanvas canvas, EvaluationContext context)

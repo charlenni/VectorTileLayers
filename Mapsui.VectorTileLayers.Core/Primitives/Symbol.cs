@@ -1,7 +1,8 @@
-﻿using Mapsui.VectorTileLayers.Core.Interfaces;
+﻿using BruTile;
+using Mapsui.VectorTileLayers.Core.Enums;
+using Mapsui.VectorTileLayers.Core.Interfaces;
 using RBush;
 using SkiaSharp;
-using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.Core.Primitives
 {
@@ -13,6 +14,13 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         /// Id of this symbol
         /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Index of tile to which this symbol belongs
+        /// </summary>
+        public virtual TileIndex Index { 
+            get; 
+            set; }
 
         /// <summary>
         /// Class of this symbol
@@ -65,15 +73,22 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         public bool IgnorePlacement { get; set; }
 
         /// <summary>
+        /// Alignment relative to map or viewport
+        /// </summary>
+        public MapAlignment Alignment { get; set; }
+
+        /// <summary>
         /// VectorPaint used to draw this symbol
         /// </summary>
         public IVectorPaint Paint { get; set; }
 
         public ref readonly Envelope Envelope => ref _envelope;
 
+        public abstract void Update(EvaluationContext context);
+
         public abstract Symbol TreeSearch(RBush<Symbol> tree);
 
-        public abstract void CalcEnvelope(float scale, float rotation);
+        public abstract void CalcEnvelope(float scale, float rotation, MPoint offset);
 
         public abstract void AddEnvelope(RBush<Symbol> tree);
 

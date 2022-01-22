@@ -5,12 +5,12 @@ using Mapsui.Rendering;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
 using Mapsui.VectorTileLayers.Core.Extensions;
+using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
 using Mapsui.VectorTileLayers.Core.Styles;
 using RBush;
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Mapsui.VectorTileLayers.Core.Renderer
@@ -34,7 +34,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             try
             {
                 var vectorTileFeature = (VectorTileFeature)feature;
-                var tree = new RBush<Symbol>(9);
+                var vectorTileStyle = (VectorTileStyle)style;
                 var zoomLevel = (int)viewport.Resolution.ToZoomLevel();
 
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
@@ -105,54 +105,31 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 }
 
                 // Now draw symbols
+                var tree = vectorTileFeature.Tree;
 
-                // Check SymbolBuckts in reverse order, because the last is the most important
-                foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles.Reverse())
+                if (tree == null || tree?.Count == 0)
+                    return true;
+
+                var symbols = tree.Search();
+
+                foreach (var symbol in symbols)
                 {
-                    if (!vectorStyle.IsVisible || vectorStyle.MinZoom > zoomLevel || vectorStyle.MaxZoom < zoomLevel)
+                    var vectorTile = vectorTileFeature.Cache.Find(symbol.Index);
+
+                    if (vectorTile == null)
                         continue;
 
-                    foreach (var tile in vectorTileFeature.Tiles)
-                    {
-                        var vectorTile = vectorTileFeature.Cache.Find(tile.Index);
+                    var extent = vectorTile.Extent;
 
-                        if (vectorTile == null)
-                            continue;
+                    canvas.Save();
 
-                        if (!vectorTile.Buckets.ContainsKey(vectorStyle))
-                            continue;
+                    var scale = CreateMatrix(canvas, viewport, extent);
 
-                        if (!(vectorTile.Buckets[vectorStyle] is SymbolBucket symbolBucket))
-                            continue;
+                    var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
 
-                        if (symbolBucket.Symbols.Count == 0)
-                            continue;
+                    symbol.Draw(canvas, context);
 
-                        var extent = tile?.Extent.ToMRect();
-
-                        canvas.Save();
-
-                        var scale = CreateMatrix(canvas, viewport, extent);
-
-                        var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
-
-                        vectorStyle.Update(context);
-
-                        foreach (var symbol in symbolBucket.Symbols)
-                        {
-                            // Calculate envelope
-                            symbol.CalcEnvelope(scale, (float)viewport.Rotation);
-                            // Check symbol, if there is another one already occuping place
-                            var result = symbol.TreeSearch(tree);
-                            if (result != null)
-                            {
-                                result.Draw(canvas, context);
-                                result.AddEnvelope(tree);
-                            }
-                        }
-
-                        canvas.Restore();
-                    }
+                    canvas.Restore();
                 }
 
                 return true;

@@ -31,6 +31,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             if (iconTextSymbol != null)
                             {
                                 iconTextSymbol.IsVisible = styleLayer.IsVisible;
+                                iconTextSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconTextSymbol);
                             }
                         }
@@ -40,6 +41,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             if (iconSymbol != null)
                             {
                                 iconSymbol.IsVisible = styleLayer.IsVisible;
+                                iconSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconSymbol);
                             }
                         }
@@ -49,6 +51,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             if (textSymbol != null)
                             {
                                 textSymbol.IsVisible = styleLayer.IsVisible;
+                                textSymbol.Index = element.TileIndex;
                                 Symbols.Add(textSymbol);
                             }
                         }
@@ -59,7 +62,10 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                         return;
                     var pathSymbol = styler.CreatePathSymbols(element, context);
                     if (pathSymbol != null)
+                    {
+                        pathSymbol.Index = element.TileIndex;
                         Symbols.Add(pathSymbol);
+                    }
                     break;
                 case GeometryType.Polygon:
                     var t3 = styleLayer.SourceLayer;

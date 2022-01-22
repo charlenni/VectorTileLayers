@@ -10,16 +10,22 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
     /// </summary>
     public class JsonLayout
     {
-        [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("line-cap")]
-        public StoppedString LineCap { get; set; }
+        public string LineCap { get; set; } = "butt";
 
-        [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("line-join")]
-        public StoppedString LineJoin { get; set; }
+        public string LineJoin { get; set; } = "miter";
+
+        [JsonConverter(typeof(StoppedFloatConverter))]
+        [JsonProperty("line-miter-limit")]
+        public StoppedFloat LineMiterLimit { get; set; } = new StoppedFloat { SingleVal = 2f };
+
+        [JsonConverter(typeof(StoppedFloatConverter))]
+        [JsonProperty("line-round-limit")]
+        public StoppedFloat LineRoundLimit { get; set; } = new StoppedFloat { SingleVal = 1.05f };
 
         [JsonProperty("visibility")]
-        public string Visibility { get; set; }
+        public string Visibility { get; set; } = "visible";
 
         [JsonProperty("text-font")]
         public JArray TextFont { get; set; }
@@ -132,7 +138,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public string SymbolZOrder { get; set; }
 
         [JsonProperty("icon-anchor")]
-        public string IconAnchor { get; set; }
+        public string IconAnchor { get; set; } = "center";
 
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("icon-color")]
@@ -151,7 +157,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public StoppedFloat IconHaloWidth { get; set; }
 
         [JsonProperty("icon-ignore-placement")]
-        public bool IconIgnorePlacement { get; set; }
+        public bool IconIgnorePlacement { get; set; } = false;
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("icon-padding")]
@@ -171,12 +177,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         [JsonProperty("icon-opacity")]
         public StoppedFloat IconOpacity { get; set; }
 
-        [JsonConverter(typeof(StoppedBooleanConverter))]
         [JsonProperty("icon-allow-overlap")]
-        public StoppedBoolean IconAllowOverlap { get; set; }
+        public bool IconAllowOverlap { get; set; } = false;
 
         [JsonProperty("icon-keep-upright")]
-        public bool IconKeepUpright { get; set; }
+        public bool IconKeepUpright { get; set; } = false;
 
         [JsonProperty("icon-pitch-alignment")]
         public string IconPitchAlignment { get; set; }
