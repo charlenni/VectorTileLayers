@@ -12,7 +12,7 @@ using Topten.RichTextKit;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OMTSymbolStyler : IVectorSymbolStyler
+    public class OMTSymbolFactory : IVectorSymbolStyler
     {
         static Regex regex = new Regex(@".*\{(.*)\}.*");
 
@@ -21,9 +21,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         OMTSpriteAtlas spriteAtlas;
         Style textStyle;
 
-        public static OMTSymbolStyler Default;
+        public static OMTSymbolFactory Default;
 
-        public OMTSymbolStyler(OMTSpriteAtlas atlas)
+        public OMTSymbolFactory(OMTSpriteAtlas atlas)
         {
             spriteAtlas = atlas;
         }

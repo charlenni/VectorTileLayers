@@ -23,7 +23,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public IEnumerable<IVectorPaint> Paints { get; internal set; } = new List<OMTPaint>();
 
-        public IVectorSymbolStyler SymbolStyler { get; internal set; } = OMTSymbolStyler.Default;
+        public IVectorSymbolStyler SymbolStyler { get; internal set; } = OMTSymbolFactory.Default;
 
         public bool IsVisible { get; internal set; } = true;
 

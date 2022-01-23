@@ -470,7 +470,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             return new List<OMTPaint>() { line };
         }
 
-        public static OMTSymbolStyler ConvertSymbolLayer(JsonStyleLayer jsonStyleLayer, OMTSpriteAtlas spriteAtlas)
+        public static OMTSymbolFactory ConvertSymbolLayer(JsonStyleLayer jsonStyleLayer, OMTSpriteAtlas spriteAtlas)
         {
             var layout = jsonStyleLayer?.Layout;
             var paint = jsonStyleLayer?.Paint;
@@ -478,10 +478,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             // If we don't have a paint, than there isn't anything that we could do
             if (paint == null)
             {
-                return OMTSymbolStyler.Default;
+                return OMTSymbolFactory.Default;
             }
 
-            OMTSymbolStyler symbolStyler = new OMTSymbolStyler(spriteAtlas);
+            OMTSymbolFactory symbolStyler = new OMTSymbolFactory(spriteAtlas);
 
             if (layout?.Visibility != null)
             {
