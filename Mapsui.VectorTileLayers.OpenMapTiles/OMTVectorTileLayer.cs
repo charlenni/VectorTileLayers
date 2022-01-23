@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OMTVectorTileLayer : BaseLayer, IAsyncDataFetcher, IDisposable
+    public class OMTVectorTileLayer : BaseLayer, IAsyncDataFetcher, IVectorTileLayer, IDisposable
     {
         private const int TileSizeOfData = 4096;
 
@@ -34,12 +34,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         private int _treeZoomLevel = -1;
         private int _treeMinCol = int.MaxValue, _treeMaxCol = int.MinValue, _treeMinRow = int.MaxValue, _treeMaxRow = int.MinValue;
         private int _numberTilesNeeded;
-        private readonly TileFetchDispatcher<VectorTile> _tileFetchDispatcher;
-        private readonly VectorTileFeature[] _features = { new VectorTileFeature() };
+        private readonly TileFetchDispatcher<VectorTileFeature> _tileFetchDispatcher;
         private readonly ITileDataParser _tileDataParser = new MGLTileParser();
-        private VectorTileStyle _style;
         private TileSchema _schema;
-        private RBush<Symbol> _tree;
         private CancellationTokenSource _cancelToken;
 
         /// <summary>
@@ -56,7 +53,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         // ReSharper disable once UnusedParameter.Local // Is public and won't break this now
         public OMTVectorTileLayer(IEnumerable<IVectorTileStyle> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
             IDataFetchStrategy? dataFetchStrategy = null, int minExtraTiles = -1, int maxExtraTiles = -1, 
-            Func<TileInfo, VectorTile>? fetchTileAsFeature = null)
+            Func<TileInfo, VectorTileFeature>? fetchTileAsFeature = null)
         {
             _tileSource = tileSource ?? throw new ArgumentException($"{tileSource} can not be null");
             Name = _tileSource.Name;
@@ -65,16 +62,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             _schema = new GlobalSphericalMercator(_tileSource.Schema.YAxis, _tileSource.Schema.Resolutions[0].Level, 24);
             
             // It is a vector tile layer, so we could go always down to zoom 24
-            MinVisible = 24.ToResolution(); // _tileSource.Schema.Resolutions.Last().Value.UnitsPerPixel;
+            MinVisible = 24.ToResolution();
             MaxVisible = _tileSource.Schema.Resolutions.First().Value.UnitsPerPixel;
 
-            //_resolutions = new List<double>(25);
-
-            //for (var i = 0; i <= 24; i++)
-            //    _resolutions.Add(i.ToResolution());
-
-            MemoryCache = new BruTile.Cache.MemoryCache<VectorTile?>(minTiles, maxTiles);
-            _features[0].Cache = MemoryCache;
+            // We have our only cache for ready processed vector tiles
+            MemoryCache = new BruTile.Cache.MemoryCache<VectorTileFeature?>(minTiles, maxTiles);
 
             Style = new VectorTileStyle(0, 24, vectorStyles);
             
@@ -82,10 +74,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Attribution.Url = _tileSource.Attribution?.Url;
             
             dataFetchStrategy ??= new DataFetchStrategy(3);
-            _renderFetchStrategy = new Core.Utilities.RenderFetchStrategy();
+            _renderFetchStrategy = new RenderFetchStrategy();
             _minExtraTiles = minExtraTiles;
             _maxExtraTiles = maxExtraTiles;
-            _tileFetchDispatcher = new TileFetchDispatcher<VectorTile>(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
+            _tileFetchDispatcher = new TileFetchDispatcher<VectorTileFeature>(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
             _tileFetchDispatcher.DataChanged += TileFetchDispatcherOnDataChanged;
             _tileFetchDispatcher.PropertyChanged += TileFetchDispatcherOnPropertyChanged;
             
@@ -102,9 +94,14 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public int TileSize { get; } = 512;
 
         /// <summary>
+        /// Tree of all visible symbols in the viewable part of this layer
+        /// </summary>
+        public RBush<Symbol> Tree { get; private set; }
+
+        /// <summary>
         /// Memory cache for this layer
         /// </summary>
-        private BruTile.Cache.MemoryCache<VectorTile?> MemoryCache { get; }
+        private BruTile.Cache.MemoryCache<VectorTileFeature?> MemoryCache { get; }
 
         /// <inheritdoc />
         public override IReadOnlyList<double> Resolutions => _schema.Resolutions.Select(r => r.Value.UnitsPerPixel).ToList();
@@ -127,33 +124,32 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var maxRow = int.MinValue;
 
             var tiles = new List<TileInfo>();
-            var vectorTiles = _renderFetchStrategy.Get<VectorTile>(extent, resolution, _tileSource.Schema, MemoryCache);
+            var vectorTileFeatures = _renderFetchStrategy.Get<VectorTileFeature>(extent, resolution, _tileSource.Schema, MemoryCache);
 
-            foreach (var vectorTile in vectorTiles)
+            foreach (var vectorTileFeature in vectorTileFeatures)
             {
-                tiles.Add(vectorTile.TileInfo);
+                tiles.Add(vectorTileFeature.TileInfo);
 
                 // Only update, if all tiles belong to the same zoom level
-                minCol = Math.Min(vectorTile.TileInfo.Index.Col, minCol);
-                minRow = Math.Min(vectorTile.TileInfo.Index.Row, minRow);
-                maxCol = Math.Max(vectorTile.TileInfo.Index.Col, minCol);
-                maxRow = Math.Max(vectorTile.TileInfo.Index.Row, minRow);
+                //if (vectorTileFeature.TileInfo.Index.Level == zoomLevel)
+                {
+                    minCol = Math.Min(vectorTileFeature.TileInfo.Index.Col, minCol);
+                    minRow = Math.Min(vectorTileFeature.TileInfo.Index.Row, minRow);
+                    maxCol = Math.Max(vectorTileFeature.TileInfo.Index.Col, minCol);
+                    maxRow = Math.Max(vectorTileFeature.TileInfo.Index.Row, minRow);
+                }
             }
-
-            _features[0].Tiles = tiles;
 
             if (zoomLevel != _treeZoomLevel || minCol != _treeMinCol || minRow != _treeMinRow || maxCol != _treeMaxCol || maxRow != _treeMaxRow)
             {
                 // Something changed, so the tree should be updated
-                RefreshTree(vectorTiles, zoomLevel, minCol, minRow, maxCol, maxRow);
+                RefreshTree(vectorTileFeatures, zoomLevel, minCol, minRow, maxCol, maxRow);
             }
 
-            _features[0].Tree = _tree;
-
-            return _features;
+            return vectorTileFeatures;
         }
 
-        private void RefreshTree(IEnumerable<VectorTile> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
+        private void RefreshTree(IEnumerable<VectorTileFeature> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
         {
             if (_cancelToken != null)
             {
@@ -177,7 +173,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 {
                     watch.Stop();
 
-                    _tree = tree;
+                    Tree = tree;
 
                     _treeMinCol = minCol;
                     _treeMinRow = minRow;
@@ -186,7 +182,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                     _treeZoomLevel = zoomLevel;
 
-                    Logger.Log(LogLevel.Warning, $"Created a new tree in {watch.ElapsedMilliseconds} ms");
+#if DEBUG
+                    Logger.Log(LogLevel.Information, $"Created a new tree in {watch.ElapsedMilliseconds} ms");
+#endif
 
                     OnDataChanged(new DataChangedEventArgs());
                 }
@@ -241,11 +239,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (propertyChangedEventArgs.PropertyName == nameof(Busy))
             {
                 Busy = _tileFetchDispatcher.Busy;
-                
-                // Check, if Busy is false. Then start with layout process of symbols
-                if (!Busy)
-                {
-                }
             }
         }
 
@@ -264,15 +257,15 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             OnDataChanged(e);
         }
 
-        public VectorTile? FetchTileAsVectorTile(TileInfo tileInfo)
+        public VectorTileFeature? FetchTileAsVectorTile(TileInfo tileInfo)
         {
             if (_tileSource == null)
                 return null;
 
-            var vectorTile = MemoryCache.Find(tileInfo.Index);
+            var vectorTileFeature = MemoryCache.Find(tileInfo.Index);
 
-            if (vectorTile != null)
-                return vectorTile;
+            if (vectorTileFeature != null)
+                return vectorTileFeature;
 
             // We don't create tiles with zoom higher than TileSource could provide
             //if (tileInfo.Index.Level > _tileSource.Schema.Resolutions.Count - 1)
@@ -283,11 +276,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             // We find data in the tile source for this tile, perhaps on lower levels
             if (tileData != null) // && overzoom == Overzoom.None)
-                vectorTile = ToVectorTile(tileInfo, overzoom, ref tileData);
+                vectorTileFeature = ToVectorTile(tileInfo, overzoom, ref tileData);
 
-            MemoryCache.Add(tileInfo.Index, vectorTile);
+            MemoryCache.Add(tileInfo.Index, vectorTileFeature);
 
-            return vectorTile;
+            return vectorTileFeature;
         }
 
         /// <summary>
@@ -310,12 +303,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (zoom < 0)
                 return (null, Overzoom.None);
 
+#if DEBUG
             Logger.Log(Logging.LogLevel.Information, $"Before GetTile from source at {DateTime.Now.Ticks}: {tileInfo.Index.Col}/{tileInfo.Index.Row}/{tileInfo.Index.Level}");
+#endif
 
             // Get byte data for this tile
             var tileData = _tileSource.GetTile(tileInfo);
 
+#if DEBUG
             Logger.Log(Logging.LogLevel.Information, $"After GetTile from source at {DateTime.Now.Ticks}: {tileInfo.Index.Col}/{tileInfo.Index.Row}/{tileInfo.Index.Level}");
+#endif
 
             if (tileData != null)
                 return (tileData, Overzoom.None);
@@ -352,7 +349,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return (tileData, overzoom);
         }
 
-        private VectorTile? ToVectorTile(TileInfo tileInfo, Overzoom overzoom, ref byte[]? tileData)
+        private VectorTileFeature? ToVectorTile(TileInfo tileInfo, Overzoom overzoom, ref byte[]? tileData)
         {
             // A TileSource may return a byte array that is null. This is currently only implemented
             // for MbTilesTileSource. It is to indicate that the tile is not present in the source,
@@ -365,7 +362,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (tileData == null)
                 return null;
 
-            var sink = new VectorTile(tileInfo, TileSize, TileSizeOfData, Style);
+            var sink = new VectorTileFeature(tileInfo, TileSize, TileSizeOfData, Style);
 
             // Parse tile and convert it to a feature list
             Stream stream = new MemoryStream(tileData);

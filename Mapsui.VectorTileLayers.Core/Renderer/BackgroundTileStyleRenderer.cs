@@ -28,7 +28,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 var context = new EvaluationContext((int)viewport.Resolution.ToZoomLevel(), 1f);
                 var paint = backgroundStyle.Paint.CreatePaint(context);
 
-                foreach (var tile in ((VectorTileFeature)feature).Tiles)
+                foreach (var tile in ((BackgroundTileFeature)feature).Tiles)
                 {
                     var extent = tile.Extent.ToMRect();
 

@@ -8,10 +8,8 @@ using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
 using Mapsui.VectorTileLayers.Core.Styles;
-using RBush;
 using SkiaSharp;
 using System;
-using System.Linq;
 
 namespace Mapsui.VectorTileLayers.Core.Renderer
 {
@@ -35,77 +33,72 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             {
                 var vectorTileFeature = (VectorTileFeature)feature;
                 var vectorTileStyle = (VectorTileStyle)style;
+                var vectorTileLayer = (IVectorTileLayer)layer;
                 var zoomLevel = (int)viewport.Resolution.ToZoomLevel();
+                var extent = vectorTileFeature.TileInfo.Extent.ToMRect();
+                var index = vectorTileFeature.TileInfo.Index;
+
+                canvas.Save();
+
+                var scale = CreateMatrix(canvas, viewport, extent);
+
+                canvas.ClipRect(clipRect);
+
+                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
 
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
                 {
-                    foreach (var tile in vectorTileFeature.Tiles)
+                    if (!vectorTileFeature.Buckets.ContainsKey(vectorStyle))
+                        continue;
+
+                    vectorStyle.Update(context);
+
+                    var bucket = vectorTileFeature.Buckets[vectorStyle];
+
+                    if (bucket is LineBucket lineBucket)
                     {
-                        var vectorTile = vectorTileFeature.Cache.Find(tile.Index);
-
-                        if (vectorTile == null)
-                            continue;
-
-                        if (!vectorTile.Buckets.ContainsKey(vectorStyle))
-                            continue;
-
-                        var extent = tile?.Extent.ToMRect();
-                        var index = tile.Index;
-
-                        canvas.Save();
-
-                        var scale = CreateMatrix(canvas, viewport, extent);
-
-                        canvas.ClipRect(clipRect);
-
-                        var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
-
-                        vectorStyle.Update(context);
-
-                        var bucket = vectorTile.Buckets[vectorStyle];
-
-                        if (bucket is LineBucket lineBucket)
+                        foreach (var paint in vectorStyle.Paints)
                         {
-                            foreach (var paint in vectorStyle.Paints)
-                            {
-                                var skPaint = paint.CreatePaint(context);
+                            var skPaint = paint.CreatePaint(context);
 
-                                canvas.DrawPath(lineBucket.Path, skPaint);
-                            }
+                            canvas.DrawPath(lineBucket.Path, skPaint);
                         }
-                        if (bucket is FillBucket fillBucket)
+                    }
+                    if (bucket is FillBucket fillBucket)
+                    {
+                        foreach (var paint in vectorStyle.Paints)
                         {
-                            foreach (var paint in vectorStyle.Paints)
-                            {
-                                var skPaint = paint.CreatePaint(context);
+                            var skPaint = paint.CreatePaint(context);
 
-                                if (skPaint.IsStroke)
+                            if (skPaint.IsStroke)
+                            {
+                                canvas.DrawPath(fillBucket.Path, skPaint);
+                            }
+                            else
+                            {
+                                foreach (var path in fillBucket.Paths)
                                 {
-                                    canvas.DrawPath(fillBucket.Path, skPaint);
-                                }
-                                else
-                                {
-                                    foreach (var path in fillBucket.Paths)
-                                    {
-                                        canvas.DrawPath(path, skPaint);
-                                    }
+                                    canvas.DrawPath(path, skPaint);
                                 }
                             }
                         }
+                    }
 
 #if DEBUG
-                        canvas.DrawRect(clipRect, testPaintRect);
-                        canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
-                        canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
+                    canvas.DrawRect(clipRect, testPaintRect);
+                    canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
+                    canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
 #endif
-
-                        // Remove clipping for symbols
-                        canvas.Restore();
-                    }
                 }
 
+                // Remove clipping for symbols
+                canvas.Restore();
+                canvas.Save();
+
+                scale = CreateMatrix(canvas, viewport, extent);
+
                 // Now draw symbols
-                var tree = vectorTileFeature.Tree;
+                var tree = vectorTileLayer.Tree;
 
                 if (tree == null || tree?.Count == 0)
                     return true;
@@ -114,25 +107,14 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 foreach (var symbol in symbols)
                 {
-                    var vectorTile = vectorTileFeature.Cache.Find(symbol.Index);
-
-                    if (vectorTile == null)
+                    // Draw only symbols that belong to this feature
+                    if (vectorTileFeature.TileInfo.Index != symbol.Index)
                         continue;
 
-                    var extent = vectorTile.Extent;
-
-                    canvas.Save();
-
-                    var scale = CreateMatrix(canvas, viewport, extent);
-
-                    var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
-
                     symbol.Draw(canvas, context);
-
-                    canvas.Restore();
                 }
 
-                return true;
+                canvas.Restore();
             }
             catch (Exception ex)
             {
@@ -140,6 +122,8 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 return false;
             }
+
+            return true;
         }
 
         private float CreateMatrix(SKCanvas canvas, IReadOnlyViewport viewport, MRect extent)

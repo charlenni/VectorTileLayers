@@ -22,7 +22,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
     public class OMTBackgroundLayer : ILayer
     {
         TileSchema _schema;
-        readonly VectorTileFeature[] _features = { new VectorTileFeature() };
+        readonly BackgroundTileFeature[] _features = { new BackgroundTileFeature() };
 
         public int Id => 0;
 
