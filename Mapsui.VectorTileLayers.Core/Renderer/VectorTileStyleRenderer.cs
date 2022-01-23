@@ -91,29 +91,6 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 #endif
                 }
 
-                // Remove clipping for symbols
-                canvas.Restore();
-                canvas.Save();
-
-                scale = CreateMatrix(canvas, viewport, extent);
-
-                // Now draw symbols
-                var tree = vectorTileLayer.Tree;
-
-                if (tree == null || tree?.Count == 0)
-                    return true;
-
-                var symbols = tree.Search();
-
-                foreach (var symbol in symbols)
-                {
-                    // Draw only symbols that belong to this feature
-                    if (vectorTileFeature.TileInfo.Index != symbol.Index)
-                        continue;
-
-                    symbol.Draw(canvas, context);
-                }
-
                 canvas.Restore();
             }
             catch (Exception ex)
