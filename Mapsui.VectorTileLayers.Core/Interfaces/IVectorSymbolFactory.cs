@@ -1,8 +1,9 @@
 ﻿using Mapsui.VectorTileLayers.Core.Primitives;
+using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.Core.Interfaces
 {
-    public interface IVectorSymbolStyler
+    public interface IVectorSymbolFactory
     {
         bool HasIcon { get; }
 
@@ -14,6 +15,6 @@ namespace Mapsui.VectorTileLayers.Core.Interfaces
 
         Symbol CreateIconTextSymbol(MPoint point, TagsCollection tags, EvaluationContext context);
 
-        Symbol CreatePathSymbols(VectorElement element, EvaluationContext context);
+        IEnumerable<Symbol> CreatePathSymbols(VectorElement element, EvaluationContext context);
     }
 }

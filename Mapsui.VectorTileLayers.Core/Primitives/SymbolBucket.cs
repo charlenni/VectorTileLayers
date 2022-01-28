@@ -8,7 +8,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
     public class SymbolBucket : IBucket
     {
         IVectorTileStyle styleLayer;
-        IVectorSymbolStyler styler;
+        IVectorSymbolFactory styler;
 
         public List<Symbol> Symbols = new List<Symbol>();
 
@@ -63,8 +63,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                     var pathSymbol = styler.CreatePathSymbols(element, context);
                     if (pathSymbol != null)
                     {
-                        pathSymbol.Index = element.TileIndex;
-                        Symbols.Add(pathSymbol);
+                        Symbols.AddRange(pathSymbol);
                     }
                     break;
                 case GeometryType.Polygon:

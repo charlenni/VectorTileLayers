@@ -9,10 +9,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Topten.RichTextKit;
+using Mapsui.VectorTileLayers.Core.Extensions;
+using System;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OMTSymbolFactory : IVectorSymbolStyler
+    public class OMTSymbolFactory : IVectorSymbolFactory
     {
         static Regex regex = new Regex(@".*\{(.*)\}.*");
 
@@ -355,15 +357,48 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return new OMTIconTextSymbol(icon, text);
         }
 
-        public Symbol CreatePathSymbols(VectorElement element, EvaluationContext context)
+        public IEnumerable<Symbol> CreatePathSymbols(VectorElement element, EvaluationContext context)
         {
-            var result = new OMTPathSymbol(element.TileIndex, element.Id);
+            var result = new List<Symbol>();
+            //var symbol = new OMTPathSymbol(element.TileIndex, element.Id);
 
-            result.Class = element.Tags.ContainsKey("class") ? element.Tags["class"].ToString() : string.Empty;
-            result.Subclass = element.Tags.ContainsKey("subclass") ? element.Tags["subclass"].ToString() : string.Empty;
-            result.Rank = element.Tags.ContainsKey("rank") ? int.Parse(element.Tags["rank"].ToString()) : 0;
+            //symbol.Class = element.Tags.ContainsKey("class") ? element.Tags["class"].ToString() : string.Empty;
+            //symbol.Subclass = element.Tags.ContainsKey("subclass") ? element.Tags["subclass"].ToString() : string.Empty;
+            //symbol.Rank = element.Tags.ContainsKey("rank") ? int.Parse(element.Tags["rank"].ToString()) : 0;
 
-            result.Name = ReplaceWithTags(TextField, element.Tags, context);
+            //symbol.Name = ReplaceWithTags(TextField, element.Tags, context);
+            //symbol.Name = ReplaceWithTransforms(result.Name, TextTransform);
+
+            //if (symbol.Name == string.Empty)
+            //    return null;
+
+            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "line" && (element.IsLine || element.IsPolygon))
+            {
+                var path = new SKPath();
+                element.AddToPath(path);
+                var spacing = (float)SymbolSpacing.Evaluate(context);
+                var pos = 1;
+                using (var pathMeasure = new SKPathMeasure(path))
+                {
+                    while (pathMeasure.Length > spacing * pos)
+                    {
+                        pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangent);
+                        try
+                        {
+                            var symbol = CreateIconTextSymbol(position.ToPoint(), element.Tags, context);
+                            symbol.Index = element.TileIndex;
+                            result.Add(symbol);
+                        }
+                        catch (Exception e)
+                        { }
+                        pos++;
+                    }
+                }
+            }
+            else if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point")
+            {
+
+            }
 
             return result;
         }
@@ -378,10 +413,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var val = match.Groups[1].Value;
 
             if (tags.ContainsKey(val))
-                return text.Replace($"{{{val}}}", (string)tags[val]);
+                return text.Replace($"{{{val}}}", tags[val].ToString());
 
             if (context != null && context.Tags != null && context.Tags.ContainsKey(val))
-                return text.Replace($"{{{val}}}", (string)context.Tags[val]);
+                return text.Replace($"{{{val}}}", context.Tags[val].ToString());
 
             // Check, if match starts with name
             if (val.StartsWith("name"))
@@ -389,9 +424,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 // Try to take the localized name
                 var code = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
                 if (tags.ContainsKey("name:"+code))
-                    return text.Replace($"{{{val}}}", (string)tags["name:" + code]);
+                    return text.Replace($"{{{val}}}", tags["name:" + code].ToString());
                 if (tags.ContainsKey("name_" + code))
-                    return text.Replace($"{{{val}}}", (string)tags["name_" + code]);
+                    return text.Replace($"{{{val}}}", tags["name_" + code].ToString());
             }
 
             return text;

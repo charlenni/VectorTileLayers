@@ -45,7 +45,7 @@ namespace Mapsui.VectorTileLayers.Core.Interfaces
         /// <summary>
         /// Symbol styler to use for creating symbols
         /// </summary>
-        IVectorSymbolStyler SymbolStyler { get; }
+        IVectorSymbolFactory SymbolStyler { get; }
 
         /// <summary>
         /// Update the paints in the style with the new values in context
