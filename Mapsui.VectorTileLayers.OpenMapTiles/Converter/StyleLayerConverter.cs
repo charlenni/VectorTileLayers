@@ -476,10 +476,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             var paint = jsonStyleLayer?.Paint;
 
             // If we don't have a paint, than there isn't anything that we could do
-            if (paint == null)
-            {
-                return OMTSymbolFactory.Default;
-            }
+            //if (paint == null)
+            //{
+            //    return OMTSymbolFactory.Default;
+            //}
 
             OMTSymbolFactory symbolStyler = new OMTSymbolFactory(spriteAtlas);
 
