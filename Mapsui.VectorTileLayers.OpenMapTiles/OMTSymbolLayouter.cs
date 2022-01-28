@@ -12,15 +12,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public static class OMTSymbolLayouter
     {
-        public static RBush<Symbol> Layout(IEnumerable<IVectorTileStyle> vectorTileStyles, IEnumerable<VectorTileFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
+        public static RBush<Symbol> Layout(IEnumerable<IVectorTileStyle> vectorTileStyles, IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
         {
             RBush<Symbol> tree = new RBush<Symbol>(9);
             Dictionary<TileIndex, MPoint> offsets = new Dictionary<TileIndex, MPoint>();
 
             // Create a dictionary with all positions of the tiles relative to the left top one
-            foreach (var vectorTile in vectorTiles)
+            foreach (var feature in vectorTiles)
             {
-                offsets[vectorTile.TileInfo.Index] = new MPoint((vectorTile.TileInfo.Index.Col - minCol) * 512, (vectorTile.TileInfo.Index.Row - minRow) * 512);
+                var vectorTileFeature = (VectorTileFeature)feature;
+                offsets[vectorTileFeature.TileInfo.Index] = new MPoint((vectorTileFeature.TileInfo.Index.Col - minCol) * 512, (vectorTileFeature.TileInfo.Index.Row - minRow) * 512);
             }
 
             if (cancelToken.IsCancellationRequested)
@@ -37,9 +38,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                 List<Symbol> symbols = new List<Symbol>();
 
-                foreach (var vectorTile in vectorTiles)
+                foreach (var feature in vectorTiles)
                 {
-                    if (vectorTile.Buckets.ContainsKey(style) && vectorTile.Buckets[style] is SymbolBucket symbolBucket)
+                    var vectorTileFeature = (VectorTileFeature)feature;
+                    if (vectorTileFeature.Buckets.ContainsKey(style) && vectorTileFeature.Buckets[style] is SymbolBucket symbolBucket)
                     {
                         symbols.AddRange(symbolBucket.Symbols);
                     }
