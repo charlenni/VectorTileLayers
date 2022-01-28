@@ -128,11 +128,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
 
         [JsonConverter(typeof(StoppedStringConverter))]
         [JsonProperty("symbol-placement")]
-        public StoppedString SymbolPlacement { get; set; }
+        public StoppedString SymbolPlacement { get; set; } = new StoppedString { SingleVal = "point" };
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("symbol-spacing")]
-        public StoppedFloat SymbolSpacing { get; set; }
+        public StoppedFloat SymbolSpacing { get; set; } = new StoppedFloat { SingleVal = 250f };
 
         [JsonProperty("symbol-z-order")]
         public string SymbolZOrder { get; set; }
