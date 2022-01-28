@@ -9,10 +9,13 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
     {
         public TileIndex TileIndex { get; private set; }
 
+        public SKPath Path { get; }
+
         public OMTPathSymbol(TileIndex tileIndex, string id)
         {
             TileIndex = tileIndex;
             Id = id;
+            Path = new SKPath();
         }
 
         public override void Update(EvaluationContext context)
