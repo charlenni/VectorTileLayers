@@ -47,7 +47,7 @@
     <PackageReference Include="Mapsui" Version="3.0.0-build.2653" />
     <PackageReference Include="Mapsui.Wpf" Version="3.0.0-build.2653" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.149" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.151" />
   </ItemGroup>
 
   <ItemGroup>
