@@ -262,6 +262,32 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             var result = new OMTTextSymbol(textBlock, textStyle);
 
+            // Set orientation
+            switch (TextPitchAlignment)
+            {
+                case MapAlignment.Map:
+                    result.Alignment = MapAlignment.Map;
+                    break;
+                case MapAlignment.Viewport:
+                    result.Alignment = MapAlignment.Viewport;
+                    break;
+                case MapAlignment.Auto:
+                    switch (TextRotationAlignment)
+                    {
+                        case MapAlignment.Map:
+                            result.Alignment = MapAlignment.Map;
+                            break;
+                        case MapAlignment.Viewport:
+                            result.Alignment = MapAlignment.Viewport;
+                            break;
+                        case MapAlignment.Auto:
+                            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point")
+                                result.Alignment = MapAlignment.Viewport;
+                            break;
+                    }
+                    break;
+            }
+
             result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
             result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
             result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
@@ -371,6 +397,12 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             //if (symbol.Name == string.Empty)
             //    return null;
+
+            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point" && element.IsPoint)
+            { }
+
+            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "line-center" && (element.IsLine || element.IsPolygon))
+            { }
 
             if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "line" && (element.IsLine || element.IsPolygon))
             {
