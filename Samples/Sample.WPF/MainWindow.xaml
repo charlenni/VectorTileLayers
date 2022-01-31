@@ -12,6 +12,8 @@
         <StackPanel>
             <Button x:Name="btnZoomIn" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">+</Button>
             <Button x:Name="btnZoomOut" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">-</Button>
+            <Button x:Name="btnRotateCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">R+</Button>
+            <Button x:Name="btnRotateCCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">R-</Button>
         </StackPanel>
     </Grid>
 </Window>
