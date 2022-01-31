@@ -4,6 +4,7 @@ using Mapsui.Extensions;
 using Mapsui.Fetcher;
 using Mapsui.Layers;
 using Mapsui.Logging;
+using Mapsui.Rendering;
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
@@ -77,7 +78,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Attribution.Url = _tileSource.Attribution?.Url;
             
             dataFetchStrategy ??= new DataFetchStrategy(3);
-            _renderFetchStrategy = new RenderFetchStrategy();
+            _renderFetchStrategy = new Core.Utilities.RenderFetchStrategy();
             _minExtraTiles = minExtraTiles;
             _maxExtraTiles = maxExtraTiles;
             _tileFetchDispatcher = new TileFetchDispatcher<VectorTileFeature>(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
@@ -129,8 +130,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var tiles = new List<TileInfo>();
             var vectorTileFeatures = _renderFetchStrategy.Get<VectorTileFeature>(extent, resolution, _tileSource.Schema, MemoryCache);
 
-            foreach (var vectorTileFeature in vectorTileFeatures)
+            foreach (var feature in vectorTileFeatures)
             {
+                var vectorTileFeature = (VectorTileFeature)feature;
+
                 tiles.Add(vectorTileFeature.TileInfo);
 
                 // Only update, if all tiles belong to the same zoom level
@@ -152,7 +155,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return vectorTileFeatures;
         }
 
-        private void RefreshTree(IEnumerable<VectorTileFeature> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
+        private void RefreshTree(IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
         {
             if (_cancelToken != null)
             {
