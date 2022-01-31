@@ -62,13 +62,18 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                     var scale = zoomLevel <= symbol.Index.Level ? 0.5f : 1 << (zoomLevel - symbol.Index.Level - 1);
                     var context = new EvaluationContext(zoomLevel, scale);
 
+                    if (!offsets.ContainsKey(symbol.Index))
+                        continue;
+
+                    var offset = offsets[symbol.Index];
+
                     symbol.Update(context);
 
                     if (symbol.Alignment == Core.Enums.MapAlignment.Map)
                         // It could be rotated, so use the biggest possible envelope
-                        symbol.CalcEnvelope(scale, 45, offsets[symbol.Index]);
+                        symbol.CalcEnvelope(scale, 45, offset);
                     else
-                        symbol.CalcEnvelope(scale, 0, offsets[symbol.Index]);
+                        symbol.CalcEnvelope(scale, 0, offset);
 
                     var result = symbol.TreeSearch(tree);
                     if (result != null)
