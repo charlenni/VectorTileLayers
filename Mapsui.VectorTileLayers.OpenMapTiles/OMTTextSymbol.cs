@@ -74,6 +74,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 canvas.Scale(context.Scale, context.Scale);
                 // TextBlock.Paint draws always with MaxWidth bounds
                 canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
+                //if (Alignment == Core.Enums.MapAlignment.Viewport)
+                //    canvas.RotateDegrees(context.)
                 var paint = Paint.CreatePaint(context);
                 TextStyle.TextColor = paint.Color;
                 TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
