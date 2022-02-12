@@ -62,8 +62,11 @@ namespace Sample.Forms
             mapControl.Renderer.StyleRenderers[typeof(BackgroundTileStyle)] = new BackgroundTileStyleRenderer();
             mapControl.Renderer.StyleRenderers[typeof(RasterTileStyle)] = new RasterTileStyleRenderer();
             mapControl.Renderer.StyleRenderers[typeof(VectorTileStyle)] = new VectorTileStyleRenderer();
+            mapControl.Renderer.StyleRenderers[typeof(SymbolTileStyle)] = new SymbolTileStyleRenderer();
 
             mapControl.Map = map;
+
+            Topten.RichTextKit.FontMapper.Default = new Mapsui.VectorTileLayers.OpenMapTiles.Utilities.FontMapper();
 
             LoadFontResources(Assembly.GetAssembly(GetType()));
             LoadMapboxGL();
