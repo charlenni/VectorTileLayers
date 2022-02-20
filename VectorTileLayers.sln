@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31911.196
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mapsui.VectorTileLayers.Core", "Mapsui.VectorTileLayers.Core\Mapsui.VectorTileLayers.Core.csproj", "{C0AE861E-2603-4A6D-8B35-BC4DAB841030}"
 EndProject
@@ -158,6 +158,7 @@ Global
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|ARM.ActiveCfg = Release|iPhoneSimulator
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|iPhone.ActiveCfg = Release|iPhone
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|iPhone.Build.0 = Release|iPhone
+		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|iPhone.Deploy.0 = Release|iPhone
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 		{ACA312D5-BD6D-428B-9F78-684D963CFB50}.Release|x64.ActiveCfg = Release|iPhoneSimulator

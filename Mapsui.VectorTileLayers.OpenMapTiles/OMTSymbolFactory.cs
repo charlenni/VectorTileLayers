@@ -216,6 +216,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             var result = new OMTIconSymbol();
 
+            // Set orientation
+            result.Alignment = GetAlignment(IconPitchAlignment, IconRotationAlignment, ((string)SymbolPlacement.Evaluate(context)).ToLower());
+
             result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
             result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
             result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
@@ -263,30 +266,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var result = new OMTTextSymbol(textBlock, textStyle);
 
             // Set orientation
-            switch (TextPitchAlignment)
-            {
-                case MapAlignment.Map:
-                    result.Alignment = MapAlignment.Map;
-                    break;
-                case MapAlignment.Viewport:
-                    result.Alignment = MapAlignment.Viewport;
-                    break;
-                case MapAlignment.Auto:
-                    switch (TextRotationAlignment)
-                    {
-                        case MapAlignment.Map:
-                            result.Alignment = MapAlignment.Map;
-                            break;
-                        case MapAlignment.Viewport:
-                            result.Alignment = MapAlignment.Viewport;
-                            break;
-                        case MapAlignment.Auto:
-                            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point")
-                                result.Alignment = MapAlignment.Viewport;
-                            break;
-                    }
-                    break;
-            }
+            result.Alignment = GetAlignment(TextPitchAlignment, TextRotationAlignment, ((string)SymbolPlacement.Evaluate(context)).ToLower());
 
             result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
             result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
@@ -430,6 +410,38 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             else if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point")
             {
 
+            }
+
+            return result;
+        }
+
+        private MapAlignment GetAlignment(MapAlignment pitchAlignment, MapAlignment rotationAlignment, string symbolPlacement)
+        {
+            MapAlignment result = MapAlignment.Map;
+
+            switch (pitchAlignment)
+            {
+                case MapAlignment.Map:
+                    result = MapAlignment.Map;
+                    break;
+                case MapAlignment.Viewport:
+                    result = MapAlignment.Viewport;
+                    break;
+                case MapAlignment.Auto:
+                    switch (rotationAlignment)
+                    {
+                        case MapAlignment.Map:
+                            result = MapAlignment.Map;
+                            break;
+                        case MapAlignment.Viewport:
+                            result = MapAlignment.Viewport;
+                            break;
+                        case MapAlignment.Auto:
+                            if (symbolPlacement == "point")
+                                result = MapAlignment.Viewport;
+                            break;
+                    }
+                    break;
             }
 
             return result;

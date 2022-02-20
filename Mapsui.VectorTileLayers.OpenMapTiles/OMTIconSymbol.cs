@@ -62,6 +62,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             canvas.Save();
             canvas.Translate((float)Point.X, (float)Point.Y);
             canvas.Scale(context.Scale, context.Scale);
+            if (Alignment == Core.Enums.MapAlignment.Viewport)
+                canvas.RotateDegrees(-context.Rotation);
             canvas.Translate((float)Anchor.X, (float)Anchor.Y);
             // Offset could be in relation to Map or Viewport
             canvas.Translate((float)Offset.X, (float)Offset.Y);
@@ -71,7 +73,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             canvas.Restore();
 
 #if DEBUG
-            canvas.DrawRect(testRect, testPaint);
+            //canvas.DrawRect(testRect, testPaint);
 #endif
         }
 

@@ -9,12 +9,15 @@
 
         public float Scale { get; set; }
 
+        public float Rotation { get; set; }
+
         public TagsCollection Tags { get; set; }
 
-        public EvaluationContext(float? zoom, float scale = 1, TagsCollection tags = null)
+        public EvaluationContext(float? zoom, float scale = 1, float rotation = 0, TagsCollection tags = null)
         {
             Zoom = zoom;
             Scale = scale;
+            Rotation = rotation;
             Tags = tags;
         }
 

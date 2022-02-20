@@ -34,7 +34,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 var scale = CreateMatrix(canvas, viewport, extent);
 
-                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
+                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale, (float)viewport.Rotation);
 
                 // Now draw symbols
                 var tree = vectorTileLayer.Tree;

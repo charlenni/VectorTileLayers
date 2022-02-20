@@ -72,10 +72,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 canvas.Save();
                 canvas.Translate((float)Point.X, (float)Point.Y);
                 canvas.Scale(context.Scale, context.Scale);
+                if (Alignment == Core.Enums.MapAlignment.Viewport)
+                    canvas.RotateDegrees(-context.Rotation);
                 // TextBlock.Paint draws always with MaxWidth bounds
                 canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
-                //if (Alignment == Core.Enums.MapAlignment.Viewport)
-                //    canvas.RotateDegrees(context.)
                 var paint = Paint.CreatePaint(context);
                 TextStyle.TextColor = paint.Color;
                 TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
@@ -86,7 +86,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
 #if DEBUG
                 //if (Name.StartsWith("FONTVIEILLE") || Name == "Chapiteau de Fontvieille" || Name.StartsWith("Post") || Name.StartsWith("Caval"))
-                    canvas.DrawRect(testRect, testPaint);
+                    //canvas.DrawRect(testRect, testPaint);
 #endif
             }
         }

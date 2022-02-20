@@ -88,7 +88,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 paint.PathEffect = SKPathEffect.CreateDash(array, 0);
             }
 
-            lastContext = new EvaluationContext(context.Zoom, context.Scale, context.Tags);
+            lastContext = new EvaluationContext(context.Zoom, context.Scale, context.Rotation, context.Tags);
             lastPaint = paint;
 
             return paint;
