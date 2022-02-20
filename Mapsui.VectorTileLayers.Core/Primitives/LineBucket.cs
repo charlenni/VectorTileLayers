@@ -19,6 +19,11 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                 element.AddToPath(Path);
         }
 
+        public void SimplifyPath()
+        {
+            Path.Simplify(Path);
+        }
+
         public void Dispose()
         {
             Path.Dispose();

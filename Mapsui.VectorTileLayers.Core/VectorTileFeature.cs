@@ -136,10 +136,32 @@ namespace Mapsui.VectorTileLayers.Core
                 // Delete empty buckets
                 foreach (var bucket in _buckets)
                 {
-                    if (bucket.Value is FillBucket && ((FillBucket)bucket.Value).Paths.Count == 0)
+                    if (bucket.Value is FillBucket fillBucket)
                     {
-                        // Bucket is empty
-                        remove.Add(bucket.Key);
+                        if (fillBucket.Paths.Count == 0)
+                        {
+                            // Bucket is empty
+                            remove.Add(bucket.Key);
+                        }
+                        else
+                        {
+                            // Simplyfy path
+                            fillBucket.SimplifyPaths();
+                        }
+                    }
+
+                    if (bucket.Value is LineBucket lineBucket)
+                    {
+                        if (lineBucket.Path.PointCount == 0)
+                        {
+                            // Bucket is empty
+                            remove.Add(bucket.Key);
+                        }
+                        else
+                        {
+                            // Simplyfy path
+                            lineBucket.SimplifyPath();
+                        }
                     }
                 }
 

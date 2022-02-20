@@ -29,6 +29,16 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
             }
         }
 
+        public void SimplifyPaths()
+        {
+            Path.Simplify(Path);
+
+            foreach (var path in Paths)
+            {
+                path.Simplify(path);
+            }
+        }
+
         public void Dispose()
         {
             foreach (var path in Paths)
