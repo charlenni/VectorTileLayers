@@ -57,10 +57,13 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                     if (bucket is LineBucket lineBucket)
                     {
+                        if (!lineBucket.Path.Bounds.IntersectsWith(canvas.LocalClipBounds))
+                            continue;
+
                         foreach (var paint in vectorStyle.Paints)
                         {
                             var skPaint = paint.CreatePaint(context);
-
+                            
                             canvas.DrawPath(lineBucket.Path, skPaint);
                         }
                     }
@@ -72,24 +75,30 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                             if (skPaint.IsStroke)
                             {
-                                canvas.DrawPath(fillBucket.Path, skPaint);
+                                if (fillBucket.Path.Bounds.IntersectsWith(canvas.LocalClipBounds))
+                                {
+                                    canvas.DrawPath(fillBucket.Path, skPaint);
+                                }
                             }
                             else
                             {
                                 foreach (var path in fillBucket.Paths)
                                 {
-                                    canvas.DrawPath(path, skPaint);
+                                    if (path.Bounds.IntersectsWith(canvas.LocalClipBounds))
+                                    {
+                                        canvas.DrawPath(path, skPaint);
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
 #if DEBUG
-                    canvas.DrawRect(clipRect, testPaintRect);
-                    canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
-                    canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
+                canvas.DrawRect(clipRect, testPaintRect);
+                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextStroke);
+                canvas.DrawText($"Tile {index.Col}/{index.Row}/{index.Level}", new SKPoint(20, 50), testPaintTextFill);
 #endif
-                }
 
                 canvas.Restore();
             }
