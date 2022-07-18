@@ -10,6 +10,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         // TODO: Only for testing
         SKPaint testPaint = new SKPaint { Color = SKColors.Red, Style = SKPaintStyle.Stroke, StrokeWidth = 0 };
         SKRect testRect;
+        SKPath testPath;
 #endif
         public SKImage Image { get; set; }
 
@@ -49,7 +50,22 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var maxY = (float)(minY + height + padding * 2);
             // Create envelope
             _envelope = new Envelope(minX + offset.X, minY + offset.Y, maxX + offset.X, maxY + offset.Y);
+
+
 #if DEBUG
+            var matrix = CreateMatrix(scale, 0);
+            var tl = matrix.MapPoint(new SKPoint(0, 0));
+            var tr = matrix.MapPoint(new SKPoint(Image.Width, 0));
+            var bl = matrix.MapPoint(new SKPoint(0, Image.Height));
+            var br = matrix.MapPoint(new SKPoint(Image.Width, Image.Height));
+
+            testPath = new SKPath();
+            testPath.MoveTo(tl);
+            testPath.LineTo(tr);
+            testPath.LineTo(br);
+            testPath.LineTo(bl);
+            testPath.Close();
+
             testRect = new SKRect(minX, minY, maxX, maxY);
 #endif
         }
@@ -60,21 +76,25 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 return;
 
             canvas.Save();
-            canvas.Translate((float)Point.X, (float)Point.Y);
-            canvas.Scale(context.Scale, context.Scale);
-            if (Alignment == Core.Enums.MapAlignment.Viewport)
-                canvas.RotateDegrees(-context.Rotation);
-            canvas.Translate((float)Anchor.X, (float)Anchor.Y);
-            // Offset could be in relation to Map or Viewport
-            canvas.Translate((float)Offset.X, (float)Offset.Y);
+
+            //canvas.Translate((float)Point.X, (float)Point.Y);
+            //canvas.Scale(context.Scale, context.Scale);
+            //if (Alignment == Core.Enums.MapAlignment.Viewport)
+            //    canvas.RotateDegrees(-context.Rotation);
+            //canvas.Translate((float)Anchor.X, (float)Anchor.Y);
+            //// Offset could be in relation to Map or Viewport
+            //canvas.Translate((float)Offset.X, (float)Offset.Y);
+            //canvas.Scale(IconSize);
+            canvas.SetMatrix(canvas.TotalMatrix.PreConcat(CreateMatrix(context.Scale, context.Rotation)));
             var paint = Paint.CreatePaint(context);
-            canvas.Scale(IconSize);
             canvas.DrawImage(Image, 0, 0, paint);
-            canvas.Restore();
 
 #if DEBUG
+            //canvas.DrawPath(testPath, testPaint);
             //canvas.DrawRect(testRect, testPaint);
 #endif
+
+            canvas.Restore();
         }
 
         public override Symbol TreeSearch(RBush<Symbol> tree)
@@ -98,6 +118,22 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
 
             return this;
+        }
+
+        private SKMatrix CreateMatrix(float scale, float rotation)
+        {
+            SKMatrix result = SKMatrix.Identity;
+
+            result = result.PreConcat(SKMatrix.CreateTranslation((float)Point.X, (float)Point.Y));
+            result = result.PreConcat(SKMatrix.CreateScale(scale, scale));
+            if (Alignment == Core.Enums.MapAlignment.Viewport)
+                result = result.PreConcat(SKMatrix.CreateRotationDegrees(-rotation));
+            result = result.PreConcat(SKMatrix.CreateTranslation((float)Anchor.X, (float)Anchor.Y));
+            // Offset could be in relation to Map or Viewport
+            result = result.PreConcat(SKMatrix.CreateTranslation((float)Offset.X, (float)Offset.Y));
+            result = result.PreConcat(SKMatrix.CreateScale(IconSize, IconSize));
+
+            return result;
         }
     }
 }
