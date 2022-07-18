@@ -64,31 +64,29 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public override void Draw(SKCanvas canvas, EvaluationContext context)
         {
-            if (!IsVisible)
+            if (!IsVisible || string.IsNullOrWhiteSpace(Name))
                 return;
 
-            if (Name != null)
-            {
-                canvas.Save();
-                canvas.Translate((float)Point.X, (float)Point.Y);
-                canvas.Scale(context.Scale, context.Scale);
-                if (Alignment == Core.Enums.MapAlignment.Viewport)
-                    canvas.RotateDegrees(-context.Rotation);
-                // TextBlock.Paint draws always with MaxWidth bounds
+            canvas.Save();
+            canvas.Translate((float)Point.X, (float)Point.Y);
+            canvas.Scale(context.Scale, context.Scale);
+            if (Alignment == Core.Enums.MapAlignment.Viewport)
+                canvas.RotateDegrees(-context.Rotation);
+            // TextBlock.Paint draws always with MaxWidth bounds
                 canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
-                var paint = Paint.CreatePaint(context);
-                TextStyle.TextColor = paint.Color;
-                TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
-                TextStyle.HaloColor = (SKColor)TextHaloColor.Evaluate(context);
-                TextStyle.HaloWidth = (float)TextHaloWidth.Evaluate(context);
-                TextBlock.Paint(canvas);
-                canvas.Restore();
+            var paint = Paint.CreatePaint(context);
+            TextStyle.TextColor = paint.Color;
+            TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
+            TextStyle.HaloColor = (SKColor)TextHaloColor.Evaluate(context);
+            TextStyle.HaloWidth = (float)TextHaloWidth.Evaluate(context);
+            TextBlock.Paint(canvas);
+            canvas.Restore();
 
 #if DEBUG
-                //if (Name.StartsWith("FONTVIEILLE") || Name == "Chapiteau de Fontvieille" || Name.StartsWith("Post") || Name.StartsWith("Caval"))
-                    //canvas.DrawRect(testRect, testPaint);
+            //if (Name.StartsWith("FONTVIEILLE") || Name == "Chapiteau de Fontvieille" || Name.StartsWith("Post") || Name.StartsWith("Caval"))
+            //  canvas.DrawRect(testRect, testPaint);
 #endif
-            }
+
         }
 
         public override Symbol TreeSearch(RBush<Symbol> tree)
