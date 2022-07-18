@@ -31,11 +31,13 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public void SimplifyPaths()
         {
-            Path.Simplify(Path);
+            // TODO: Path.Simplify doesn't work correct
+            // Path.Simplify(Path);
 
             foreach (var path in Paths)
             {
-                path.Simplify(path);
+                // TODO: Path.Simplify doesn't work correct
+                // path.Simplify(path);
             }
         }
 
