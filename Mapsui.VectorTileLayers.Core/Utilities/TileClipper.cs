@@ -91,7 +91,7 @@ namespace Mapsui.VectorTileLayers.Core.Utilities
             var vx = point2.X - point1.X;
             var vy = point2.Y - point1.Y;
             var p = new[] { -vx, vx, -vy, vy };
-            var q = new[] { point1.X - clipRect.Left, clipRect.Right - point1.X, clipRect.Top - point1.Y, point1.Y - clipRect.Bottom };
+            var q = new[] { point1.X - clipRect.Left, clipRect.Right - point1.X, point1.Y - clipRect.Bottom, clipRect.Top - point1.Y };
             var u1 = double.NegativeInfinity;
             var u2 = double.PositiveInfinity;
 
