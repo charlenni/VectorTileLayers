@@ -11,7 +11,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
             Path = new SKPath();
         }
 
-        public SKPath Path { get; }
+        public SKPath Path { get; private set; }
 
         public void AddElement(VectorElement element)
         {
@@ -21,7 +21,8 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public void SimplifyPath()
         {
-            Path.Simplify(Path);
+            // TODO: Path.Simplyfy doesn't work correct
+            // Path.Simplify(Path);
         }
 
         public void Dispose()
