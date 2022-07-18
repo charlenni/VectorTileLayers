@@ -46,6 +46,27 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public List<MPoint> Points { get => IsPoint ? new List<MPoint>(_points) : new List<MPoint>(); }
 
+        public List<List<MPoint>> Lines
+        {
+            get
+            {
+                var result = new List<List<MPoint>>();
+                int start = 0;
+
+                for (int i = 0; i < _index.Count; i++)
+                {
+                    if (_index[i] > 0)
+                    {
+                        result.Add(_points.GetRange(start, _index[i]));
+                    }
+
+                    start += _index[i];
+                }
+
+                return result;
+            }
+        }
+
         public bool IsPoint { get => Type == GeometryType.Point; }
 
         public bool IsLine { get => Type == GeometryType.LineString; }
@@ -56,7 +77,6 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public void Add(MPoint point)
         {
-            // TODO: Check for correct values
             if (IsPoint && (point.X < 0 || point.X > _tileSizeOfData || point.Y < 0 || point.Y > _tileSizeOfData))
                 return;
 
