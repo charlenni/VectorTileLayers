@@ -21,7 +21,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public void SimplifyPath()
         {
-            // TODO: Path.Simplyfy doesn't work correct
+            // TODO: Path.Simplify doesn't work correct
             // Path.Simplify(Path);
         }
 
