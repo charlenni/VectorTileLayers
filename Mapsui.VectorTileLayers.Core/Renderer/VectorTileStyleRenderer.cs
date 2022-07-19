@@ -44,7 +44,8 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 canvas.ClipRect(clipRect);
 
-                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel(), 1f / scale);
+                var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel() - 1, 1f / scale);
+                var strokeLimit = 1 / scale;
 
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
                 {
@@ -64,6 +65,9 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                         {
                             var skPaint = paint.CreatePaint(context);
                             
+                            if (skPaint.StrokeWidth < strokeLimit)
+                                continue;
+
                             canvas.DrawPath(lineBucket.Path, skPaint);
                         }
                     }
@@ -75,6 +79,9 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                             if (skPaint.IsStroke)
                             {
+                                if (skPaint.StrokeWidth < strokeLimit)
+                                    continue;
+
                                 if (fillBucket.Path.Bounds.IntersectsWith(canvas.LocalClipBounds))
                                 {
                                     canvas.DrawPath(fillBucket.Path, skPaint);
