@@ -25,9 +25,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Stream streamJson = null;
             Stream streamAtlas = null;
 
+            // TODO: Remove this, if PixelRatio is respected in Mapsui
             // First check for @2x
-            var nameJson = source + "@2x.json";
-            var nameAtlas = source + "@2x.png";
+            var nameJson = source + ".json"; // "@2x.json";
+            var nameAtlas = source + ".png"; // "@2x.png";
 
             try
             {
