@@ -390,7 +390,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 var path = new SKPath();
                 element.AddToPath(path);
                 var spacing = (float)SymbolSpacing.Evaluate(context);
-                var pos = 1;
+                var pos = 0.5f;
                 using (var pathMeasure = new SKPathMeasure(path))
                 {
                     while (pathMeasure.Length > spacing * pos)
