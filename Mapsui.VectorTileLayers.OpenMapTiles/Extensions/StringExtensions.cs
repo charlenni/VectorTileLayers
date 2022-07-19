@@ -38,7 +38,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Extensions
                 {
                     var color = int.Parse(from.Substring(1), NumberStyles.AllowHexSpecifier,
                         CultureInfo.InvariantCulture);
-                    result = new SKColor((byte)(color >> 16 & 0xFF), (byte)(color >> 8 & 0xFF), (byte)(color & 0xFF));
+                    result = new SKColor((byte)(color >> 16 & 0xFF), (byte)(color >> 8 & 0xFF), (byte)(color & 0xFF), 255);
                 }
                 else if (from.Length == 4)
                 {
@@ -47,7 +47,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Extensions
                     var r = (byte)((color >> 8 & 0xF) * 16 + (color >> 8 & 0xF));
                     var g = (byte)((color >> 4 & 0xF) * 16 + (color >> 4 & 0xF));
                     var b = (byte)((color & 0xF) * 16 + (color & 0xF));
-                    result = new SKColor(r, g, b);
+                    result = new SKColor(r, g, b, 255);
                 }
             }
             else if (from.StartsWith("rgba"))
@@ -75,7 +75,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Extensions
                 var g = byte.Parse(split[1].Trim(), CultureInfo.InvariantCulture);
                 var b = byte.Parse(split[2].Trim(), CultureInfo.InvariantCulture);
 
-                result = new SKColor(r, g, b);
+                result = new SKColor(r, g, b, 255);
             }
             else if (from.StartsWith("hsla"))
             {

@@ -40,7 +40,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public Direction IconAnchor { get; internal set; } = Direction.Center;
 
-        public StoppedColor IconColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+        public StoppedColor IconColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
 
         public StoppedFloat IconHaloBlur { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
 
@@ -92,7 +92,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public Direction TextAnchor { get; internal set; } = Direction.Center;
 
-        public StoppedColor TextColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+        public StoppedColor TextColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
 
         public string TextField { get; internal set; } = "";
 

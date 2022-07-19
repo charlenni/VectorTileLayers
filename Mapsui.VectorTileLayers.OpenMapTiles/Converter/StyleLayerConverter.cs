@@ -17,7 +17,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             var brush = new OMTPaint(jsonStyleLayer.Id);
 
             brush.SetFixStyle(SKPaintStyle.Fill);
-            brush.SetFixColor(new SKColor(0, 0, 0, 0));
+            brush.SetFixColor(new SKColor(0, 0, 0, 255));
             brush.SetFixOpacity(1);
 
             // background-color
@@ -149,10 +149,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             var line = new OMTPaint(jsonStyleLayer.Id);
 
             // Set defaults
-            area.SetFixColor(new SKColor(0, 0, 0, 0));
+            area.SetFixColor(new SKColor(0, 0, 0, 255));
             area.SetFixOpacity(1);
             area.SetFixStyle(SKPaintStyle.Fill);
-            line.SetFixColor(new SKColor(0, 0, 0, 0));
+            line.SetFixColor(new SKColor(0, 0, 0, 255));
             line.SetFixOpacity(1);
             line.SetFixStyle(SKPaintStyle.Stroke);
             line.SetFixStrokeWidth(1);
@@ -312,7 +312,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             var line = new OMTPaint(jsonStyleLayer.Id);
 
             // Set defaults
-            line.SetFixColor(new SKColor(0, 0, 0, 0));
+            line.SetFixColor(new SKColor(0, 0, 0, 255));
             line.SetFixStyle(SKPaintStyle.Stroke);
             line.SetFixStrokeWidth(1);
             line.SetFixStrokeCap(SKStrokeCap.Butt);
