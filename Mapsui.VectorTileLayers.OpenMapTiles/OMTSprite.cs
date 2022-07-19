@@ -10,7 +10,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         {
             Name = sprite.Key;
             if (sprite.Value.Content != null && sprite.Value.Content.Count == 4)
-                Content = new SKRect(sprite.Value.Content[0], sprite.Value.Content[1], sprite.Value.Content[1], sprite.Value.Content[3]);
+                Content = new SKRect(sprite.Value.Content[0], sprite.Value.Content[1], sprite.Value.Content[2], sprite.Value.Content[3]);
             var strech = new SKRect(0, 0, 0, 0);
             if (sprite.Value.StrechX != null && sprite.Value.StrechX.Count == 2)
             {
