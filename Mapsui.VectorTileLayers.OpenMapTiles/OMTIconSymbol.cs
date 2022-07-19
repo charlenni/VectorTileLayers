@@ -77,15 +77,15 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             canvas.Save();
 
-            //canvas.Translate((float)Point.X, (float)Point.Y);
-            //canvas.Scale(context.Scale, context.Scale);
-            //if (Alignment == Core.Enums.MapAlignment.Viewport)
-            //    canvas.RotateDegrees(-context.Rotation);
-            //canvas.Translate((float)Anchor.X, (float)Anchor.Y);
-            //// Offset could be in relation to Map or Viewport
-            //canvas.Translate((float)Offset.X, (float)Offset.Y);
-            //canvas.Scale(IconSize);
-            canvas.SetMatrix(canvas.TotalMatrix.PreConcat(CreateMatrix(context.Scale, context.Rotation)));
+            canvas.Translate((float)Point.X, (float)Point.Y);
+            canvas.Scale(context.Scale, context.Scale);
+            if (Alignment == Core.Enums.MapAlignment.Viewport)
+                canvas.RotateDegrees(-context.Rotation);
+            // Offset could be in relation to Map or Viewport
+            canvas.Translate((float)Offset.X, (float)Offset.Y);
+            canvas.Scale(IconSize);
+            canvas.Translate((float)Anchor.X, (float)Anchor.Y);
+            //canvas.SetMatrix(canvas.TotalMatrix.PreConcat(CreateMatrix(context.Scale * IconSize, context.Rotation)));
             var paint = Paint.CreatePaint(context);
             canvas.DrawImage(Image, 0, 0, paint);
 

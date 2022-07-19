@@ -245,6 +245,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             result.Offset = new MPoint(offsetX, offsetY);
             result.Padding = (float)IconPadding.Evaluate(context);
 
+            result.IconSize = IconSize.Evaluate(context.Zoom);
             result.IconOptional = IconOptional;
             result.IgnorePlacement = IconIgnorePlacement;
             result.IsVisible = IsVisible;
