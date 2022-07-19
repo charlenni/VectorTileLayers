@@ -68,18 +68,20 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 return;
 
             canvas.Save();
+
             canvas.Translate((float)Point.X, (float)Point.Y);
             canvas.Scale(context.Scale, context.Scale);
             if (Alignment == Core.Enums.MapAlignment.Viewport)
                 canvas.RotateDegrees(-context.Rotation);
             // TextBlock.Paint draws always with MaxWidth bounds
-                canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
+            canvas.Translate((float)Anchor.X + (float)Offset.X - TextBlock.MeasuredPadding.Left, (float)Anchor.Y + (float)Offset.Y - TextBlock.MeasuredPadding.Top);
             var paint = Paint.CreatePaint(context);
             TextStyle.TextColor = paint.Color;
             TextStyle.HaloBlur = (float)TextHaloBlur.Evaluate(context);
             TextStyle.HaloColor = (SKColor)TextHaloColor.Evaluate(context);
             TextStyle.HaloWidth = (float)TextHaloWidth.Evaluate(context);
             TextBlock.Paint(canvas);
+            
             canvas.Restore();
 
 #if DEBUG
