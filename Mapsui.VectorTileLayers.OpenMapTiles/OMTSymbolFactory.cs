@@ -398,9 +398,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                     while (pathMeasure.Length > spacing * pos)
                     {
-                        SKMatrix matrix;
-                        pathMeasure.GetMatrix(spacing * pos, out matrix, SKPathMeasureMatrixFlags.GetTangent);
-
                         pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangentVec);
                         try
                         {
