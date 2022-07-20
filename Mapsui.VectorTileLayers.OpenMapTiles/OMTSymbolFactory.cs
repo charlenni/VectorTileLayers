@@ -246,7 +246,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             result.Padding = (float)IconPadding.Evaluate(context);
 
             result.IconSize = IconSize.Evaluate(context.Zoom);
-            result.Rotation = rotation;
+            result.Rotation = rotation == 0 ? (float)IconRotate.Evaluate(context) : rotation;
             result.IconOptional = IconOptional;
             result.IgnorePlacement = IconIgnorePlacement;
             result.IsVisible = IsVisible;
