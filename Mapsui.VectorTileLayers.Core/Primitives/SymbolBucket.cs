@@ -27,7 +27,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                     {
                         if (styler.HasIcon && styler.HasText)
                         {
-                            var iconTextSymbol = styler.CreateIconTextSymbol(point, element.Tags, context);
+                            var iconTextSymbol = styler.CreateIconTextSymbol(point, 0f, element.Tags, context);
                             if (iconTextSymbol != null)
                             {
                                 iconTextSymbol.IsVisible = styleLayer.IsVisible;
@@ -37,7 +37,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                         }
                         else if (styler.HasIcon)
                         {
-                            var iconSymbol = styler.CreateIconSymbol(point, element.Tags, context);
+                            var iconSymbol = styler.CreateIconSymbol(point, 0f, element.Tags, context);
                             if (iconSymbol != null)
                             {
                                 iconSymbol.IsVisible = styleLayer.IsVisible;

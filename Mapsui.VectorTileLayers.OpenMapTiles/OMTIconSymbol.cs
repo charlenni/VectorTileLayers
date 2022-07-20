@@ -84,6 +84,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // Offset could be in relation to Map or Viewport
             canvas.Translate((float)Offset.X, (float)Offset.Y);
             canvas.Scale(IconSize);
+            canvas.RotateDegrees(Rotation);
             canvas.Translate((float)Anchor.X, (float)Anchor.Y);
             //canvas.SetMatrix(canvas.TotalMatrix.PreConcat(CreateMatrix(context.Scale * IconSize, context.Rotation)));
             var paint = Paint.CreatePaint(context);

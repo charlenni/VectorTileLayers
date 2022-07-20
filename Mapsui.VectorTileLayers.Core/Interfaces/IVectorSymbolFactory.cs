@@ -9,11 +9,11 @@ namespace Mapsui.VectorTileLayers.Core.Interfaces
 
         bool HasText { get; }
 
-        Symbol CreateIconSymbol(MPoint point, TagsCollection tags, EvaluationContext context);
+        Symbol CreateIconSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context);
 
         Symbol CreateTextSymbol(MPoint point, TagsCollection tags, EvaluationContext context);
 
-        Symbol CreateIconTextSymbol(MPoint point, TagsCollection tags, EvaluationContext context);
+        Symbol CreateIconTextSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context);
 
         IEnumerable<Symbol> CreatePathSymbols(VectorElement element, EvaluationContext context);
     }

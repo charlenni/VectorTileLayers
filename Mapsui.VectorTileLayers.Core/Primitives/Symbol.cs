@@ -78,6 +78,11 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         public MapAlignment Alignment { get; set; }
 
         /// <summary>
+        /// Rotation of symbol
+        /// </summary>
+        public float Rotation { get; set; }
+
+        /// <summary>
         /// VectorPaint used to draw this symbol
         /// </summary>
         public IVectorPaint Paint { get; set; }

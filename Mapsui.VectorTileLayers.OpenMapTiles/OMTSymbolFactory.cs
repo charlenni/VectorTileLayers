@@ -209,7 +209,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return textStyle;
         }
 
-        public Symbol CreateIconSymbol(MPoint point, TagsCollection tags, EvaluationContext context)
+        public Symbol CreateIconSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context)
         {
             if (IconImage == null)
                 return null;
@@ -246,6 +246,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             result.Padding = (float)IconPadding.Evaluate(context);
 
             result.IconSize = IconSize.Evaluate(context.Zoom);
+            result.Rotation = rotation;
             result.IconOptional = IconOptional;
             result.IgnorePlacement = IconIgnorePlacement;
             result.IsVisible = IsVisible;
@@ -356,9 +357,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return result;
         }
 
-        public Symbol CreateIconTextSymbol(MPoint point, TagsCollection tags, EvaluationContext context)
+        public Symbol CreateIconTextSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context)
         {
-            var icon = (OMTIconSymbol)CreateIconSymbol(point, tags, context);
+            var icon = (OMTIconSymbol)CreateIconSymbol(point, rotation, tags, context);
             var text = (OMTTextSymbol)CreateTextSymbol(point, tags, context);
 
             return new OMTIconTextSymbol(icon, text);
@@ -390,15 +391,24 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 var path = new SKPath();
                 element.AddToPath(path);
                 var spacing = (float)SymbolSpacing.Evaluate(context);
-                var pos = 0.5f;
                 using (var pathMeasure = new SKPathMeasure(path))
                 {
+                    // Calculate a start distance from the first point
+                    var pos = pathMeasure.Length > spacing * 0.5f ? 0.5f : 0.1f;
+
                     while (pathMeasure.Length > spacing * pos)
                     {
-                        pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangent);
+                        SKMatrix matrix;
+                        pathMeasure.GetMatrix(spacing * pos, out matrix, SKPathMeasureMatrixFlags.GetTangent);
+
+                        pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangentVec);
                         try
                         {
-                            var symbol = CreateIconTextSymbol(position.ToPoint(), element.Tags, context);
+                            var rotation = -(float)IconRotate.Evaluate(context);
+                            var tangent = 360f - (float)(Math.Atan(tangentVec.Y / tangentVec.X) * 180.0 / Math.PI);
+                            rotation -= (IconRotationAlignment == MapAlignment.Map || IconRotationAlignment == MapAlignment.Auto ? tangent : 0f);
+                            rotation = rotation % 360.0f;
+                            var symbol = CreateIconTextSymbol(position.ToPoint(), rotation, element.Tags, context);
                             symbol.Index = element.TileIndex;
                             result.Add(symbol);
                         }
