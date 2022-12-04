@@ -1950,6 +1950,7 @@
       ],
       "layout": {
         "icon-image": "{class}_11",
+        "icon-rotate":  0,
         "text-anchor": "top",
         "text-field": "{name}",
         "text-font": [ "Roboto Condensed Italic" ],
