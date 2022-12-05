@@ -1,9 +1,9 @@
-﻿using Mapsui.Extensions;
-using Mapsui.Layers;
+﻿using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Rendering;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
+using Mapsui.Tiling.Extensions;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
@@ -27,7 +27,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
         }
 
-        public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache)
+        public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache, long iteration)
         {
             try
             {

@@ -44,11 +44,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BruTile.MbTiles" Version="4.0.0" />
-    <PackageReference Include="Mapsui" Version="3.0.0-build.2653" />
-    <PackageReference Include="Mapsui.Wpf" Version="3.0.0-build.2653" />
+    <PackageReference Include="BruTile" Version="5.0.0" />
+    <PackageReference Include="Mapsui" Version="4.0.0-beta.5" />
+    <PackageReference Include="Mapsui.Wpf" Version="4.0.0-beta.5" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.141-beta" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.163-preview" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.164" />
   </ItemGroup>
 
   <ItemGroup>

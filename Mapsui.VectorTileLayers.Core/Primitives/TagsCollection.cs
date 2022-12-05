@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Mapsui.Styles;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Mapsui.VectorTileLayers.Core.Primitives
@@ -278,6 +280,12 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                     return false;
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = KeyValues != null ? KeyValues.GetHashCode() : 0;
+            return hashCode;
         }
 
         /// <summary>

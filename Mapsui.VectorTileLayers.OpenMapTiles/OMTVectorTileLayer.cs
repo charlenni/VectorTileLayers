@@ -1,10 +1,11 @@
 ﻿using BruTile;
 using BruTile.Predefined;
-using Mapsui.Extensions;
 using Mapsui.Fetcher;
 using Mapsui.Layers;
 using Mapsui.Logging;
-using Mapsui.Rendering;
+using Mapsui.Tiling.Extensions;
+using Mapsui.Tiling.Fetcher;
+using Mapsui.Tiling.Rendering;
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
@@ -29,13 +30,13 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         private const int TileSizeOfData = 4096;
 
         private readonly ITileSource _tileSource;
-        private readonly Core.Utilities.RenderFetchStrategy _renderFetchStrategy;
+        private readonly IRenderFetchStrategy _renderFetchStrategy;
         private readonly int _minExtraTiles;
         private readonly int _maxExtraTiles;
         private int _treeZoomLevel = -1;
         private int _treeMinCol = int.MaxValue, _treeMaxCol = int.MinValue, _treeMinRow = int.MaxValue, _treeMaxRow = int.MinValue;
         private int _numberTilesNeeded;
-        private readonly TileFetchDispatcher<VectorTileFeature> _tileFetchDispatcher;
+        private readonly TileFetchDispatcher _tileFetchDispatcher;
         private readonly ITileDataParser _tileDataParser = new MGLTileParser();
         private TileSchema _schema;
         private CancellationTokenSource _cancelToken;
@@ -53,8 +54,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <param name="fetchTileAsFeature">Fetch tile as feature</param>
         // ReSharper disable once UnusedParameter.Local // Is public and won't break this now
         public OMTVectorTileLayer(IEnumerable<IVectorTileStyle> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
-            IDataFetchStrategy? dataFetchStrategy = null, int minExtraTiles = -1, int maxExtraTiles = -1, 
-            Func<TileInfo, VectorTileFeature>? fetchTileAsFeature = null)
+            IDataFetchStrategy dataFetchStrategy = null, int minExtraTiles = -1, int maxExtraTiles = -1, 
+            Func<TileInfo, Task<IFeature>> fetchTileAsFeature = null)
         {
             _tileSource = tileSource ?? throw new ArgumentException($"{tileSource} can not be null");
             Name = _tileSource.Name;
@@ -67,7 +68,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             MaxVisible = _tileSource.Schema.Resolutions.First().Value.UnitsPerPixel;
 
             // We have our only cache for ready processed vector tiles
-            MemoryCache = new BruTile.Cache.MemoryCache<VectorTileFeature?>(minTiles, maxTiles);
+            MemoryCache = new BruTile.Cache.MemoryCache<IFeature>(minTiles, maxTiles);
 
             Style = new Styles.StyleCollection {
                 new VectorTileStyle(0, 24, vectorStyles),
@@ -78,10 +79,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Attribution.Url = _tileSource.Attribution?.Url;
             
             dataFetchStrategy ??= new DataFetchStrategy(3);
-            _renderFetchStrategy = new Core.Utilities.RenderFetchStrategy();
+            _renderFetchStrategy = new Tiling.Rendering.RenderFetchStrategy();
             _minExtraTiles = minExtraTiles;
             _maxExtraTiles = maxExtraTiles;
-            _tileFetchDispatcher = new TileFetchDispatcher<VectorTileFeature>(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
+            _tileFetchDispatcher = new TileFetchDispatcher(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
             _tileFetchDispatcher.DataChanged += TileFetchDispatcherOnDataChanged;
             _tileFetchDispatcher.PropertyChanged += TileFetchDispatcherOnPropertyChanged;
             
@@ -105,7 +106,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <summary>
         /// Memory cache for this layer
         /// </summary>
-        private BruTile.Cache.MemoryCache<VectorTileFeature?> MemoryCache { get; }
+        private BruTile.Cache.MemoryCache<IFeature> MemoryCache { get; }
 
         /// <inheritdoc />
         public override IReadOnlyList<double> Resolutions => _schema.Resolutions.Select(r => r.Value.UnitsPerPixel).ToList();
@@ -128,7 +129,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var maxRow = int.MinValue;
 
             var tiles = new List<TileInfo>();
-            var vectorTileFeatures = _renderFetchStrategy.Get<VectorTileFeature>(extent, resolution, _tileSource.Schema, MemoryCache);
+            var vectorTileFeatures = _renderFetchStrategy.Get(extent, resolution, _tileSource.Schema, MemoryCache);
 
             foreach (var feature in vectorTileFeatures)
             {
@@ -208,11 +209,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <inheritdoc />
         public void ClearCache()
         {
-            MemoryCache.Clear();
+            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).Clear();
         }
 
         /// <inheritdoc />
-        public override void RefreshData(FetchInfo fetchInfo)
+        public void RefreshData(FetchInfo fetchInfo)
         {
             if (Enabled
                 && fetchInfo.Extent?.GetArea() > 0
@@ -228,7 +229,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         {
             if (disposing)
             {
-                MemoryCache.Dispose();
+                ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).Dispose();
             }
 
             base.Dispose(disposing);
@@ -254,8 +255,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (_numberTilesNeeded == _tileFetchDispatcher.NumberTilesNeeded) return;
 
             _numberTilesNeeded = _tileFetchDispatcher.NumberTilesNeeded;
-            MemoryCache.MinTiles = _numberTilesNeeded + _minExtraTiles;
-            MemoryCache.MaxTiles = _numberTilesNeeded + _maxExtraTiles;
+            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).MinTiles = _numberTilesNeeded + _minExtraTiles;
+            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).MaxTiles = _numberTilesNeeded + _maxExtraTiles;
         }
 
         private void TileFetchDispatcherOnDataChanged(object sender, DataChangedEventArgs e)
@@ -263,12 +264,12 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             OnDataChanged(e);
         }
 
-        public VectorTileFeature? FetchTileAsVectorTile(TileInfo tileInfo)
+        public async Task<IFeature> FetchTileAsVectorTile(TileInfo tileInfo)
         {
             if (_tileSource == null)
                 return null;
 
-            var vectorTileFeature = MemoryCache.Find(tileInfo.Index);
+            var vectorTileFeature = (VectorTileFeature)MemoryCache.Find(tileInfo.Index);
 
             if (vectorTileFeature != null)
                 return vectorTileFeature;
@@ -314,7 +315,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 #endif
 
             // Get byte data for this tile
-            var tileData = _tileSource.GetTile(tileInfo);
+            var tileData = _tileSource.GetTileAsync(tileInfo).Result;
 
 #if DEBUG
             Logger.Log(Logging.LogLevel.Information, $"After GetTile from source at {DateTime.Now.Ticks}: {tileInfo.Index.Col}/{tileInfo.Index.Row}/{tileInfo.Index.Level}");
@@ -342,7 +343,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 offsetFactor <<= 1;
                 //info.Extent = new Extent(minX, minY, minX + halfWidth, minY + halfHeight);
                 info.Index = new TileIndex(col, row, zoom);
-                tileData = _tileSource.GetTile(info);
+                tileData = _tileSource.GetTileAsync(info).Result;
             }
 
             if (zoom < 0)
@@ -355,7 +356,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return (tileData, overzoom);
         }
 
-        private VectorTileFeature? ToVectorTile(TileInfo tileInfo, Overzoom overzoom, ref byte[]? tileData)
+        private VectorTileFeature ToVectorTile(TileInfo tileInfo, Overzoom overzoom, ref byte[] tileData)
         {
             // A TileSource may return a byte array that is null. This is currently only implemented
             // for MbTilesTileSource. It is to indicate that the tile is not present in the source,

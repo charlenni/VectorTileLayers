@@ -43,7 +43,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public override void CalcEnvelope(float scale, float rotation, MPoint offset)
         {
             // Convert tile coordinates to pixel
-            var newPoint = Point.Clone(); // new MPoint(Point.X * scale, Point.Y * scale);
+            var newPoint = Point.Copy(); // new MPoint(Point.X * scale, Point.Y * scale);
             // Add anchor and offset in pixel
             newPoint.X += (Anchor.X + Offset.X) / scale;
             newPoint.Y += (Anchor.Y + Offset.Y) / scale;

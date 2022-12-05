@@ -1,7 +1,7 @@
 ﻿using BruTile;
-using Mapsui.Extensions;
 using Mapsui.Logging;
 using Mapsui.Styles;
+using Mapsui.Tiling.Extensions;
 using Mapsui.VectorTileLayers.Core.Enums;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;

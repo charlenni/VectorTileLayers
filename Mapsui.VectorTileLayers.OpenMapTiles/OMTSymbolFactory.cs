@@ -409,7 +409,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                             symbol.Index = element.TileIndex;
                             result.Add(symbol);
                         }
-                        catch (Exception e)
+                        catch
                         { }
                         pos++;
                     }

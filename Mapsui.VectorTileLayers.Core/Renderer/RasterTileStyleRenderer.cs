@@ -10,15 +10,14 @@ using Mapsui.VectorTileLayers.Core.Styles;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using static Mapsui.Rendering.Skia.MapRenderer;
 
 namespace Mapsui.VectorTileLayers.Core.Renderer
 {
     public class RasterTileStyleRenderer : ISkiaStyleRenderer
     {
-        private readonly IDictionary<object, BitmapInfo?> _tileCache = new Dictionary<object, BitmapInfo?>(new IdentityComparer<object>());
+        private readonly IDictionary<object, BitmapInfo> _tileCache = new Dictionary<object, BitmapInfo>(new IdentityComparer<object>());
 
-        public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache)
+        public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache, long iteration)
         {
             try
             {
@@ -30,7 +29,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 var raster = rasterFeature.Raster;
 
-                BitmapInfo? bitmapInfo;
+                BitmapInfo bitmapInfo;
 
                 if (!_tileCache.Keys.Contains(raster))
                 {

@@ -1,4 +1,6 @@
-﻿namespace Mapsui.VectorTileLayers.Core.Primitives
+﻿using Mapsui.Styles;
+
+namespace Mapsui.VectorTileLayers.Core.Primitives
 {
     /// <summary>
     /// Context for which the style should be evaluated
@@ -22,6 +24,18 @@
         }
 
         public override bool Equals(object other) => other is EvaluationContext context && Equals(context);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (int)Zoom;
+                hashCode = (hashCode * 587) ^ (int)Scale;
+                hashCode = (hashCode * 587) ^ (int)Rotation;
+                hashCode = (hashCode * 587) ^ (Tags != null ? Tags.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
 
         public bool Equals(EvaluationContext context)
         {
