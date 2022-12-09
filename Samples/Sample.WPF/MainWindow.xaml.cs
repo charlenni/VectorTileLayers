@@ -76,8 +76,11 @@ namespace Sample.WPF
 
             LoadFontResources(Assembly.GetAssembly(GetType()));
             LoadMapboxGL();
-
-            mapControl.Navigator.CenterOn(825890.75, 5423194.65);
+            
+            // Zurich
+            mapControl.Navigator.CenterOn(950804.77, 6002071.45);
+            // Monaco
+            // mapControl.Navigator.CenterOn(825890.75, 5423194.65);
             mapControl.Navigator.ZoomTo(17.ToResolution()); // 1.2);
             mapControl.Navigator.RotateTo(0);
         }
@@ -104,7 +107,8 @@ namespace Sample.WPF
 
         public void LoadMapboxGL()
         {
-            var filename = "monaco.mbtiles";
+            var filename = "switzerland_zurich.mbtiles"; // monaco.mbtiles";
+
             OMTStyleFileLoader.DirectoryForFiles = ".\\mbtiles";
 
             CheckForMBTilesFile(filename, OMTStyleFileLoader.DirectoryForFiles);

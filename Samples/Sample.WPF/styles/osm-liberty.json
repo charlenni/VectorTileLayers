@@ -8,7 +8,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "mbtiles://monaco.mbtiles"
+      "url": "mbtiles://switzerland_zurich.mbtiles"
     },
     "natural_earth_shaded_relief": {
       "maxzoom": 6,

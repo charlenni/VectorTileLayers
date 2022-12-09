@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="mbtiles\switzerland_zurich.mbtiles" />
     <None Remove="monaco.mbtiles" />
     <None Remove="styles\fonts\Roboto Condensed Italic.ttf" />
     <None Remove="styles\fonts\Roboto Medium.ttf" />
@@ -21,6 +22,9 @@
 
   <ItemGroup>
     <Content Include="mbtiles\monaco.mbtiles">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="mbtiles\switzerland_zurich.mbtiles">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="styles\fonts\Roboto Medium.ttf" />
