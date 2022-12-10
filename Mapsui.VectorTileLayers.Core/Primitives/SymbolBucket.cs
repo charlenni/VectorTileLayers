@@ -7,15 +7,15 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 {
     public class SymbolBucket : IBucket
     {
-        IStyleLayer styleLayer;
-        IVectorSymbolFactory styler;
+        IStyleLayer _styleLayer;
+        IVectorSymbolFactory _styler;
 
         public List<Symbol> Symbols = new List<Symbol>();
 
-        public SymbolBucket(IStyleLayer style)
+        public SymbolBucket(IStyleLayer styleLayer)
         {
-            styleLayer = style;
-            styler = style.SymbolStyler;
+            _styleLayer = styleLayer;
+            _styler = styleLayer.SymbolStyler;
         }
 
         public void AddElement(VectorElement element, EvaluationContext context = null)
@@ -25,32 +25,32 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                 case GeometryType.Point:
                     foreach (var point in element.Points)
                     {
-                        if (styler.HasIcon && styler.HasText)
+                        if (_styler.HasIcon && _styler.HasText)
                         {
-                            var iconTextSymbol = styler.CreateIconTextSymbol(point, 0f, element.Tags, context);
+                            var iconTextSymbol = _styler.CreateIconTextSymbol(point, 0f, element.Tags, context);
                             if (iconTextSymbol != null)
                             {
-                                iconTextSymbol.IsVisible = styleLayer.Enabled;
+                                iconTextSymbol.IsVisible = _styleLayer.Enabled;
                                 iconTextSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconTextSymbol);
                             }
                         }
-                        else if (styler.HasIcon)
+                        else if (_styler.HasIcon)
                         {
-                            var iconSymbol = styler.CreateIconSymbol(point, 0f, element.Tags, context);
+                            var iconSymbol = _styler.CreateIconSymbol(point, 0f, element.Tags, context);
                             if (iconSymbol != null)
                             {
-                                iconSymbol.IsVisible = styleLayer.Enabled;
+                                iconSymbol.IsVisible = _styleLayer.Enabled;
                                 iconSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconSymbol);
                             }
                         }
-                        else if (styler.HasText)
+                        else if (_styler.HasText)
                         {
-                            var textSymbol = styler.CreateTextSymbol(point, element.Tags, context);
+                            var textSymbol = _styler.CreateTextSymbol(point, element.Tags, context);
                             if (textSymbol != null)
                             {
-                                textSymbol.IsVisible = styleLayer.Enabled;
+                                textSymbol.IsVisible = _styleLayer.Enabled;
                                 textSymbol.Index = element.TileIndex;
                                 Symbols.Add(textSymbol);
                             }
@@ -58,19 +58,19 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                     }
                     break;
                 case GeometryType.LineString:
-                    if (styler == null)
+                    if (_styler == null)
                         return;
-                    var pathSymbol = styler.CreatePathSymbols(element, context);
+                    var pathSymbol = _styler.CreatePathSymbols(element, context);
                     if (pathSymbol != null)
                     {
                         Symbols.AddRange(pathSymbol);
                     }
                     break;
                 case GeometryType.Polygon:
-                    var t3 = styleLayer.SourceLayer;
+                    var t3 = _styleLayer.SourceLayer;
                     break;
                 default:
-                    var t4 = styleLayer.SourceLayer;
+                    var t4 = _styleLayer.SourceLayer;
                     break;
             }
         }
