@@ -7,11 +7,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public class OMTPaint : IVectorPaint
     {
-        SKPaint paint = new SKPaint() { IsAntialias = true, BlendMode = SKBlendMode.SrcOver };  // Set this bei default
-        SKPaint lastPaint;
+        SKPaint paint = new SKPaint() { IsAntialias = true, BlendMode = SKBlendMode.SrcOver };  // Set this by default
         EvaluationContext lastContext;
         float strokeWidth;
-        SKMatrix matrix = SKMatrix.CreateIdentity();
+        // SKMatrix matrix = SKMatrix.CreateIdentity();
 
         public OMTPaint(string id)
         {
@@ -24,7 +23,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public SKPaint CreatePaint(EvaluationContext context)
         {
             if (context.Equals(lastContext))
-                return lastPaint;
+                return paint;
 
             if (variableColor || variableOpacity)
             {
@@ -89,7 +88,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
 
             lastContext = new EvaluationContext(context.Zoom, context.Scale, context.Rotation, context.Tags);
-            lastPaint = paint;
 
             return paint;
         }

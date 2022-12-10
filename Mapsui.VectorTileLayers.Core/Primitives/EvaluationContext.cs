@@ -39,7 +39,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public bool Equals(EvaluationContext context)
         {
-            return context != null && context.Zoom == Zoom && context.Scale == Scale && ((context.Tags == null && Tags == null) || context.Tags.Equals(Tags));
+            return this == context || (context != null && context.Zoom == Zoom && context.Scale == Scale && ((context.Tags == null && Tags == null) || context.Tags.Equals(Tags)));
         }
     }
 }
