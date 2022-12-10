@@ -1,6 +1,4 @@
-﻿using Mapsui;
-using Mapsui.Extensions;
-using Mapsui.Tiling;
+﻿using Mapsui.Extensions;
 using Mapsui.Logging;
 using Mapsui.Rendering.Skia.SkiaWidgets;
 using Mapsui.Utilities;
@@ -12,7 +10,6 @@ using Mapsui.VectorTileLayers.OpenMapTiles;
 using Mapsui.Widgets.PerformanceWidget;
 using Mapsui.Widgets.ScaleBar;
 using SkiaSharp;
-using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
