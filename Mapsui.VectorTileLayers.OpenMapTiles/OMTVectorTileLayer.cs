@@ -53,7 +53,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <param name="maxExtraTiles">Number of maximum extra tiles for memory cache</param>
         /// <param name="fetchTileAsFeature">Fetch tile as feature</param>
         // ReSharper disable once UnusedParameter.Local // Is public and won't break this now
-        public OMTVectorTileLayer(IEnumerable<IVectorTileStyle> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
+        public OMTVectorTileLayer(IEnumerable<IStyleLayer> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
             IDataFetchStrategy dataFetchStrategy = null, int minExtraTiles = -1, int maxExtraTiles = -1, 
             Func<TileInfo, Task<IFeature>> fetchTileAsFeature = null)
         {
@@ -72,7 +72,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             Style = new Styles.StyleCollection {
                 new VectorTileStyle(0, 24, vectorStyles),
-                new SymbolTileStyle(0, 24, vectorStyles)
+                // new SymbolTileStyle(0, 24, vectorStyles)
             };
                         
             Attribution.Text = _tileSource.Attribution?.Text;
@@ -174,7 +174,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                 watch.Start();
 
-                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)((Styles.StyleCollection)Style)[0]).VectorTileStyles, vectorTiles, zoomLevel, minCol, minRow, token);
+                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)((Styles.StyleCollection)Style)[0]).StyleLayers, vectorTiles, zoomLevel, minCol, minRow, token);
 
                 if (!token.IsCancellationRequested)
                 {

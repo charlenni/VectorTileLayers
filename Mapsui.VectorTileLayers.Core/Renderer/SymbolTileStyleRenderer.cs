@@ -23,6 +23,9 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
             try
             {
+                if (style is VectorTileStyle)
+                    return false;
+
                 var vectorTileFeature = (VectorTileFeature)feature;
                 var symbolTileStyle = (SymbolTileStyle)style;
                 var vectorTileLayer = (IVectorTileLayer)layer;

@@ -31,8 +31,11 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
             try
             {
+                if (style is SymbolTileStyle)
+                    return false;
+
                 var vectorTileFeature = (VectorTileFeature)feature;
-                var vectorTileStyle = (VectorTileStyle)style;
+                var styleLayers = ((VectorTileStyle)style).StyleLayers;
                 var vectorTileLayer = (IVectorTileLayer)layer;
                 var zoomLevel = (int)viewport.Resolution.ToZoomLevel();
                 var extent = vectorTileFeature.TileInfo.Extent.ToMRect();
@@ -47,24 +50,24 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                 var context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel() - 1, 1f / scale);
                 var strokeLimit = 1 / scale;
 
-                foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
+                foreach (var styleLayer in styleLayers)
                 {
-                    if (!vectorStyle.Enabled) 
+                    if (!styleLayer.IsVisible) 
                         continue;
 
-                    if (!vectorTileFeature.Buckets.ContainsKey(vectorStyle))
+                    if (!vectorTileFeature.Buckets.ContainsKey(styleLayer))
                         continue;
 
-                    vectorStyle.Update(context);
+                    styleLayer.Update(context);
 
-                    var bucket = vectorTileFeature.Buckets[vectorStyle];
+                    var bucket = vectorTileFeature.Buckets[styleLayer];
 
                     if (bucket is LineBucket lineBucket)
                     {
                         if (!lineBucket.Path.Bounds.IntersectsWith(canvas.LocalClipBounds))
                             continue;
 
-                        foreach (var paint in vectorStyle.Paints)
+                        foreach (var paint in styleLayer.Paints)
                         {
                             var skPaint = paint.CreatePaint(context);
                             
@@ -76,7 +79,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
                     }
                     if (bucket is FillBucket fillBucket)
                     {
-                        foreach (var paint in vectorStyle.Paints)
+                        foreach (var paint in styleLayer.Paints)
                         {
                             var skPaint = paint.CreatePaint(context);
 

@@ -10,7 +10,7 @@ namespace Mapsui.VectorTileLayers.Core.Styles
             Enabled = true;
 
             MinVisible = (maxZoom ?? 0).ToResolution();
-            MaxVisible = (minZoom ?? 30).ToResolution();
+            MaxVisible = (minZoom ?? 24).ToResolution();
         }
 
         public double MinVisible { get; set; }

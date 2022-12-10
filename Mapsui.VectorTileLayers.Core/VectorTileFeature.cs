@@ -21,22 +21,22 @@ namespace Mapsui.VectorTileLayers.Core
     /// </remarks>
     public class VectorTileFeature : IFeature, ITileDataSink
     {
-        private readonly IEnumerable<IVectorTileStyle> _styles;
+        private readonly IEnumerable<IStyleLayer> _styleLayers;
         private readonly TileInfo _tileInfo;
         private readonly float _scale;
         private readonly EvaluationContext _context;
-        private readonly Dictionary<IVectorTileStyle, IBucket> _buckets = new Dictionary<IVectorTileStyle, IBucket>();
+        private readonly Dictionary<IStyleLayer, IBucket> _buckets = new Dictionary<IStyleLayer, IBucket>();
 
         public VectorTileFeature(TileInfo tileInfo, int tileSize, float tileSizeOfData, IStyle style)
         {
-            _styles = ((VectorTileStyle)((StyleCollection)style)[0]).VectorTileStyles;
+            _styleLayers = ((VectorTileStyle)((StyleCollection)style)[0]).StyleLayers;
             _scale = tileSize / tileSizeOfData;
             _tileInfo = tileInfo;
             _context = new EvaluationContext(_tileInfo.Index.Level);
             Extent = _tileInfo.Extent.ToMRect();
         }
 
-        public Dictionary<IVectorTileStyle, IBucket> Buckets => _buckets;
+        public Dictionary<IStyleLayer, IBucket> Buckets => _buckets;
 
         public TileInfo TileInfo => _tileInfo;
 
@@ -67,36 +67,36 @@ namespace Mapsui.VectorTileLayers.Core
             element.Scale(_scale);
 
             // Now process this element and check, for which style layers it is ok
-            foreach (var style in _styles)
+            foreach (var styleLayer in _styleLayers)
             {
                 // Is this element a line or polygon and is this style relevant or is it outside the zoom range
                 //if (!element.IsPoint && (!style.IsVisible || style.MinZoom > _tileInfo.Index.Level || style.MaxZoom < _tileInfo.Index.Level))
                 //    continue;
 
                 // Is this style layer relevant for this feature?
-                if (style.SourceLayer != element.Layer)
+                if (styleLayer.SourceLayer != element.Layer)
                     continue;
 
                 // Fullfill element filter for this style layer
-                if (!style.Filter.Evaluate(element))
+                if (!styleLayer.Filter.Evaluate(element))
                     continue;
 
                 // Check for different types
-                switch (style.Type)
+                switch (styleLayer.Type)
                 {
                     case StyleType.Symbol:
                         // Feature is a symbol
-                        if (!_buckets.ContainsKey(style))
-                            _buckets[style] = new SymbolBucket(style);
-                        ((SymbolBucket)_buckets[style]).AddElement(element, _context);
+                        if (!_buckets.ContainsKey(styleLayer))
+                            _buckets[styleLayer] = new SymbolBucket(styleLayer);
+                        ((SymbolBucket)_buckets[styleLayer]).AddElement(element, _context);
                         break;
                     case StyleType.Line:
                         // Element is a line
                         if (element.IsLine && element.Count > 0)
                         {
-                            if (!_buckets.ContainsKey(style))
-                                _buckets[style] = new LineBucket();
-                            ((LineBucket)_buckets[style]).AddElement(element);
+                            if (!_buckets.ContainsKey(styleLayer))
+                                _buckets[styleLayer] = new LineBucket();
+                            ((LineBucket)_buckets[styleLayer]).AddElement(element);
                         }
                         else
                         {
@@ -109,9 +109,9 @@ namespace Mapsui.VectorTileLayers.Core
                         // Element is a fill
                         if (element.IsPolygon && element.Count > 0)
                         {
-                            if (!_buckets.ContainsKey(style))
-                                _buckets[style] = new FillBucket();
-                            ((FillBucket)_buckets[style]).AddElement(element);
+                            if (!_buckets.ContainsKey(styleLayer))
+                                _buckets[styleLayer] = new FillBucket();
+                            ((FillBucket)_buckets[styleLayer]).AddElement(element);
                         }
                         else
                         {
@@ -131,7 +131,7 @@ namespace Mapsui.VectorTileLayers.Core
         {
             if (result == QueryResult.Succes)
             {
-                List<IVectorTileStyle> remove = new List<IVectorTileStyle>();
+                List<IStyleLayer> remove = new List<IStyleLayer>();
 
                 // Delete empty buckets
                 foreach (var bucket in _buckets)

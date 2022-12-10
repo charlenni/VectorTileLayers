@@ -4,11 +4,11 @@ namespace Mapsui.VectorTileLayers.Core.Styles
 {
     public class RasterTileStyle : TileStyle
     {
-        public RasterTileStyle(float minZoom, float maxZoom, IVectorTileStyle vectorStyle) : base(minZoom, maxZoom)
+        public RasterTileStyle(float minZoom, float maxZoom, IStyleLayer styleLayer) : base(minZoom, maxZoom)
         {
-            StyleLayer = vectorStyle;
+            StyleLayer = styleLayer;
         }
 
-        public IVectorTileStyle StyleLayer { get; }
+        public IStyleLayer StyleLayer { get; }
     }
 }

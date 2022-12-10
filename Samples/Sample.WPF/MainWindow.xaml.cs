@@ -105,7 +105,7 @@ namespace Sample.WPF
                 {
                     if (((StyleCollection)_vectorTileLayer.Style)[i] is VectorTileStyle vts)
                     {
-                        foreach (var style in vts.VectorTileStyles)
+                        foreach (var style in vts.StyleLayers)
                         {
                             if (style is OMTVectorTileStyle vectorStyle)
                             {

@@ -12,7 +12,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public static class OMTSymbolLayouter
     {
-        public static RBush<Symbol> Layout(IEnumerable<IVectorTileStyle> vectorTileStyles, IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
+        public static RBush<Symbol> Layout(IEnumerable<IStyleLayer> styleLayers, IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
         {
             RBush<Symbol> tree = new RBush<Symbol>(9);
             Dictionary<TileIndex, MPoint> offsets = new Dictionary<TileIndex, MPoint>();
@@ -31,7 +31,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
 
             // Now go trough all style layers from top to bottom and look for symbols
-            foreach (var style in vectorTileStyles.Reverse())
+            foreach (var style in styleLayers.Reverse())
             {
                 if (!style.IsVisible || style.MinZoom > zoomLevel || style.MaxZoom < zoomLevel)
                     continue;

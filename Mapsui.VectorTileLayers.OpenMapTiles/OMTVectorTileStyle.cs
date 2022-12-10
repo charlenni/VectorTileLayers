@@ -7,7 +7,7 @@ using Mapsui.VectorTileLayers.Core.Extensions;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OMTVectorTileStyle : IVectorTileStyle
+    public class OMTVectorTileStyle : IStyleLayer
     {
         public string Id { get; internal set; }
 
