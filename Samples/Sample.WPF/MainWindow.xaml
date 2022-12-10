@@ -9,7 +9,36 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <mapsuiwpf:MapControl x:Name="mapControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-        <StackPanel>
+        <StackPanel Margin="10">
+            <ListView x:Name="listViewStyles" VerticalAlignment="Top" HorizontalAlignment="Right" Height="100" Width="200">
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox Margin="0" VerticalAlignment="Center" IsChecked="{Binding IsChecked}"></CheckBox>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Margin="0" Text="{Binding Text}"></TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Width="200">
+                <Button x:Name="btnAll" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Height="32">All</Button>
+                <Button x:Name="btnNone" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Height="32">None</Button>
+            </StackPanel>
             <Button x:Name="btnZoomIn" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">+</Button>
             <Button x:Name="btnZoomOut" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">-</Button>
             <Button x:Name="btnRotateCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">R+</Button>

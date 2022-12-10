@@ -49,6 +49,9 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 foreach (var vectorStyle in ((VectorTileStyle)style).VectorTileStyles)
                 {
+                    if (!vectorStyle.Enabled) 
+                        continue;
+
                     if (!vectorTileFeature.Buckets.ContainsKey(vectorStyle))
                         continue;
 
