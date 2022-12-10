@@ -114,14 +114,6 @@ namespace Sample.WPF
                             }
                         }
                     }
-                    //if (((StyleCollection)_vectorTileLayer.Style)[i] is SymbolTileStyle sts)
-                    //{
-                    //    foreach (var style in sts.VectorTileStyles)
-                    //    {
-                    //        if (style is OMTVectorTileStyle symbolStyle)
-                    //            items.Add(new CheckBoxListViewItem(symbolStyle, symbolStyle.Id, symbolStyle.Enabled));
-                    //    }
-                    //}
                 }
             }
 
