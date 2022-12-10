@@ -7,10 +7,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public class OMTPaint : IVectorPaint
     {
-        SKPaint paint = new SKPaint() { IsAntialias = true, BlendMode = SKBlendMode.SrcOver };  // Set this by default
+        readonly SKPaint paint = new SKPaint() { IsAntialias = true, BlendMode = SKBlendMode.SrcOver };  // Set this by default
         EvaluationContext lastContext;
         float strokeWidth;
-        // SKMatrix matrix = SKMatrix.CreateIdentity();
 
         public OMTPaint(string id)
         {
