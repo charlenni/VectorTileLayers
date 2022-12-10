@@ -39,10 +39,12 @@
                 <Button x:Name="btnAll" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Height="32">All</Button>
                 <Button x:Name="btnNone" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Height="32">None</Button>
             </StackPanel>
-            <Button x:Name="btnZoomIn" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">+</Button>
-            <Button x:Name="btnZoomOut" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">-</Button>
-            <Button x:Name="btnRotateCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">R+</Button>
-            <Button x:Name="btnRotateCCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="32" Height="32">R-</Button>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Width="200">
+                <Button x:Name="btnZoomIn" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Height="32">+</Button>
+                <Button x:Name="btnZoomOut" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Height="32">-</Button>
+                <Button x:Name="btnRotateCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Height="32">R+</Button>
+                <Button x:Name="btnRotateCCW" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Height="32">R-</Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

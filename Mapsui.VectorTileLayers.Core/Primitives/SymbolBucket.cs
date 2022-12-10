@@ -32,6 +32,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             {
                                 iconTextSymbol.IsVisible = _styleLayer.Enabled;
                                 iconTextSymbol.Index = element.TileIndex;
+                                iconTextSymbol.Style = _styleLayer;
                                 Symbols.Add(iconTextSymbol);
                             }
                         }
@@ -42,6 +43,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             {
                                 iconSymbol.IsVisible = _styleLayer.Enabled;
                                 iconSymbol.Index = element.TileIndex;
+                                iconSymbol.Style = _styleLayer;
                                 Symbols.Add(iconSymbol);
                             }
                         }
@@ -52,6 +54,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             {
                                 textSymbol.IsVisible = _styleLayer.Enabled;
                                 textSymbol.Index = element.TileIndex;
+                                textSymbol.Style = _styleLayer;
                                 Symbols.Add(textSymbol);
                             }
                         }
@@ -60,10 +63,14 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                 case GeometryType.LineString:
                     if (_styler == null)
                         return;
-                    var pathSymbol = _styler.CreatePathSymbols(element, context);
-                    if (pathSymbol != null)
+                    var pathSymbols = _styler.CreatePathSymbols(element, context);
+                    if (pathSymbols != null)
                     {
-                        Symbols.AddRange(pathSymbol);
+                        foreach (var pathSymbol in pathSymbols)
+                        {
+                            pathSymbol.Style = _styleLayer;
+                            Symbols.Add(pathSymbol);
+                        }
                     }
                     break;
                 case GeometryType.Polygon:

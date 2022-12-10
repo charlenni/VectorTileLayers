@@ -1,4 +1,5 @@
 ﻿using BruTile;
+using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
 using RBush;
 using SkiaSharp;
@@ -19,6 +20,21 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                     IconSymbol.Index = value;
                 if (TextSymbol != null)
                     TextSymbol.Index = value;
+            }
+        }
+
+        /// <summary>
+        /// Style belongint to this symbols
+        /// </summary>
+        public override IStyleLayer Style
+        {
+            get => IconSymbol?.Style ?? TextSymbol?.Style ?? null;
+            set
+            {
+                if (IconSymbol != null)
+                    IconSymbol.Style = value;
+                if (TextSymbol != null)
+                    TextSymbol.Style = value;
             }
         }
 

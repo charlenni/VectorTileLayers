@@ -72,7 +72,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             Style = new Styles.StyleCollection {
                 new VectorTileStyle(0, 24, vectorStyles),
-                // new SymbolTileStyle(0, 24, vectorStyles)
+                //new SymbolTileStyle(0, 24, vectorStyles)
             };
                         
             Attribution.Text = _tileSource.Attribution?.Text;

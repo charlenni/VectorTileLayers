@@ -83,6 +83,11 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         public float Rotation { get; set; }
 
         /// <summary>
+        /// Style layer of this symbol
+        /// </summary>
+        public virtual IStyleLayer Style { get; set; }
+
+        /// <summary>
         /// VectorPaint used to draw this symbol
         /// </summary>
         public IVectorPaint Paint { get; set; }
