@@ -2,6 +2,7 @@
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
+using Mapsui.VectorTileLayers.Core.Enums;
 using RBush;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,13 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // Now go trough all style layers from top to bottom and look for symbols
             foreach (var style in styleLayers.Reverse())
             {
-                if (!style.IsVisible || style.MinZoom > zoomLevel || style.MaxZoom < zoomLevel)
+                if (!style.Enabled)
+                    continue;
+
+                if ( style.Type != StyleType.Symbol && style.Type != StyleType.Caption && style.Type != StyleType.SymbolWithCaption)
+                    continue;
+
+                if (style.MinZoom > zoomLevel || style.MaxZoom < zoomLevel)
                     continue;
 
                 List<Symbol> symbols = new List<Symbol>();

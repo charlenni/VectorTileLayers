@@ -28,11 +28,6 @@ namespace Mapsui.VectorTileLayers.Core.Interfaces
         StyleType Type { get; }
 
         /// <summary>
-        /// Is this style layer visible
-        /// </summary>
-        bool IsVisible { get; }
-
-        /// <summary>
         /// Filter used for this style layer
         /// </summary>
         IFilter Filter { get; }

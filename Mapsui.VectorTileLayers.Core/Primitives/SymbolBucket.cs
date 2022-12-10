@@ -30,7 +30,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             var iconTextSymbol = styler.CreateIconTextSymbol(point, 0f, element.Tags, context);
                             if (iconTextSymbol != null)
                             {
-                                iconTextSymbol.IsVisible = styleLayer.IsVisible;
+                                iconTextSymbol.IsVisible = styleLayer.Enabled;
                                 iconTextSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconTextSymbol);
                             }
@@ -40,7 +40,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             var iconSymbol = styler.CreateIconSymbol(point, 0f, element.Tags, context);
                             if (iconSymbol != null)
                             {
-                                iconSymbol.IsVisible = styleLayer.IsVisible;
+                                iconSymbol.IsVisible = styleLayer.Enabled;
                                 iconSymbol.Index = element.TileIndex;
                                 Symbols.Add(iconSymbol);
                             }
@@ -50,7 +50,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
                             var textSymbol = styler.CreateTextSymbol(point, element.Tags, context);
                             if (textSymbol != null)
                             {
-                                textSymbol.IsVisible = styleLayer.IsVisible;
+                                textSymbol.IsVisible = styleLayer.Enabled;
                                 textSymbol.Index = element.TileIndex;
                                 Symbols.Add(textSymbol);
                             }

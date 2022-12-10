@@ -52,7 +52,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 foreach (var styleLayer in styleLayers)
                 {
-                    if (!styleLayer.IsVisible) 
+                    if (!styleLayer.Enabled) 
                         continue;
 
                     if (!vectorTileFeature.Buckets.ContainsKey(styleLayer))
