@@ -11,10 +11,10 @@
     <PackageReference Include="BruTile.MbTiles" Version="5.0.0" />
     <PackageReference Include="Mapsui" Version="4.0.0-beta.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="protobuf-net" Version="3.1.25" />
+    <PackageReference Include="protobuf-net" Version="3.1.31-g739615ac23" />
     <PackageReference Include="RBush" Version="3.1.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.141-beta" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.164" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.165" />
   </ItemGroup>
 
   <ItemGroup>

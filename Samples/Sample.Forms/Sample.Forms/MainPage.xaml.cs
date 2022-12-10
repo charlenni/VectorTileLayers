@@ -1,6 +1,6 @@
 ﻿using Mapsui;
 using Mapsui.Extensions;
-using Mapsui.Layers.Tiling;
+using Mapsui.Tiling;
 using Mapsui.Logging;
 using Mapsui.Rendering.Skia.SkiaWidgets;
 using Mapsui.Utilities;

@@ -50,9 +50,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapsui" Version="4.0.0-beta.5" />
     <PackageReference Include="Mapsui.Forms" Version="4.0.0-beta.5" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.164" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2515" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.165" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.3" />
   </ItemGroup>
 
