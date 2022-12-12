@@ -481,7 +481,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             //    return OMTSymbolFactory.Default;
             //}
 
-            OMTSymbolFactory symbolStyler = new OMTSymbolFactory(spriteAtlas);
+            OMTSymbolFactory symbolStyler = new OMTSymbolFactory(jsonStyleLayer.Id, spriteAtlas);
 
             if (layout?.Visibility != null)
             {

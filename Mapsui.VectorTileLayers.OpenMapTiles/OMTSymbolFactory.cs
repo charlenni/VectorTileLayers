@@ -25,10 +25,13 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public static OMTSymbolFactory Default;
 
-        public OMTSymbolFactory(OMTSpriteAtlas atlas)
+        public OMTSymbolFactory(string styleLayerName, OMTSpriteAtlas atlas)
         {
+            StyleLayerName = styleLayerName;
             spriteAtlas = atlas;
         }
+
+        public string StyleLayerName { get; }
 
         public bool HasIcon { get => IconImage != null; }
 
@@ -395,16 +398,15 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 {
                     // Calculate a start distance from the first point
                     var pos = pathMeasure.Length > spacing * 0.5f ? 0.5f : 0.1f;
-
                     while (pathMeasure.Length > spacing * pos)
                     {
                         pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangentVec);
                         try
                         {
+                            var tangent = 360f - (float)(Math.Atan2(tangentVec.Y, tangentVec.X) * 180 / Math.PI);
                             var rotation = -(float)IconRotate.Evaluate(context);
-                            var tangent = 360f - (float)(Math.Atan(tangentVec.Y / tangentVec.X) * 180.0 / Math.PI);
                             rotation -= (IconRotationAlignment == MapAlignment.Map || IconRotationAlignment == MapAlignment.Auto ? tangent : 0f);
-                            rotation = rotation % 360.0f;
+                            rotation %= 360;
                             var symbol = CreateIconTextSymbol(position.ToPoint(), rotation, element.Tags, context);
                             symbol.Index = element.TileIndex;
                             result.Add(symbol);
