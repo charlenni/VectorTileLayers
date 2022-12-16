@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Mapsui.VectorTileLayers.OpenMapTiles.Converter;
 using Mapsui.VectorTileLayers.OpenMapTiles.Expressions;
+using SkiaSharp;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
 {
@@ -56,19 +57,23 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
 
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("text-color")]
-        public StoppedColor TextColor { get; set; }
+        public StoppedColor TextColor { get; set; } = new StoppedColor { SingleVal = SKColors.Black };
+
+        [JsonConverter(typeof(StoppedFloatConverter))]
+        [JsonProperty("text-opacity")]
+        public StoppedFloat TextOpacity { get; set; } = new StoppedFloat { SingleVal = 1.0f };
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-halo-width")]
-        public StoppedFloat TextHaloWidth { get; set; }
+        public StoppedFloat TextHaloWidth { get; set; } = new StoppedFloat() { SingleVal = 0 };
 
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("text-halo-color")]
-        public StoppedColor TextHaloColor { get; set; }
+        public StoppedColor TextHaloColor { get; set; } = new StoppedColor { SingleVal = SKColors.Black.WithAlpha(0) };
 
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("text-halo-blur")]
-        public StoppedFloat TextHaloBlur { get; set; }
+        public StoppedFloat TextHaloBlur { get; set; } = new StoppedFloat() { SingleVal = 0 };
 
         [JsonConverter(typeof(StoppedBooleanConverter))]
         [JsonProperty("fill-antialias")]
@@ -97,10 +102,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         [JsonConverter(typeof(StoppedFloatConverter))]
         [JsonProperty("icon-halo-width")]
         public StoppedFloat IconHaloWidth { get; set; }
-
-        [JsonConverter(typeof(StoppedFloatConverter))]
-        [JsonProperty("text-opacity")]
-        public StoppedFloat TextOpacity { get; set; }
 
         [JsonConverter(typeof(StoppedColorConverter))]
         [JsonProperty("icon-color")]

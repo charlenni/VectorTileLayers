@@ -3,6 +3,7 @@ using Mapsui.VectorTileLayers.Core.Enums;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using RBush;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.Core.Primitives
 {
@@ -53,9 +54,19 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         public MPoint Point { get; set; }
 
         /// <summary>
-        /// Anchor in pixel
+        /// Possible anchor that could be used with this symbol
+        /// </summary>
+        public List<MPoint> PossibleAnchors { get; set; }
+
+        /// <summary>
+        /// Anchor to use
         /// </summary>
         public MPoint Anchor { get; set; }
+
+        /// <summary>
+        /// Type of anchor
+        /// </summary>
+        public AnchorType AnchorType { get; set; } = AnchorType.Fixed;
 
         /// <summary>
         /// Offset in pixel

@@ -25,11 +25,15 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public bool TextOptional { get; set; }
 
-        public StoppedFloat TextHaloBlur { get; set; } = new StoppedFloat() { SingleVal = 0 };
+        public StoppedColor TextColor { get; set; }
 
-        public StoppedColor TextHaloColor { get; set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+        public StoppedFloat TextOpacity { get; set; }
 
-        public StoppedFloat TextHaloWidth { get; set; } = new StoppedFloat() { SingleVal = 0 };
+        public StoppedFloat TextHaloBlur { get; set; }
+
+        public StoppedColor TextHaloColor { get; set; }
+
+        public StoppedFloat TextHaloWidth { get; set; }
 
         public override void Update(EvaluationContext context)
         {
@@ -45,8 +49,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // Convert tile coordinates to pixel
             var newPoint = Point.Copy(); // new MPoint(Point.X * scale, Point.Y * scale);
             // Add anchor and offset in pixel
-            newPoint.X += (Anchor.X + Offset.X) / scale;
-            newPoint.Y += (Anchor.Y + Offset.Y) / scale;
+            newPoint.X += (PossibleAnchors[0].X + Offset.X) / scale;
+            newPoint.Y += (PossibleAnchors[0].Y + Offset.Y) / scale;
             // Add real size in pixel
             var width = TextBlock.MeasuredWidth / scale;
             var height = TextBlock.MeasuredHeight / scale;

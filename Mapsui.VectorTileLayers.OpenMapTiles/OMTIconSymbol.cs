@@ -38,8 +38,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // Convert tile coordinates to pixel
             var newPoint = Point.Copy(); // new MPoint(Point.X * scale, Point.Y * scale);
             // Add anchor and offset in pixel
-            newPoint.X += (Anchor.X + Offset.X) / scale;
-            newPoint.Y += (Anchor.Y + Offset.Y) / scale;
+            newPoint.X += (PossibleAnchors[0].X + Offset.X) / scale;
+            newPoint.Y += (PossibleAnchors[0].Y + Offset.Y) / scale;
             // Add real size in pixel
             var width = Image.Width * IconSize / scale;
             var height = Image.Height * IconSize / scale;
