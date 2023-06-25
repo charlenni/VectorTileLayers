@@ -66,6 +66,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 #endif
         }
 
+        public override void Render(RBush<Symbol> tree, EvaluationContext context)
+        {
+        }
+
         public override void Draw(SKCanvas canvas, EvaluationContext context)
         {
             if (!IsVisible || string.IsNullOrWhiteSpace(Name))

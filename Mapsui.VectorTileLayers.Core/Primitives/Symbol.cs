@@ -113,6 +113,18 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public abstract void AddEnvelope(RBush<Symbol> tree);
 
+        /// <summary>
+        /// Try to place this symbol regarding the other symbols already in the tree
+        /// </summary>
+        /// <param name="tree">Tree with other already placed symbols</param>
+        /// <param name="context">Context to use while try to place the symbol</param>
+        public abstract void Render(RBush<Symbol> tree, EvaluationContext context);
+
+        /// <summary>
+        /// Draw this symbol on canvas
+        /// </summary>
+        /// <param name="canvas">Canvas to draw the symbol on</param>
+        /// <param name="context">Context to use while drawing the symbol</param>
         public abstract void Draw(SKCanvas canvas, EvaluationContext context);
     }
 }

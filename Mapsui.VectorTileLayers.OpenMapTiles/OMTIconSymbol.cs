@@ -1,4 +1,5 @@
-﻿using Mapsui.VectorTileLayers.Core.Primitives;
+﻿using Mapsui.VectorTileLayers.Core.Enums;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using RBush;
 using SkiaSharp;
 
@@ -17,6 +18,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public bool IconOptional { get; set; }
 
         public float IconSize { get; set; } = 1;
+
+        public MPoint Translate { get; set; }
+
+        public MapAlignment TranslateAnchor { get; set; } = MapAlignment.Map;
 
         public override void Update(EvaluationContext context)
         {
@@ -68,6 +73,38 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             testRect = new SKRect(minX, minY, maxX, maxY);
 #endif
+        }
+
+        public override void Render(RBush<Symbol> tree, EvaluationContext context)
+        {
+            if (Image == null)
+                return;
+
+            if (TranslateAnchor == MapAlignment.Map)
+            {
+
+            }
+
+            // Image width and height in pixel
+            var width = Image.Width * IconSize + Padding;
+            var height = Image.Height * IconSize + Padding;
+
+            // Add offset in pixel
+            var posX = (float)Offset.X * IconSize;
+            var posY = (float)Offset.Y * IconSize;
+            
+            posX += (float)Anchor.X;
+            posY += (float)Anchor.Y;
+
+            // Calc envelop of image
+            var envelopes = new Envelope();
+
+
+            // Get all possible positions
+            foreach (var anchor in PossibleAnchors)
+            {
+                
+            }
         }
 
         public override void Draw(SKCanvas canvas, EvaluationContext context)

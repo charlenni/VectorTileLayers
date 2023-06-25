@@ -367,15 +367,18 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             result.Image = spriteAtlas.GetSprite(iconName)?.ToSKImage();
 
-            var width = result.Image == null ? 0 : result.Image.Width;
-            var height = result.Image == null ? 0 : result.Image.Height;
+            var size = (float)IconSize.Evaluate(context);
+
+            var width = result.Image == null ? 0 : result.Image.Width * size;
+            var height = result.Image == null ? 0 : result.Image.Height * size;
 
             var offsetX = IconTranslate.X + IconOffset.X * (float)IconSize.Evaluate(context);
             var offsetY = IconTranslate.Y + IconOffset.Y * (float)IconSize.Evaluate(context);
 
             result.Point = point;
-            result.PossibleAnchors = GetAllAnchors(IconAnchor, null, width, height);
-            result.Anchor = result.PossibleAnchors.FirstOrDefault();
+            result.Translate = new MPoint(IconTranslate.X, IconTranslate.Y);
+            result.TranslateAnchor = IconTranslateAnchor;
+            result.Anchor = GetAllAnchors(IconAnchor, null, width, height).FirstOrDefault();
             result.Offset = new MPoint(offsetX, offsetY);
             result.Padding = (float)IconPadding.Evaluate(context);
 
