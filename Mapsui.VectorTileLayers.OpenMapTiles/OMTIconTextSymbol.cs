@@ -68,6 +68,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             TextSymbol?.CalcEnvelope(scale, rotation, offset);
         }
 
+        public override void Render(RBush<Symbol> tree, EvaluationContext context)
+        {
+            // throw new System.NotImplementedException();
+        }
+
         public override void Draw(SKCanvas canvas, EvaluationContext context)
         {
             IconSymbol?.Draw(canvas, context);
