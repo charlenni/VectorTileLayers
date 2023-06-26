@@ -1,4 +1,5 @@
-﻿using Mapsui.Layers;
+﻿using Mapsui.Extensions;
+using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Rendering;
 using Mapsui.Rendering.Skia.SkiaStyles;
@@ -20,7 +21,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
         }
 
-        public bool Draw(SKCanvas canvas, IReadOnlyViewport viewport, ILayer layer, IFeature feature, IStyle style, ISymbolCache symbolCache, long iteration)
+        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, IRenderCache renderCache, long iteration)
         {
             try
             {
@@ -54,7 +55,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             return true;
         }
 
-        private float CreateMatrix(SKCanvas canvas, IReadOnlyViewport viewport, MRect extent)
+        private float CreateMatrix(SKCanvas canvas, Viewport viewport, MRect extent)
         {
             var destinationTopLeft = viewport.WorldToScreen(extent.TopLeft);
             var destinationTopRight = viewport.WorldToScreen(extent.TopRight);
@@ -65,7 +66,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
             var scale = (float)Math.Sqrt(dx * dx + dy * dy) / 512f;
 
             canvas.Translate((float)destinationTopLeft.X, (float)destinationTopLeft.Y);
-            if (viewport.IsRotated)
+            if (viewport.IsRotated())
                 canvas.RotateDegrees((float)viewport.Rotation);
             canvas.Scale(scale);
 

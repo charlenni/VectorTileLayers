@@ -8,8 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapsui" Version="4.0.0-beta.5" />
+    <PackageReference Include="BruTile" Version="5.0.4" />
+    <PackageReference Include="Mapsui" Version="4.0.0" />
+    <PackageReference Include="Mapsui.Rendering.Skia" Version="4.0.0" />
+    <PackageReference Include="Mapsui.Tiling" Version="4.0.0" />
     <PackageReference Include="RBush" Version="3.2.0" />
+    <PackageReference Include="SkiaSharp" Version="2.88.3" />
   </ItemGroup>
 
 </Project>
