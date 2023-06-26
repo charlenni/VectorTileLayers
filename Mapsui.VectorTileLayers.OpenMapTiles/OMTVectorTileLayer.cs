@@ -70,10 +70,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // We have our only cache for ready processed vector tiles
             MemoryCache = new BruTile.Cache.MemoryCache<IFeature>(minTiles, maxTiles);
 
-            Style = new Styles.StyleCollection {
-                new VectorTileStyle(0, 24, vectorStyles),
-                //new SymbolTileStyle(0, 24, vectorStyles)
-            };
+            Style = new Styles.StyleCollection();
+            ((Styles.StyleCollection)Style).Styles.Add(new VectorTileStyle(0, 24, vectorStyles));
                         
             Attribution.Text = _tileSource.Attribution?.Text;
             Attribution.Url = _tileSource.Attribution?.Url;
@@ -174,7 +172,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                 watch.Start();
 
-                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)((Styles.StyleCollection)Style)[0]).StyleLayers, vectorTiles, zoomLevel, minCol, minRow, token);
+                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)((Styles.StyleCollection)Style).Styles[0]).StyleLayers, vectorTiles, zoomLevel, minCol, minRow, token);
 
                 if (!token.IsCancellationRequested)
                 {

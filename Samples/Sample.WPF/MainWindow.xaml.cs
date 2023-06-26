@@ -100,9 +100,9 @@ namespace Sample.WPF
 
             if (_vectorTileLayer?.Style is StyleCollection)
             {
-                for (int i = 0; i < ((StyleCollection)_vectorTileLayer.Style).Count; i++)
+                for (int i = 0; i < ((StyleCollection)_vectorTileLayer.Style).Styles.Count; i++)
                 {
-                    if (((StyleCollection)_vectorTileLayer.Style)[i] is VectorTileStyle vts)
+                    if (((StyleCollection)_vectorTileLayer.Style).Styles[i] is VectorTileStyle vts)
                     {
                         foreach (var style in vts.StyleLayers)
                         {
@@ -118,31 +118,31 @@ namespace Sample.WPF
             }
 
             // Zurich
-            mapControl.Navigator.CenterOn(950804.77, 6002071.45);
+            mapControl.Map.Navigator.CenterOn(950804.77, 6002071.45);
             // Monaco
             // mapControl.Navigator.CenterOn(825890.75, 5423194.65);
-            mapControl.Navigator.ZoomTo(17.ToResolution()); // 1.2);
-            mapControl.Navigator.RotateTo(0);
+            mapControl.Map.Navigator.ZoomTo(17.ToResolution()); // 1.2);
+            mapControl.Map.Navigator.RotateTo(0);
         }
 
         private void BtnRotateCCW_Click(object sender, RoutedEventArgs e)
         {
-            mapControl.Navigator.RotateTo(mapControl.Viewport.Rotation - 5);
+            mapControl.Map.Navigator.RotateTo(mapControl.Map.Navigator.Viewport.Rotation - 5);
         }
 
         private void BtnRotateCW_Click(object sender, RoutedEventArgs e)
         {
-            mapControl.Navigator.RotateTo(mapControl.Viewport.Rotation + 5);
+            mapControl.Map.Navigator.RotateTo(mapControl.Map.Navigator.Viewport.Rotation + 5);
         }
 
         private void BtnZoomIn_Click(object sender, RoutedEventArgs e)
         {
-            mapControl.Navigator.ZoomIn(0);
+            mapControl.Map.Navigator.ZoomIn(0);
         }
 
         private void BtnZoomOut_Click(object sender, RoutedEventArgs e)
         {
-            mapControl.Navigator.ZoomOut(0);
+            mapControl.Map.Navigator.ZoomOut(0);
         }
 
         private void BtnAll_Click(object sender, RoutedEventArgs e)

@@ -17,7 +17,7 @@ namespace Mapsui.VectorTileLayers.Core.Styles
 
         public IEnumerable<IStyleLayer> StyleLayers { get; }
 
-        public void UpdateStyles(IViewport viewport)
+        public void UpdateStyles(Viewport viewport)
         {
             EvaluationContext context = new EvaluationContext((float)viewport.Resolution.ToZoomLevel());
 

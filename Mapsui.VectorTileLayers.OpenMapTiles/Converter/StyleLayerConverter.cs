@@ -736,7 +736,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             //   "bottom-left", "bottom-right". Defaults to "center". Requires text-field. Disabled by 
             //   text-variable-anchor. 
             //   See https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#layout-symbol-text-anchor
-            if (layout?.TextField != null && layout?.TextVariableAnchor == null && layout?.TextAnchor != null)
+            if (layout?.TextField != null && layout?.TextAnchor != null)
             {
                 symbolStyler.TextAnchor = layout.TextAnchor.ToDirection();
             }
@@ -989,12 +989,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
             //   Requires symbol-placement to be "point". 
             //   See https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#layout-symbol-text-variable-anchor
             if (layout?.TextField != null &&
-                layout?.SymbolPlacement != null &&
-                //layout.SymbolPlacement.ToLower() == "point" &&
                 layout?.TextVariableAnchor != null)
             {
                 foreach(var alignment in layout?.TextVariableAnchor)
-                    symbolStyler.TextVariableAnchor.Add(alignment.ToMapAlignment());
+                    symbolStyler.TextVariableAnchor.Add(alignment.ToDirection());
             }
 
             // text-writing-mode

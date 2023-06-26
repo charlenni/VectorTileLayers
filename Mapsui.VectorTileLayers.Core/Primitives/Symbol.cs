@@ -3,6 +3,7 @@ using Mapsui.VectorTileLayers.Core.Enums;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using RBush;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.Core.Primitives
 {
@@ -53,9 +54,19 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         public MPoint Point { get; set; }
 
         /// <summary>
-        /// Anchor in pixel
+        /// Possible anchor that could be used with this symbol
+        /// </summary>
+        public List<MPoint> PossibleAnchors { get; set; }
+
+        /// <summary>
+        /// Anchor to use
         /// </summary>
         public MPoint Anchor { get; set; }
+
+        /// <summary>
+        /// Type of anchor
+        /// </summary>
+        public AnchorType AnchorType { get; set; } = AnchorType.Fixed;
 
         /// <summary>
         /// Offset in pixel
@@ -102,6 +113,18 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 
         public abstract void AddEnvelope(RBush<Symbol> tree);
 
+        /// <summary>
+        /// Try to place this symbol regarding the other symbols already in the tree
+        /// </summary>
+        /// <param name="tree">Tree with other already placed symbols</param>
+        /// <param name="context">Context to use while try to place the symbol</param>
+        public abstract void Render(RBush<Symbol> tree, EvaluationContext context);
+
+        /// <summary>
+        /// Draw this symbol on canvas
+        /// </summary>
+        /// <param name="canvas">Canvas to draw the symbol on</param>
+        /// <param name="context">Context to use while drawing the symbol</param>
         public abstract void Draw(SKCanvas canvas, EvaluationContext context);
     }
 }

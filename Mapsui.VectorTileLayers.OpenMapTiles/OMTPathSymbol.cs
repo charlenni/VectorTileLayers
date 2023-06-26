@@ -32,6 +32,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             //throw new NotImplementedException();
         }
 
+        public override void Render(RBush<Symbol> tree, EvaluationContext context)
+        {
+            // throw new System.NotImplementedException();
+        }
+
         public override void Draw(SKCanvas canvas, EvaluationContext context)
         {
             //throw new System.NotImplementedException();

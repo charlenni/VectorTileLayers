@@ -11,9 +11,17 @@ using System.Text.RegularExpressions;
 using Topten.RichTextKit;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using System;
+using NetTopologySuite.Geometries;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
+    /// <summary>
+    /// OMTSymbolFactory creates all symbols of one StyleLayer
+    /// </summary>
+    /// <remarks>
+    /// This symbols could belong to different contexts/zoom levels, 
+    /// but each symbol has only settings for one zoom level.
+    /// </remarks>
     public class OMTSymbolFactory : IVectorSymbolFactory
     {
         static Regex regex = new Regex(@".*\{(.*)\}.*");
@@ -39,17 +47,25 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public bool IsVisible { get; internal set; } = true;
 
+        #region Common symbol settings
+
+        public bool SymbolAvoidEdges { get; internal set; }
+
+        public StoppedString SymbolPlacement { get; internal set; }
+
+        public float SymbolSortKey { get; internal set; }
+
+        public StoppedFloat SymbolSpacing { get; internal set; }
+
+        public ZOrder SymbolZOrder { get; internal set; } = ZOrder.Auto;
+
+        #endregion
+
+        #region Icon Layout settings
+
         public bool IconAllowOverlap { get; internal set; }
 
         public Direction IconAnchor { get; internal set; } = Direction.Center;
-
-        public StoppedColor IconColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
-
-        public StoppedFloat IconHaloBlur { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
-
-        public StoppedColor IconHaloColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
-
-        public StoppedFloat IconHaloWidth { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
 
         public bool IconIgnorePlacement { get; internal set; } = false;
 
@@ -58,8 +74,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public bool IconKeepUpright { get; internal set; }
 
         public Vector IconOffset { get; internal set; } = Vector.Empty;
-
-        public StoppedFloat IconOpacity { get; internal set; } = new StoppedFloat() { SingleVal = 1 };
 
         public bool IconOptional { get; internal set; } = false;
 
@@ -77,35 +91,35 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public MRect IconTextFitPadding { get; internal set; } = new MRect(0, 0, 0, 0);
 
+        #endregion
+
+        #region Icon Paint settings
+
+        public StoppedColor IconColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
+
+        public StoppedFloat IconHaloBlur { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
+
+        public StoppedColor IconHaloColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+
+        public StoppedFloat IconHaloWidth { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
+
+        public StoppedFloat IconOpacity { get; internal set; } = new StoppedFloat() { SingleVal = 1 };
+
         public Vector IconTranslate { get; internal set; } = Vector.Empty;
 
         public MapAlignment IconTranslateAnchor { get; internal set; } = MapAlignment.Map;
 
-        public bool SymbolAvoidEdges { get; internal set; }
+        #endregion
 
-        public StoppedString SymbolPlacement { get; internal set; } = new StoppedString() { SingleVal = "point" };
-
-        public float SymbolSortKey { get; internal set; }
-
-        public StoppedFloat SymbolSpacing { get; internal set; } = new StoppedFloat() { SingleVal = 250 };
-
-        public ZOrder SymbolZOrder { get; internal set; } = ZOrder.Auto;
+        #region Text Layout settings
 
         public bool TextAllowOverlap { get; internal set; }
 
         public Direction TextAnchor { get; internal set; } = Direction.Center;
 
-        public StoppedColor TextColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
-
         public string TextField { get; internal set; } = "";
 
         public List<string> TextFont { get; internal set; } = new List<string>();
-
-        public StoppedFloat TextHaloBlur { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
-
-        public StoppedColor TextHaloColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
-
-        public StoppedFloat TextHaloWidth { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
 
         public bool TextIgnorePlacement { get; internal set; } = false;
 
@@ -123,8 +137,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public Vector TextOffset { get; internal set; } = Vector.Empty;
 
-        public StoppedFloat TextOpacity { get; internal set; } = new StoppedFloat() { SingleVal = 1 };
-
         public bool TextOptional { get; internal set; } = false;
 
         public StoppedFloat TextPadding { get; internal set; } = new StoppedFloat() { SingleVal = 2 };
@@ -141,13 +153,29 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public TextTransform TextTransform { get; internal set; } = TextTransform.None;
 
+        public List<Direction> TextVariableAnchor { get; internal set; } = new List<Direction>();
+
+        public List<Orientation> TextWritingMode { get; internal set; } = new List<Orientation>();
+
+        #endregion
+
+        #region Text Paint settings
+
+        public StoppedColor TextColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 255) };
+
+        public StoppedFloat TextHaloBlur { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
+
+        public StoppedColor TextHaloColor { get; internal set; } = new StoppedColor() { SingleVal = new SKColor(0, 0, 0, 0) };
+
+        public StoppedFloat TextHaloWidth { get; internal set; } = new StoppedFloat() { SingleVal = 0 };
+
+        public StoppedFloat TextOpacity { get; internal set; } = new StoppedFloat() { SingleVal = 1 };
+
         public Vector TextTranslate { get; internal set; } = Vector.Empty;
 
         public MapAlignment TextTranslateAnchor { get; internal set; } = MapAlignment.Map;
 
-        public List<MapAlignment> TextVariableAnchor { get; internal set; } = new List<MapAlignment>();
-
-        public List<Orientation> TextWritingMode { get; internal set; } = new List<Orientation>();
+        #endregion
 
         /// <summary>
         /// Create default settings for symbol
@@ -212,58 +240,19 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return textStyle;
         }
 
-        public Symbol CreateIconSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context)
-        {
-            if (IconImage == null)
-                return null;
-
-            var result = new OMTIconSymbol();
-
-            // Set orientation
-            result.Alignment = GetAlignment(IconPitchAlignment, IconRotationAlignment, ((string)SymbolPlacement.Evaluate(context)).ToLower());
-
-            result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
-            result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
-            result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
-
-            var iconName = ReplaceWithTags(context != null ? IconImage.Evaluate(context.Zoom) : IconImage.Evaluate(0), tags, context);
-
-            if (string.IsNullOrEmpty(iconName))
-            {
-                return null;
-            }
-
-            result.Image = spriteAtlas.GetSprite(iconName)?.ToSKImage();
-
-            var width = result.Image == null ? 0 : result.Image.Width;
-            var height = result.Image == null ? 0 : result.Image.Height;
-
-            var (anchorX, anchorY) = CalcAnchor(IconAnchor, width, height);
-
-            var offsetX = IconTranslate.X;
-            var offsetY = IconTranslate.Y;
-
-            result.Point = point;
-            result.Anchor = new MPoint(anchorX, anchorY);
-            result.Offset = new MPoint(offsetX, offsetY);
-            result.Padding = (float)IconPadding.Evaluate(context);
-
-            result.IconSize = IconSize.Evaluate(context.Zoom);
-            result.Rotation = rotation == 0 ? (float)IconRotate.Evaluate(context) : rotation;
-            result.IconOptional = IconOptional;
-            result.IgnorePlacement = IconIgnorePlacement;
-            result.IsVisible = IsVisible;
-
-            result.Paint = new OMTPaint("");
-
-            return result;
-        }
-
         public Symbol CreateTextSymbol(MPoint point, TagsCollection tags, EvaluationContext context)
         {
-            if (TextField == null)
+            // Is there something to make?
+            if (string.IsNullOrEmpty(TextField))
                 return null;
 
+            var fieldName = ReplaceWithTags(TextField, tags, context);
+            fieldName = ReplaceWithTransforms(fieldName, TextTransform);
+
+            if (string.IsNullOrEmpty(fieldName))
+                return null;
+
+            // Now we are sure, that the symbol contains something, that should be shown
             var textBlock = new TextBlock();
 
             textStyle = CreateTextStyle();
@@ -276,12 +265,6 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
             result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
             result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
-
-            var fieldName = ReplaceWithTags(TextField, tags, context);
-            fieldName = ReplaceWithTransforms(fieldName, TextTransform);
-
-            if (fieldName == string.Empty)
-                return null;
 
             result.Name = fieldName;
             result.TextStyle.FontSize = (float)TextSize.Evaluate(context);
@@ -314,18 +297,19 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
             var width = (float)result.TextBlock.MeasuredWidth;
             var height = result.TextBlock.MeasuredHeight;
-
-            var (anchorX, anchorY) = CalcAnchor(TextAnchor, width, height);
-
-            // If TextVariableAnchors has a value, TextOffset are absolut values, otherwise TextOffset in ems
-            var offsetX = TextOffset.X * (TextVariableAnchor.Count > 0 ? 1 : result.TextStyle.FontSize);
-            var offsetY = TextOffset.Y * (TextVariableAnchor.Count > 0 ? 1 : result.TextStyle.FontSize);
+            var offsetX = TextOffset.X * result.TextStyle.FontSize;  // TODO: Is FontSize == ems size?
+            var offsetY = TextOffset.Y * result.TextStyle.FontSize;
 
             result.Point = point;
-            result.Anchor = new MPoint(anchorX, anchorY);
-            result.Offset = new MPoint(offsetX, offsetY);
+            result.PossibleAnchors = GetAllAnchors(TextAnchor, TextVariableAnchor, width, height);
+            result.Anchor = result.PossibleAnchors.FirstOrDefault();
+            result.AnchorType = TextVariableAnchor.Count > 0 ? AnchorType.Variable : AnchorType.Fixed;
+            result.Offset = TextVariableAnchor.Count > 0 ? new MPoint(Math.Abs(offsetX), Math.Abs(offsetY)) : new MPoint(offsetX, offsetY);
             result.Padding = (float)TextPadding.Evaluate(context);
 
+            // Add Text Paint settings for later calculation
+            result.TextColor = TextColor;
+            result.TextOpacity = TextOpacity;
             result.TextOptional = TextOptional;
             result.TextHaloBlur = TextHaloBlur;
             result.TextHaloColor = TextHaloColor;
@@ -360,6 +344,55 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return result;
         }
 
+        public Symbol CreateIconSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context)
+        {
+            if (IconImage == null)
+                return null;
+
+            var result = new OMTIconSymbol();
+
+            // Set orientation
+            result.Alignment = GetAlignment(IconPitchAlignment, IconRotationAlignment, ((string)SymbolPlacement.Evaluate(context)).ToLower());
+
+            result.Class = tags.ContainsKey("class") ? tags["class"].ToString() : string.Empty;
+            result.Subclass = tags.ContainsKey("subclass") ? tags["subclass"].ToString() : string.Empty;
+            result.Rank = tags.ContainsKey("rank") ? int.Parse(tags["rank"].ToString()) : 0;
+
+            var iconName = ReplaceWithTags(context != null ? IconImage.Evaluate(context.Zoom) : IconImage.Evaluate(0), tags, context);
+
+            if (string.IsNullOrEmpty(iconName))
+            {
+                return null;
+            }
+
+            result.Image = spriteAtlas.GetSprite(iconName)?.ToSKImage();
+
+            var size = (float)IconSize.Evaluate(context);
+
+            var width = result.Image == null ? 0 : result.Image.Width * size;
+            var height = result.Image == null ? 0 : result.Image.Height * size;
+
+            var offsetX = IconTranslate.X + IconOffset.X * (float)IconSize.Evaluate(context);
+            var offsetY = IconTranslate.Y + IconOffset.Y * (float)IconSize.Evaluate(context);
+
+            result.Point = point;
+            result.Translate = new MPoint(IconTranslate.X, IconTranslate.Y);
+            result.TranslateAnchor = IconTranslateAnchor;
+            result.Anchor = GetAllAnchors(IconAnchor, null, width, height).FirstOrDefault();
+            result.Offset = new MPoint(offsetX, offsetY);
+            result.Padding = (float)IconPadding.Evaluate(context);
+
+            result.IconSize = IconSize.Evaluate(context.Zoom);
+            result.Rotation = rotation == 0 ? (float)IconRotate.Evaluate(context) : rotation;
+            result.IconOptional = IconOptional;
+            result.IgnorePlacement = IconIgnorePlacement;
+            result.IsVisible = IsVisible;
+
+            result.Paint = new OMTPaint("");
+
+            return result;
+        }
+
         public Symbol CreateIconTextSymbol(MPoint point, float rotation, TagsCollection tags, EvaluationContext context)
         {
             var icon = (OMTIconSymbol)CreateIconSymbol(point, rotation, tags, context);
@@ -370,7 +403,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public IEnumerable<Symbol> CreatePathSymbols(VectorElement element, EvaluationContext context)
         {
-            var result = new List<Symbol>();
+            List<Symbol> result = new List<Symbol>();
+            
             //var symbol = new OMTPathSymbol(element.TileIndex, element.Id);
 
             //symbol.Class = element.Tags.ContainsKey("class") ? element.Tags["class"].ToString() : string.Empty;
@@ -383,24 +417,47 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             //if (symbol.Name == string.Empty)
             //    return null;
 
-            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "point" && element.IsPoint)
+            if (((string)SymbolPlacement.Evaluate(context)).Equals("point", StringComparison.InvariantCultureIgnoreCase) && element.IsPoint)
             { }
 
-            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "line-center" && (element.IsLine || element.IsPolygon))
+            if (((string)SymbolPlacement.Evaluate(context)).Equals("line-center", StringComparison.InvariantCultureIgnoreCase) && (element.IsLine || element.IsPolygon))
             { }
 
-            if (((string)SymbolPlacement.Evaluate(context)).ToLower() == "line" && (element.IsLine || element.IsPolygon))
+            if (((string)SymbolPlacement.Evaluate(context)).Equals("line", StringComparison.InvariantCultureIgnoreCase) && (element.IsLine || element.IsPolygon))
             {
+                // Evaluate context
+                string iconName = IconImage != null ? ReplaceWithTags((string)(IconImage.Evaluate(context)), element.Tags, context) : "";
+                string textName = !string.IsNullOrEmpty(TextField) ? ReplaceWithTransforms(ReplaceWithTags(TextField, element.Tags, context), TextTransform) : "";
+                
+                // Is there something to do?
+                if (string.IsNullOrEmpty(iconName) && string.IsNullOrEmpty(textName))
+                    return null;
+
+                float length = 0;
+
+                // Get size of icon and text for this context
+                if (!string.IsNullOrEmpty(iconName))
+                {
+                    var sprite = spriteAtlas.GetSprite(iconName);
+                    if (sprite != null)
+                        length = sprite.ToSKImage().Width + (IconPadding != null ? (float)(IconPadding.Evaluate(context)) : 0);
+                }
+
+                // Calc positions
                 var path = new SKPath();
                 element.AddToPath(path);
                 var spacing = (float)SymbolSpacing.Evaluate(context);
                 using (var pathMeasure = new SKPathMeasure(path))
                 {
+                    if (pathMeasure.Length < length)
+                        return null;
+                    if (pathMeasure.Length < spacing)
+                        spacing = pathMeasure.Length / 2;
                     // Calculate a start distance from the first point
-                    var pos = pathMeasure.Length > spacing * 0.5f ? 0.5f : 0.1f;
-                    while (pathMeasure.Length > spacing * pos)
+                    var nextPosition = spacing; // pathMeasure.Length > spacing * 0.5f ? 0.5f : 0.1f;
+                    while (pathMeasure.Length > nextPosition)
                     {
-                        pathMeasure.GetPositionAndTangent(spacing * pos, out var position, out var tangentVec);
+                        pathMeasure.GetPositionAndTangent(nextPosition, out var position, out var tangentVec);
                         try
                         {
                             var tangent = 360f - (float)(Math.Atan2(tangentVec.Y, tangentVec.X) * 180 / Math.PI);
@@ -413,7 +470,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                         }
                         catch
                         { }
-                        pos++;
+                        nextPosition += spacing;
                     }
                 }
             }
@@ -441,14 +498,17 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                     switch (rotationAlignment)
                     {
                         case MapAlignment.Map:
-                            result = MapAlignment.Map;
+                            if (symbolPlacement.Equals("point", StringComparison.InvariantCultureIgnoreCase))
+                                result = MapAlignment.Map;
+                            // In other cases it is a path alignment
                             break;
                         case MapAlignment.Viewport:
                             result = MapAlignment.Viewport;
                             break;
                         case MapAlignment.Auto:
-                            if (symbolPlacement == "point")
+                            if (symbolPlacement.Equals("point", StringComparison.InvariantCultureIgnoreCase))
                                 result = MapAlignment.Viewport;
+                            // Other cases it is MapAlignment.Map
                             break;
                     }
                     break;
@@ -477,10 +537,14 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             {
                 // Try to take the localized name
                 var code = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                
                 if (tags.ContainsKey("name:"+code))
                     return text.Replace($"{{{val}}}", tags["name:" + code].ToString());
                 if (tags.ContainsKey("name_" + code))
                     return text.Replace($"{{{val}}}", tags["name_" + code].ToString());
+
+                // We didn't find a name in the tags, so remove this part
+                return text.Replace($"{{{val}}}", "");
             }
 
             return text;
@@ -499,7 +563,25 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return text;
         }
 
-        private (float anchorX, float anchorY) CalcAnchor(Direction direction, float width, float height)
+        private List<MPoint> GetAllAnchors(Direction fixedAnchor, List<Direction> variableAnchor, float width, float height)
+        {
+            // We have no variable anchor, so use the fixed anchor
+            if (variableAnchor == null || variableAnchor.Count == 0)
+            {
+                return new List<MPoint> { CalcAnchor(fixedAnchor, width, height) };
+            }
+
+            var result = new List<MPoint>(variableAnchor.Count);
+
+            foreach (var direction in variableAnchor)
+            {
+                result.Add(CalcAnchor(direction, width, height));
+            }
+
+            return result;
+        }
+
+        private MPoint CalcAnchor(Direction direction, float width, float height)
         {
             var anchorX = 0f;
             var anchorY = 0f;
@@ -532,7 +614,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                     break;
             }
 
-            return (anchorX, anchorY);
+            return new MPoint(anchorX, anchorY);
         }
     }
 }

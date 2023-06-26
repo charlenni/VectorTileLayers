@@ -28,7 +28,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public string Visibility { get; set; } = "visible";
 
         [JsonProperty("text-font")]
-        public JArray TextFont { get; set; }
+        public string[] TextFont { get; set; } = new string[] { "Open Sans Regular", "Arial Unicode MS Regular" };
 
         [JsonProperty("text-field")]
         public string TextField { get; set; }
@@ -46,7 +46,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public StoppedFloat TextPadding { get; set; }
 
         [JsonProperty("text-offset")]
-        public float[] TextOffset { get; set; }
+        public float[] TextOffset { get; set; } = new float[2] { 0, 0 };
 
         [JsonProperty("text-optional")]
         public bool TextOptional { get; set; }
@@ -55,7 +55,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public bool TextAllowOverlap { get; set; }
 
         [JsonProperty("text-anchor")]
-        public string TextAnchor { get; set; }
+        public string TextAnchor { get; set; } = "center";
 
         [JsonProperty("text-justify")]
         public string TextJustify { get; set; }
@@ -117,7 +117,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Json
         public string TextTranslateAnchor { get; set; }
 
         [JsonProperty("text-variable-anchor")]
-        public string[] TextVariableAnchor { get; set; }
+        public string[] TextVariableAnchor { get; set; } = new string[0];
 
         [JsonProperty("text-writing-mode")]
         public string[] TextWritingMode { get; set; }
