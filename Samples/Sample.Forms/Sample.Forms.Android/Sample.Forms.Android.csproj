@@ -108,10 +108,6 @@
       <Project>{a9b8add1-52e4-4123-a461-a4d1f03f9e55}</Project>
       <Name>Mapsui.VectorTileLayers.OpenMapTiles</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sample.Forms\Sample.Forms.csproj">
-      <Project>{09C9074C-CC3F-4D32-A889-5E34BBE88F4D}</Project>
-      <Name>Sample.Forms</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BruTile.MbTiles" Version="5.0.4" />
-    <PackageReference Include="Mapsui" Version="4.0.0" />
+    <PackageReference Include="BruTile.MbTiles" Version="5.0.6" />
+    <PackageReference Include="Mapsui" Version="4.1.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="protobuf-net" Version="3.2.26" />
+    <PackageReference Include="protobuf-net" Version="3.2.30" />
     <PackageReference Include="RBush" Version="3.2.0" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.141-beta" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.165" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.167" />
   </ItemGroup>
 
   <ItemGroup>
