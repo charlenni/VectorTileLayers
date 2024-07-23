@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +31,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         private const int TileSizeOfData = 4096;
 
         private readonly ITileSource _tileSource;
+        private readonly HttpClient _httpClient = new();
         private readonly IRenderFetchStrategy _renderFetchStrategy;
         private readonly int _minExtraTiles;
         private readonly int _maxExtraTiles;
@@ -58,6 +60,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Func<TileInfo, Task<IFeature>> fetchTileAsFeature = null)
         {
             _tileSource = tileSource ?? throw new ArgumentException($"{tileSource} can not be null");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "User-Agent-For-Samples-Project");
             Name = _tileSource.Name;
             Extent = _tileSource.Schema?.Extent.ToMRect();
 
@@ -73,8 +76,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             Style = new Styles.StyleCollection();
             ((Styles.StyleCollection)Style).Styles.Add(new VectorTileStyle(0, 24, vectorStyles));
                         
-            Attribution.Text = _tileSource.Attribution?.Text;
-            Attribution.Url = _tileSource.Attribution?.Url;
+            Attribution.Text = _tileSource.Attribution.Text;
+            Attribution.Url = _tileSource.Attribution.Url;
             
             dataFetchStrategy ??= new DataFetchStrategy(3);
             _renderFetchStrategy = new Tiling.Rendering.RenderFetchStrategy();
@@ -88,7 +91,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         }
 
         /// <summary>
-        /// TileSource</summary>
+        /// TileSource
+        /// </summary>
         public ITileSource TileSource => _tileSource;
 
         /// <summary>
@@ -313,7 +317,12 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 #endif
 
             // Get byte data for this tile
-            var tileData = _tileSource.GetTileAsync(tileInfo).Result;
+            byte[] tileData;
+
+            if (_tileSource is ILocalTileSource)
+                tileData = ((ILocalTileSource)_tileSource).GetTileAsync(tileInfo).Result;
+            else
+                tileData = ((IHttpTileSource)_tileSource).GetTileAsync(_httpClient, tileInfo).Result;
 
 #if DEBUG
             Logger.Log(Logging.LogLevel.Information, $"After GetTile from source at {DateTime.Now.Ticks}: {tileInfo.Index.Col}/{tileInfo.Index.Row}/{tileInfo.Index.Level}");
@@ -341,7 +350,11 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 offsetFactor <<= 1;
                 //info.Extent = new Extent(minX, minY, minX + halfWidth, minY + halfHeight);
                 info.Index = new TileIndex(col, row, zoom);
-                tileData = _tileSource.GetTileAsync(info).Result;
+
+                if (_tileSource is ILocalTileSource)
+                    tileData = ((ILocalTileSource)_tileSource).GetTileAsync(info).Result;
+                else
+                    tileData = ((IHttpTileSource)_tileSource).GetTileAsync(_httpClient, info).Result;
             }
 
             if (zoom < 0)
