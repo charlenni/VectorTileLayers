@@ -4,11 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Mapsui.VectorTileLayers.OpenMapTiles</AssemblyName>
     <RootNamespace>Mapsui.VectorTileLayers.OpenMapTiles</RootNamespace>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BruTile.MbTiles" Version="5.0.6" />
+    <PackageReference Include="BruTile.MbTiles" Version="6.0.0-beta.3" />
     <PackageReference Include="Mapsui" Version="4.1.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="protobuf-net" Version="3.2.30" />

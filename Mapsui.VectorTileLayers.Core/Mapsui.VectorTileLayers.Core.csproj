@@ -4,11 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Mapsui.VectorTileLayers.Core</AssemblyName>
     <RootNamespace>Mapsui.VectorTileLayers.Core</RootNamespace>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BruTile" Version="5.0.6" />
+    <PackageReference Include="BruTile" Version="6.0.0-beta.3" />
     <PackageReference Include="Mapsui" Version="4.1.7" />
     <PackageReference Include="Mapsui.Rendering.Skia" Version="4.1.7" />
     <PackageReference Include="Mapsui.Tiling" Version="4.1.7" />
