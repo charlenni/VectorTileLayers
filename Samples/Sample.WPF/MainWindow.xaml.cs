@@ -1,7 +1,9 @@
-﻿using Mapsui;
+﻿using ExCSS;
+using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
 using Mapsui.Logging;
+using Mapsui.Rendering.Skia;
 using Mapsui.Rendering.Skia.SkiaWidgets;
 using Mapsui.Styles;
 using Mapsui.Utilities;
@@ -10,7 +12,7 @@ using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Renderer;
 using Mapsui.VectorTileLayers.Core.Styles;
 using Mapsui.VectorTileLayers.OpenMapTiles;
-using Mapsui.Widgets.PerformanceWidget;
+using Mapsui.Widgets.InfoWidgets;
 using Mapsui.Widgets.ScaleBar;
 using SkiaSharp;
 using System.Collections.ObjectModel;
@@ -19,7 +21,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace Sample.WPF
 {
@@ -66,14 +67,9 @@ namespace Sample.WPF
                 VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top
             });
 
-            // Add PerformanceWidget
-            map.Widgets.Add(new PerformanceWidget(_performance));
-            mapControl.Performance = _performance;
-            mapControl.Renderer.WidgetRenders[typeof(PerformanceWidget)] = new PerformanceWidgetRenderer(10, 10, 12, SKColors.Black, SKColors.White);
-
-            mapControl.Renderer.StyleRenderers[typeof(BackgroundTileStyle)] = new BackgroundTileStyleRenderer();
-            mapControl.Renderer.StyleRenderers[typeof(RasterTileStyle)] = new RasterTileStyleRenderer();
-            mapControl.Renderer.StyleRenderers[typeof(VectorTileStyle)] = new VectorTileStyleRenderer();
+            MapRenderer.RegisterStyleRenderer(typeof(BackgroundTileStyle), new BackgroundTileStyleRenderer());
+            MapRenderer.RegisterStyleRenderer(typeof(RasterTileStyle), new RasterTileStyleRenderer());
+            MapRenderer.RegisterStyleRenderer(typeof(VectorTileStyle), new VectorTileStyleRenderer());
 
             mapControl.Map = map;
 
@@ -98,20 +94,17 @@ namespace Sample.WPF
                     _vectorTileLayer = (OMTVectorTileLayer)layer;
             }
 
-            if (_vectorTileLayer?.Style is StyleCollection)
+            if (_vectorTileLayer?.Style is VectorTileStyle vectorTileStyle)
             {
-                for (int i = 0; i < ((StyleCollection)_vectorTileLayer.Style).Styles.Count; i++)
+                for (int i = 0; i < vectorTileStyle.StyleLayers.Count(); i++)
                 {
-                    if (((StyleCollection)_vectorTileLayer.Style).Styles[i] is VectorTileStyle vts)
+                    foreach (var style in vectorTileStyle.StyleLayers)
                     {
-                        foreach (var style in vts.StyleLayers)
+                        if (style is OMTStyle vectorStyle)
                         {
-                            if (style is OMTVectorTileStyle vectorStyle)
-                            {
-                                var item = new CheckBoxListViewItem(vectorStyle, vectorStyle.Id, vectorStyle.Enabled);
-                                item.PropertyChanged += Item_PropertyChanged;
-                                items.Add(item);
-                            }
+                            var item = new CheckBoxListViewItem(vectorStyle, vectorStyle.Id, vectorStyle.Enabled);
+                            item.PropertyChanged += Item_PropertyChanged;
+                            items.Add(item);
                         }
                     }
                 }
@@ -183,22 +176,45 @@ namespace Sample.WPF
         public void LoadMapboxGL()
         {
             var filename = "switzerland_zurich.mbtiles"; // monaco.mbtiles";
+            var directory = ".\\mbtiles";
 
+            // Check if demo file exists
+            CheckForMBTilesFile(filename, directory);
+            // Load embedded resource of style file
+            var streamOfStyleFile = EmbeddedResourceLoader.Load("styles.osm-liberty.json", GetType()) ?? throw new FileNotFoundException($"Embedded styles.osm-liberty.json not found");
+
+            // Set values for style file loader
             OMTStyleFileLoader.DirectoryForFiles = ".\\mbtiles";
+            OMTStyleFileLoader.GetLocalContent = GetLocalContent;
+            // Load style file
+            var styleFile = OMTStyleFileLoader.Load(streamOfStyleFile);
 
-            CheckForMBTilesFile(filename, OMTStyleFileLoader.DirectoryForFiles);
-
-            var stream = EmbeddedResourceLoader.Load("styles.osm-liberty.json", GetType()) ?? throw new FileNotFoundException($"styles.osm - liberty.json not found");
-
-            var layers = new OpenMapTilesLayer(stream, GetLocalContent);
-
-            foreach (var layer in layers)
-                mapControl.Map.Layers.Add(layer);
+            foreach (var tileLayer in styleFile.TileLayers)
+            {
+                switch (tileLayer.Style)
+                {
+                    case BackgroundTileStyle backgroundTileStyle:
+                        //mapControl.Map.Layers.Add(tileLayer);
+                        break;
+                    case RasterTileStyle rasterTileStyle:
+                        //mapControl.Map.Layers.Add(tileLayer);
+                        break;
+                    case VectorTileStyle vectorTileStyle:
+                        mapControl.Map.Layers.Add(tileLayer);
+                        break;
+                }
+            }
         }
 
-        private static string CheckForMBTilesFile(string filename, string dataDir)
+        /// <summary>
+        /// Make sure, that the MBTiles file exists in the directory
+        /// </summary>
+        /// <param name="filename">Filename of MBTiles file</param>
+        /// <param name="directory">Directory for checking</param>
+        /// <returns>Combined directory and filename</returns>
+        private static string CheckForMBTilesFile(string filename, string directory)
         {
-            filename = Path.Combine(dataDir, filename);
+            filename = Path.Combine(directory, filename);
             if (!File.Exists(filename))
             {
                 var assembly = Assembly.GetExecutingAssembly();

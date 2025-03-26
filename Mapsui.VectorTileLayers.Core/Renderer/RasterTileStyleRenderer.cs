@@ -1,8 +1,7 @@
 ﻿using Mapsui.Extensions;
 using Mapsui.Layers;
 using Mapsui.Logging;
-using Mapsui.Rendering;
-using Mapsui.Rendering.Skia;
+using Mapsui.Rendering.Skia.Cache;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
 using Mapsui.VectorTileLayers.Core.Extensions;
@@ -10,15 +9,12 @@ using Mapsui.VectorTileLayers.Core.Primitives;
 using Mapsui.VectorTileLayers.Core.Styles;
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
 
 namespace Mapsui.VectorTileLayers.Core.Renderer
 {
     public class RasterTileStyleRenderer : ISkiaStyleRenderer
     {
-        private readonly IDictionary<object, BitmapInfo> _tileCache = new Dictionary<object, BitmapInfo>(new IdentityComparer<object>());
-
-        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, IRenderCache renderCache, long iteration)
+        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, RenderService renderService, long currentIteration)
         {
             try
             {
@@ -30,29 +26,16 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 var raster = rasterFeature.Raster;
 
-                BitmapInfo bitmapInfo;
+                var tileCache = renderService.TileCache;
+                tileCache.UpdateCache(currentIteration);
 
-                if (!_tileCache.Keys.Contains(raster))
-                {
-                    bitmapInfo = BitmapHelper.LoadBitmap(raster.Data);
-                    _tileCache[raster] = bitmapInfo;
-                }
-                else
-                {
-                    bitmapInfo = _tileCache[raster];
-                }
-
-                if (bitmapInfo == null)
+                var tile = tileCache.GetOrCreate(raster, currentIteration);
+                if (tile is null)
                     return false;
-
-                _tileCache[raster] = bitmapInfo;
 
                 var extent = feature.Extent;
 
                 if (extent == null)
-                    return false;
-
-                if (bitmapInfo.Bitmap == null)
                     return false;
 
                 var scale = CreateMatrix(canvas, viewport, extent);
@@ -61,7 +44,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 foreach (var paint in rasterTileStyle.StyleLayer.Paints)
                 {
-                    canvas.DrawImage(bitmapInfo.Bitmap, 0, 0, paint.CreatePaint(context));
+                    canvas.DrawImage(tile.SKObject as SKImage, 0, 0, paint.CreatePaint(context));
                 }
             }
             catch (Exception ex)

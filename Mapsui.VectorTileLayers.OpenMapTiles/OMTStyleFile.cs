@@ -32,7 +32,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public MPoint Center { get; internal set; }
 
         /// <summary>
-        /// Sources is a list of all IDrawableTileSources, that this style file provides
+        /// Sources is a list of all ITileSources, that this style file provides
         /// </summary>
         public List<ITileSource> TileSources { get; } = new List<ITileSource>();
 

@@ -7,7 +7,8 @@ using Mapsui.Tiling.Extensions;
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Styles;
-using Mapsui.Widgets;
+using Mapsui.Widgets.ButtonWidgets;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -18,7 +19,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
     /// </summary>
     /// <remarks>
     /// This Layer provides each time the same Feature which contains all tiles, that belong 
-    /// the given Viewport. All this tiles are later drawn by the style renderer.
+    /// to the given Viewport. All this tiles are later drawn by the style renderer.
     /// </remarks>
     public class OMTBackgroundLayer : ILayer
     {
@@ -45,11 +46,15 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
         public bool Busy { get => false; set { } }
 
-        public Hyperlink Attribution => new Hyperlink();
+        public HyperlinkWidget Attribution => new HyperlinkWidget();
 
         public IReadOnlyList<double> Resolutions { get; }
 
         public bool IsMapInfoLayer { get => false; set { } }
+
+        public Func<IEnumerable<IFeature>, IEnumerable<IFeature>> SortFeatures => (f) => (f);
+
+        public string CustomLayerRendererName { get; set; }
 
         public event DataChangedEventHandler DataChanged;
 

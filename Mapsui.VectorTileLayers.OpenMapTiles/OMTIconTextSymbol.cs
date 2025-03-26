@@ -26,7 +26,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <summary>
         /// Style belongint to this symbols
         /// </summary>
-        public override IStyleLayer Style
+        public override IVectorStyle Style
         {
             get => IconSymbol?.Style ?? TextSymbol?.Style ?? null;
             set

@@ -1,14 +1,14 @@
 ﻿using Mapsui.Styles;
+using Mapsui.VectorTileLayers.Core.Enums;
+using Mapsui.VectorTileLayers.Core.Interfaces;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
-using Mapsui.VectorTileLayers.Core.Interfaces;
-using Mapsui.VectorTileLayers.Core.Enums;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
@@ -23,39 +23,37 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public void AddSpriteSource(string source, Func<LocalContentType, string, Stream> getLocalContent)
         {
             Stream streamJson = null;
-            Stream streamAtlas = null;
-
+            
             // TODO: Remove this, if PixelRatio is respected in Mapsui
             // First check for @2x
-            var nameJson = source + ".json"; // "@2x.json";
-            var nameAtlas = source + ".png"; // "@2x.png";
+            var jsonSource = source + ".json"; // "@2x.json";
+            // TODO: !!! Change back. Its only because of using ImageFetcher
+            var imageSource = source.Replace("styles", "sample/wpf/styles").Replace("/", ".").Replace("embedded:..", "embedded://") + ".png"; // "@2x.png";
 
             try
             {
-                (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, getLocalContent);
+                streamJson = GetStreams(jsonSource, getLocalContent);
 
-                if (streamJson == null || streamAtlas == null)
+                if (streamJson == null)
                 {
                     // One of them could be != null
                     streamJson?.Dispose();
-                    streamAtlas?.Dispose();
 
                     // Perhaps there are no @2x versions
-                    nameJson = source + ".json";
-                    nameAtlas = source + ".png";
+                    jsonSource = source + ".json";
+                    imageSource = source + ".png";
 
-                    (streamJson, streamAtlas) = GetStreams(nameJson, nameAtlas, getLocalContent);
+                    streamJson = GetStreams(jsonSource, getLocalContent);
                 }
 
-                if (streamJson != null && streamAtlas != null)
+                if (streamJson != null)
                 {
-                    CreateSprites(streamJson, streamAtlas);
+                    CreateSprites(imageSource, streamJson);
                 }
             }
             finally
             {
                 streamJson?.Dispose();
-                streamAtlas?.Dispose();
             }
         }
 
@@ -88,7 +86,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// </summary>
         /// <param name="jsonStream">Stream with Json sprite file information</param>
         /// <param name="bitmapAtlasStream">Stream with containing bitmap with sprite atlas bitmap</param>
-        public void CreateSprites(Stream jsonStream, Stream bitmapAtlasStream)
+        public void CreateSprites(string imageSource, Stream jsonStream)
         {
             string json;
 
@@ -97,10 +95,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 json = reader.ReadToEnd();
             }
 
-            var bitmapAtlasData = SKData.Create(bitmapAtlasStream);
-            var bitmapAtlas = SKImage.FromEncodedData(bitmapAtlasData);
-
-            CreateSprites(json, bitmapAtlas);
+            CreateSprites(imageSource, json);
         }
 
         /// <summary>
@@ -108,68 +103,57 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// </summary>
         /// <param name="json">String with Json sprite file information</param>
         /// <param name="atlas">SKImage of sprite atlas</param>
-        private void CreateSprites(string json, SKImage atlas)
+        private async void CreateSprites(string imageSource, string json)
         {
-            var spriteAtlasId = BitmapRegistry.Instance.Register(atlas);
+            // If there isn't a ImageSource, then don't extract any sprites
+            if (string.IsNullOrEmpty(imageSource))
+                return;
+
             var sprites = JsonConvert.DeserializeObject<Dictionary<string, Json.JsonSprite>>(json);
+            var atlasData = await ImageFetcher.FetchBytesFromImageSourceAsync(imageSource);
+            var atlasImage = SKImage.FromEncodedData(SKData.CreateCopy(atlasData));
 
             foreach (var sprite in sprites)
             {
                 // Extract sprite from atlas
-                AddSprite(sprite.Key, new OMTSprite(sprite, spriteAtlasId));
+                AddSprite(sprite.Key, new OMTSprite(atlasImage, sprite));
             }
         }
 
-        private (Stream, Stream) GetStreams(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
+        private Stream GetStreams(string nameJson, Func<LocalContentType, string, Stream> getLocalContent)
         {
-            Stream streamJson;
-            Stream streamAtlas;
-
             if (nameJson.StartsWith("http"))
             {
-                (streamJson, streamAtlas) = GetStreamsFromUrl(nameJson, nameAtlas);
+                return GetStreamFromUrl(nameJson);
             }
             else if (nameJson.StartsWith("file://"))
             {
                 nameJson = nameJson.Substring(7);
-                nameAtlas = nameAtlas.Substring(7);
 
-                (streamJson, streamAtlas) = GetStreamsFromFile(nameJson, nameAtlas, getLocalContent);
+                return GetStreamFromFile(nameJson, getLocalContent);
             }
             else if (nameJson.StartsWith("embedded://"))
             {
                 nameJson = nameJson.Substring(11).Replace('/', '.');
-                nameAtlas = nameAtlas.Substring(11).Replace('/', '.');
 
-                (streamJson, streamAtlas) = GetStreamsFromResource(nameJson, nameAtlas, getLocalContent);
-            }
-            else
-            {
-                // Unknown source type, so do nothing
-                throw new NotImplementedException("Unknown URL for sprite");
+                return GetStreamFromResource(nameJson, getLocalContent);
             }
 
-            return (streamJson, streamAtlas);
+            // Unknown source type, so do nothing
+            throw new NotImplementedException("Unknown URL for sprite");
         }
 
-        private (Stream streamJson, Stream streamAtlas) GetStreamsFromResource(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
+        private static Stream GetStreamFromResource(string nameJson, Func<LocalContentType, string, Stream> getLocalContent)
         {
-            Stream streamJson;
-            Stream streamAtlas;
-
             if (getLocalContent == null)
                 throw new ArgumentException($"{nameof(getLocalContent)} should not be null");
 
-            streamJson = getLocalContent(LocalContentType.Resource, nameJson);
-            streamAtlas = getLocalContent(LocalContentType.Resource, nameAtlas);
-
-            return (streamJson, streamAtlas);
+            return getLocalContent(LocalContentType.Resource, nameJson);
         }
 
-        private (Stream, Stream) GetStreamsFromFile(string nameJson, string nameAtlas, Func<LocalContentType, string, Stream> getLocalContent)
+        private static Stream GetStreamFromFile(string nameJson, Func<LocalContentType, string, Stream> getLocalContent)
         {
             Stream streamJson;
-            Stream streamAtlas;
 
             if (getLocalContent == null)
                 throw new ArgumentNullException($"{nameof(getLocalContent)} must not be null");
@@ -180,22 +164,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                 if (streamJson == null)
                     throw new FileNotFoundException($"File '{nameJson}' not found");
-
-                streamAtlas = getLocalContent(LocalContentType.File, nameJson);
-
-                if (streamAtlas == null)
-                    throw new FileNotFoundException($"File '{nameAtlas}' not found");
-
             }
             catch (Exception)
             {
-                return (null, null);
+                return null;
             }
 
-            return (streamJson, streamAtlas);
+            return streamJson;
         }
 
-        private (Stream, Stream) GetStreamsFromUrl(string nameJson, string nameAtlas)
+        private static Stream GetStreamFromUrl(string nameJson)
         {
             var streamJson = new MemoryStream();
 
@@ -209,25 +187,10 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
             catch (Exception)
             {
-                return (null, null);
+                return null;
             }
 
-            var streamAtlas = new MemoryStream();
-
-            // Could be a http or https source
-            try
-            {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(nameAtlas);
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-
-                resp.GetResponseStream().CopyTo(streamAtlas);
-            }
-            catch (Exception)
-            {
-                return (null, null);
-            }
-
-            return (streamJson, streamAtlas);
+            return streamJson;
         }
     }
 }

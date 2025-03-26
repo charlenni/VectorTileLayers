@@ -9,11 +9,11 @@ namespace Sample.WPF
 {
     public class CheckBoxListViewItem : INotifyPropertyChanged 
     {
-        private OMTVectorTileStyle _style;
+        private OMTStyle _style;
         private bool _isChecked; 
         private string _text; 
 
-        public OMTVectorTileStyle Style
+        public OMTStyle Style
         { 
             get 
             { 
@@ -44,7 +44,7 @@ namespace Sample.WPF
             } 
         } 
         
-        public CheckBoxListViewItem(OMTVectorTileStyle s, string t, bool c) 
+        public CheckBoxListViewItem(OMTStyle s, string t, bool c) 
         {
             _style = s;
             _text = t; 

@@ -3,6 +3,7 @@ using Mapsui.Extensions;
 using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Rendering;
+using Mapsui.Rendering.Skia.Cache;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
 using Mapsui.Tiling.Extensions;
@@ -29,7 +30,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
         }
 
-        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, IRenderCache renderCache, long iteration)
+        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, RenderService renderService, long iteration)
         {
             try
             {
@@ -44,8 +45,8 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
 
                 canvas.Save();
 
-                DrawVector(canvas, context, index, vectorTileLayer, vectorTileFeature, styleLayers, renderCache, iteration, scale);
-                DrawSymbol(canvas, context, index, vectorTileLayer, vectorTileFeature, styleLayers, renderCache, iteration);
+                DrawVector(canvas, context, index, vectorTileLayer, vectorTileFeature, styleLayers, renderService.ImageSourceCache, iteration, scale);
+                DrawSymbol(canvas, context, index, vectorTileLayer, vectorTileFeature, styleLayers, renderService.ImageSourceCache, iteration);
 
                 canvas.Restore();
 
@@ -71,7 +72,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         /// <param name="symbolCache"></param>
         /// <param name="iteration"></param>
         /// <param name="scale"></param>
-        public void DrawVector(SKCanvas canvas, EvaluationContext context, TileIndex index, IVectorTileLayer layer, VectorTileFeature feature, System.Collections.Generic.IEnumerable<IStyleLayer> styleLayers, ISymbolCache symbolCache, long iteration, float scale)
+        public void DrawVector(SKCanvas canvas, EvaluationContext context, TileIndex index, IVectorTileLayer layer, VectorTileFeature feature, System.Collections.Generic.IEnumerable<IVectorStyle> styleLayers, ImageSourceCache symbolCache, long iteration, float scale)
         {
             var strokeLimit = 1 / scale;
 
@@ -154,7 +155,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         /// <param name="styleLayer"></param>
         /// <param name="symbolCache"></param>
         /// <param name="iteration"></param>
-        public void DrawSymbol(SKCanvas canvas, EvaluationContext context, TileIndex index, IVectorTileLayer layer, VectorTileFeature feature, System.Collections.Generic.IEnumerable<IStyleLayer> styleLayer, ISymbolCache symbolCache, long iteration)
+        public void DrawSymbol(SKCanvas canvas, EvaluationContext context, TileIndex index, IVectorTileLayer layer, VectorTileFeature feature, System.Collections.Generic.IEnumerable<IVectorStyle> styleLayer, ImageSourceCache symbolCache, long iteration)
         {
             // Now draw symbols
             var tree = layer.Tree;

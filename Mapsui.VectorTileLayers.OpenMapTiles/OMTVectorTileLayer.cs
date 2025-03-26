@@ -1,11 +1,14 @@
 ﻿using BruTile;
-using BruTile.Predefined;
+using BruTile.Cache;
+using ExCSS;
 using Mapsui.Fetcher;
 using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Tiling.Extensions;
 using Mapsui.Tiling.Fetcher;
+using Mapsui.Tiling.Layers;
 using Mapsui.Tiling.Rendering;
+using Mapsui.Tiling.Utilities;
 using Mapsui.VectorTileLayers.Core;
 using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
@@ -26,25 +29,31 @@ using System.Threading.Tasks;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
-    public class OMTVectorTileLayer : BaseLayer, IAsyncDataFetcher, IVectorTileLayer, IDisposable
+    /// <summary>
+    /// Layer, which displays a map consisting of individual tiles
+    /// </summary>
+    public class OMTVectorTileLayer : BaseLayer, IVectorTileLayer, IAsyncDataFetcher, IDisposable
     {
         private const int TileSizeOfData = 4096;
 
         private readonly ITileSource _tileSource;
-        private readonly HttpClient _httpClient = new();
         private readonly IRenderFetchStrategy _renderFetchStrategy;
         private readonly int _minExtraTiles;
         private readonly int _maxExtraTiles;
-        private int _treeZoomLevel = -1;
-        private int _treeMinCol = int.MaxValue, _treeMaxCol = int.MinValue, _treeMinRow = int.MaxValue, _treeMaxRow = int.MinValue;
         private int _numberTilesNeeded;
         private readonly TileFetchDispatcher _tileFetchDispatcher;
+        private readonly MRect? _extent;
+        private readonly HttpClient _httpClient = new();
+        private int _treeZoomLevel = -1;
+        private int _treeMinCol = int.MaxValue;
+        private int _treeMaxCol = int.MinValue;
+        private int _treeMinRow = int.MaxValue;
+        private int _treeMaxRow = int.MinValue;
         private readonly ITileDataParser _tileDataParser = new MGLTileParser();
-        private TileSchema _schema;
         private CancellationTokenSource _cancelToken;
 
         /// <summary>
-        /// Create tile layer for given vector tile source
+        /// Create vector tile layer for given tile source
         /// </summary>
         /// <param name="tileSource">Tile source to use for this layer</param>
         /// <param name="minTiles">Minimum number of tiles to cache</param>
@@ -55,45 +64,26 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         /// <param name="maxExtraTiles">Number of maximum extra tiles for memory cache</param>
         /// <param name="fetchTileAsFeature">Fetch tile as feature</param>
         // ReSharper disable once UnusedParameter.Local // Is public and won't break this now
-        public OMTVectorTileLayer(IEnumerable<IStyleLayer> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
-            IDataFetchStrategy dataFetchStrategy = null, int minExtraTiles = -1, int maxExtraTiles = -1, 
-            Func<TileInfo, Task<IFeature>> fetchTileAsFeature = null)
+        public OMTVectorTileLayer(IEnumerable<IVectorStyle> vectorStyles, ITileSource tileSource, int minTiles = 200, int maxTiles = 300,
+            IDataFetchStrategy? dataFetchStrategy = null, IRenderFetchStrategy? renderFetchStrategy = null,
+            int minExtraTiles = -1, int maxExtraTiles = -1, Func<TileInfo, Task<IFeature?>>? fetchTileAsFeature = null)
         {
-            _tileSource = tileSource ?? throw new ArgumentException($"{tileSource} can not be null");
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "User-Agent-For-Samples-Project");
-            Name = _tileSource.Name;
-            Extent = _tileSource.Schema?.Extent.ToMRect();
-
-            _schema = new GlobalSphericalMercator(_tileSource.Schema.YAxis, _tileSource.Schema.Resolutions[0].Level, 24);
-            
-            // It is a vector tile layer, so we could go always down to zoom 24
-            MinVisible = 24.ToResolution();
-            MaxVisible = _tileSource.Schema.Resolutions.First().Value.UnitsPerPixel;
-
-            // We have our only cache for ready processed vector tiles
-            MemoryCache = new BruTile.Cache.MemoryCache<IFeature>(minTiles, maxTiles);
-
-            Style = new Styles.StyleCollection();
-            ((Styles.StyleCollection)Style).Styles.Add(new VectorTileStyle(0, 24, vectorStyles));
-                        
+            _tileSource = tileSource ?? throw new ArgumentException($"{tileSource} can not null");
+            MemoryCache = new MemoryCache<IFeature?>(minTiles, maxTiles);
+            Style = new VectorTileStyle(0, 24, vectorStyles);
             Attribution.Text = _tileSource.Attribution.Text;
             Attribution.Url = _tileSource.Attribution.Url;
-            
+            _extent = _tileSource.Schema?.Extent.ToMRect();
             dataFetchStrategy ??= new DataFetchStrategy(3);
-            _renderFetchStrategy = new Tiling.Rendering.RenderFetchStrategy();
+            _renderFetchStrategy = renderFetchStrategy ?? new RenderFetchStrategy();
             _minExtraTiles = minExtraTiles;
             _maxExtraTiles = maxExtraTiles;
             _tileFetchDispatcher = new TileFetchDispatcher(MemoryCache, _tileSource.Schema, fetchTileAsFeature ?? FetchTileAsVectorTile, dataFetchStrategy);
             _tileFetchDispatcher.DataChanged += TileFetchDispatcherOnDataChanged;
             _tileFetchDispatcher.PropertyChanged += TileFetchDispatcherOnPropertyChanged;
-            
-            Enabled = _tileSource != null;
+            // There should be a way to override the application wide default user agent.
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", HttpClientTools.GetDefaultApplicationUserAgent());
         }
-
-        /// <summary>
-        /// TileSource
-        /// </summary>
-        public ITileSource TileSource => _tileSource;
 
         /// <summary>
         /// Tile size for this type of layer is always 512 x 512 (OpenMapTiles and Mapbox GL)
@@ -106,23 +96,91 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public RBush<Symbol> Tree { get; private set; }
 
         /// <summary>
+        /// TileSource</summary>
+        public ITileSource TileSource => _tileSource;
+
+        /// <summary>
         /// Memory cache for this layer
         /// </summary>
-        private BruTile.Cache.MemoryCache<IFeature> MemoryCache { get; }
+        private MemoryCache<IFeature?> MemoryCache { get; }
 
         /// <inheritdoc />
-        public override IReadOnlyList<double> Resolutions => _schema.Resolutions.Select(r => r.Value.UnitsPerPixel).ToList();
+        public override IReadOnlyList<double> Resolutions => _tileSource.Schema.Resolutions.Select(r => r.Value.UnitsPerPixel).ToList();
+
+        /// <inheritdoc />
+        public override MRect? Extent => _extent;
 
         /// <inheritdoc />
         public override IEnumerable<IFeature> GetFeatures(MRect extent, double resolution)
         {
-            if (_tileSource?.Schema == null)
+            if (_tileSource.Schema == null) return [];
+            UpdateMemoryCacheMinAndMax();
+            var features = _renderFetchStrategy.Get(extent, resolution, _tileSource.Schema, MemoryCache);
+
+            // Check, if tree should be updated
+            CheckForTreeUpdate(features, resolution);
+
+            return features;
+        }
+
+        /// <inheritdoc />
+        public void AbortFetch()
+        {
+            _tileFetchDispatcher.StopFetching();
+        }
+
+        /// <inheritdoc />
+        public void ClearCache()
+        {
+            MemoryCache.Clear();
+        }
+
+        /// <inheritdoc />
+        public void RefreshData(FetchInfo fetchInfo)
+        {
+            if (Enabled
+                && fetchInfo.Extent?.GetArea() > 0
+                && MaxVisible >= fetchInfo.Resolution
+                && MinVisible <= fetchInfo.Resolution)
             {
-                return Enumerable.Empty<IFeature>();
+                _tileFetchDispatcher.RefreshData(fetchInfo);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                MemoryCache.Dispose();
+                _httpClient.Dispose();
             }
 
-            UpdateMemoryCacheMinAndMax();
+            base.Dispose(disposing);
+        }
 
+        private void TileFetchDispatcherOnPropertyChanged(object? sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            if (propertyChangedEventArgs.PropertyName == nameof(Busy))
+                Busy = _tileFetchDispatcher.Busy;
+        }
+
+        private void UpdateMemoryCacheMinAndMax()
+        {
+            if (_minExtraTiles < 0 || _maxExtraTiles < 0) return;
+            if (_numberTilesNeeded == _tileFetchDispatcher.NumberTilesNeeded) return;
+
+            _numberTilesNeeded = _tileFetchDispatcher.NumberTilesNeeded;
+            MemoryCache.MinTiles = _numberTilesNeeded + _minExtraTiles;
+            MemoryCache.MaxTiles = _numberTilesNeeded + _maxExtraTiles;
+        }
+
+        private void TileFetchDispatcherOnDataChanged(object? sender, Exception? ex)
+        {
+            OnDataChanged(new DataChangedEventArgs(ex, Name));
+        }
+
+        private void CheckForTreeUpdate(IEnumerable<IFeature> features, double resolution)
+        {
             var zoomLevel = (int)resolution.ToZoomLevel();
 
             var minCol = int.MaxValue;
@@ -131,31 +189,26 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             var maxRow = int.MinValue;
 
             var tiles = new List<TileInfo>();
-            var vectorTileFeatures = _renderFetchStrategy.Get(extent, resolution, _tileSource.Schema, MemoryCache);
 
-            foreach (var feature in vectorTileFeatures)
+            foreach (VectorTileFeature feature in features)
             {
-                var vectorTileFeature = (VectorTileFeature)feature;
-
-                tiles.Add(vectorTileFeature.TileInfo);
+                tiles.Add(feature.TileInfo);
 
                 // Only update, if all tiles belong to the same zoom level
                 //if (vectorTileFeature.TileInfo.Index.Level == zoomLevel)
                 {
-                    minCol = Math.Min(vectorTileFeature.TileInfo.Index.Col, minCol);
-                    minRow = Math.Min(vectorTileFeature.TileInfo.Index.Row, minRow);
-                    maxCol = Math.Max(vectorTileFeature.TileInfo.Index.Col, minCol);
-                    maxRow = Math.Max(vectorTileFeature.TileInfo.Index.Row, minRow);
+                    minCol = Math.Min(feature.TileInfo.Index.Col, minCol);
+                    minRow = Math.Min(feature.TileInfo.Index.Row, minRow);
+                    maxCol = Math.Max(feature.TileInfo.Index.Col, minCol);
+                    maxRow = Math.Max(feature.TileInfo.Index.Row, minRow);
                 }
             }
 
             if (zoomLevel != _treeZoomLevel || minCol != _treeMinCol || minRow != _treeMinRow || maxCol != _treeMaxCol || maxRow != _treeMaxRow)
             {
                 // Something changed, so the tree should be updated
-                RefreshTree(vectorTileFeatures, zoomLevel, minCol, minRow, maxCol, maxRow);
+                RefreshTree(features, zoomLevel, minCol, minRow, maxCol, maxRow);
             }
-
-            return vectorTileFeatures;
         }
 
         private void RefreshTree(IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, int maxCol, int maxRow)
@@ -176,7 +229,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 
                 watch.Start();
 
-                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)((Styles.StyleCollection)Style).Styles[0]).StyleLayers, vectorTiles, zoomLevel, minCol, minRow, token);
+                var tree = OMTSymbolLayouter.Layout(((VectorTileStyle)Style).StyleLayers, vectorTiles, zoomLevel, minCol, minRow, token);
 
                 if (!token.IsCancellationRequested)
                 {
@@ -195,80 +248,16 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                     Logger.Log(LogLevel.Information, $"Created a new tree in {watch.ElapsedMilliseconds} ms");
 #endif
 
-                    OnDataChanged(new DataChangedEventArgs());
+                    OnDataChanged(new DataChangedEventArgs(Name));
                 }
             }, token);
 
             task.Start();
         }
 
-        /// <inheritdoc />
-        public void AbortFetch()
-        {
-            _tileFetchDispatcher.StopFetching();
-        }
-
-        /// <inheritdoc />
-        public void ClearCache()
-        {
-            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).Clear();
-        }
-
-        /// <inheritdoc />
-        public void RefreshData(FetchInfo fetchInfo)
-        {
-            if (Enabled
-                && fetchInfo.Extent?.GetArea() > 0
-                && MaxVisible >= fetchInfo.Resolution
-                && MinVisible <= fetchInfo.Resolution)
-            {
-                _tileFetchDispatcher.SetViewport(fetchInfo);
-                _tileFetchDispatcher.StartFetching();
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).Dispose();
-            }
-
-            base.Dispose(disposing);
-        }
-
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void TileFetchDispatcherOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-        {
-            if (propertyChangedEventArgs.PropertyName == nameof(Busy))
-            {
-                Busy = _tileFetchDispatcher.Busy;
-            }
-        }
-
-        private void UpdateMemoryCacheMinAndMax()
-        {
-            if (_minExtraTiles < 0 || _maxExtraTiles < 0) return;
-            if (_numberTilesNeeded == _tileFetchDispatcher.NumberTilesNeeded) return;
-
-            _numberTilesNeeded = _tileFetchDispatcher.NumberTilesNeeded;
-            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).MinTiles = _numberTilesNeeded + _minExtraTiles;
-            ((BruTile.Cache.MemoryCache<IFeature>)MemoryCache).MaxTiles = _numberTilesNeeded + _maxExtraTiles;
-        }
-
-        private void TileFetchDispatcherOnDataChanged(object sender, DataChangedEventArgs e)
-        {
-            OnDataChanged(e);
-        }
-
         public async Task<IFeature> FetchTileAsVectorTile(TileInfo tileInfo)
         {
-            if (_tileSource == null)
+            if (TileSource == null)
                 return null;
 
             var vectorTileFeature = (VectorTileFeature)MemoryCache.Find(tileInfo.Index);
@@ -319,7 +308,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             // Get byte data for this tile
             byte[] tileData;
 
-            if (_tileSource is ILocalTileSource)
+            if (TileSource is ILocalTileSource)
                 tileData = ((ILocalTileSource)_tileSource).GetTileAsync(tileInfo).Result;
             else
                 tileData = ((IHttpTileSource)_tileSource).GetTileAsync(_httpClient, tileInfo).Result;
@@ -343,7 +332,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             {
                 scale <<= 1;
                 offsetX = offsetX + (col % 2) * offsetFactor;
-                offsetY = offsetY + (row % 2) * offsetFactor * (_tileSource.Schema.YAxis == YAxis.TMS ? +1f : -1f);
+                offsetY = offsetY + (row % 2) * offsetFactor * (TileSource.Schema.YAxis == YAxis.TMS ? +1f : -1f);
                 zoom--;
                 row >>= 1;
                 col >>= 1;
@@ -351,7 +340,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 //info.Extent = new Extent(minX, minY, minX + halfWidth, minY + halfHeight);
                 info.Index = new TileIndex(col, row, zoom);
 
-                if (_tileSource is ILocalTileSource)
+                if (TileSource is ILocalTileSource)
                     tileData = ((ILocalTileSource)_tileSource).GetTileAsync(info).Result;
                 else
                     tileData = ((IHttpTileSource)_tileSource).GetTileAsync(_httpClient, info).Result;
@@ -360,7 +349,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             if (zoom < 0)
                 return (null, Overzoom.None);
 
-            offsetY = offsetFactor - offsetY + (_tileSource.Schema.YAxis == YAxis.TMS ? -TileSizeOfData : 0f);
+            offsetY = offsetFactor - offsetY + (TileSource.Schema.YAxis == YAxis.TMS ? -TileSizeOfData : 0f);
 
             var overzoom = new Overzoom(scale, offsetX, offsetY);
 

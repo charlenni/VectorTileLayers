@@ -21,22 +21,22 @@ namespace Mapsui.VectorTileLayers.Core
     /// </remarks>
     public class VectorTileFeature : IFeature, ITileDataSink
     {
-        private readonly IEnumerable<IStyleLayer> _styleLayers;
+        private readonly IEnumerable<IVectorStyle> _styleLayers;
         private readonly TileInfo _tileInfo;
         private readonly float _scale;
         private readonly EvaluationContext _context;
-        private readonly Dictionary<IStyleLayer, IBucket> _buckets = new Dictionary<IStyleLayer, IBucket>();
+        private readonly Dictionary<IVectorStyle, IBucket> _buckets = new Dictionary<IVectorStyle, IBucket>();
 
         public VectorTileFeature(TileInfo tileInfo, int tileSize, float tileSizeOfData, IStyle style)
         {
-            _styleLayers = ((VectorTileStyle)((StyleCollection)style).Styles[0]).StyleLayers;
+            _styleLayers = ((VectorTileStyle)style).StyleLayers;
             _scale = tileSize / tileSizeOfData;
             _tileInfo = tileInfo;
             _context = new EvaluationContext(_tileInfo.Index.Level);
             Extent = _tileInfo.Extent.ToMRect();
         }
 
-        public Dictionary<IStyleLayer, IBucket> Buckets => _buckets;
+        public Dictionary<IVectorStyle, IBucket> Buckets => _buckets;
 
         public TileInfo TileInfo => _tileInfo;
 
@@ -46,7 +46,9 @@ namespace Mapsui.VectorTileLayers.Core
 
         public IEnumerable<string> Fields => null;
 
-        public IDictionary<IStyle, object> RenderedGeometry => new Dictionary<IStyle, object>();
+        public int ZOrder => 0;
+
+        public object Data { get; set; }
 
         public object this[string key] { get => null; set => throw new NotImplementedException(); }
 
@@ -131,7 +133,7 @@ namespace Mapsui.VectorTileLayers.Core
         {
             if (result == QueryResult.Succes)
             {
-                List<IStyleLayer> remove = new List<IStyleLayer>();
+                List<IVectorStyle> remove = new List<IVectorStyle>();
 
                 // Delete empty buckets
                 foreach (var bucket in _buckets)
@@ -176,6 +178,11 @@ namespace Mapsui.VectorTileLayers.Core
         }
 
         public void CoordinateVisitor(Action<double, double, CoordinateSetter> visit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Clone()
         {
             throw new NotImplementedException();
         }

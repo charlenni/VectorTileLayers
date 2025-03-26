@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
@@ -266,7 +267,8 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             }
 
             // Create new TileLayer
-            var vectorTileLayer = new OMTVectorTileLayer(vectorStyleLayers, tileSource);
+            var vectorTileLayer = new OMTVectorTileLayer(vectorStyleLayers, tileSource); 
+            // new OMTVectorTileLayer(vectorStyleLayers, tileSource);
             //var vectorTileLayer = Core.VectorTileLayer.CreateVectorTileLayer(new VectorTileStyle(maxMinZoom, minMaxZoom, vectorStyleLayers), tileSource, tileDataParser: new MGLTileParser());
             //vectorTileLayer.Style = new VectorTileStyle(maxMinZoom, minMaxZoom, vectorStyleLayers);
 
@@ -317,9 +319,17 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
             return tileSource;
         }
 
-        private static List<OMTVectorTileStyle> ExtractStyles(string sourceName, IEnumerable<JsonStyleLayer> jsonStyleLayers, OMTSpriteAtlas spriteAtlas)
+        /// <summary>
+        /// Extracts all the different style layers that belong to a given source
+        /// </summary>
+        /// <param name="sourceName">Source to use for extraction</param>
+        /// <param name="jsonStyleLayers">All style layers from this style file</param>
+        /// <param name="spriteAtlas">Sprites to use for the styles</param>
+        /// <returns>A list with entries for all used styles for given source</returns>
+        /// <exception cref="ArgumentException"></exception>
+        private static List<OMTStyle> ExtractStyles(string sourceName, IEnumerable<JsonStyleLayer> jsonStyleLayers, OMTSpriteAtlas spriteAtlas)
         {
-            var styleLayers = new List<OMTVectorTileStyle>();
+            var listOfStyles = new List<OMTStyle>();
 
             foreach (var jsonStyleLayer in jsonStyleLayers)
             {
@@ -339,7 +349,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 if (jsonStyleLayer.NativeFilter != null)
                     filter = FilterConverter.ConvertFilter(jsonStyleLayer.NativeFilter);
 
-                OMTVectorTileStyle styleLayer = new OMTVectorTileStyle
+                OMTStyle style = new OMTStyle
                 {
                     Id = jsonStyleLayer.Id,
                     MinZoom = (int)(jsonStyleLayer.MinZoom ?? 0),
@@ -353,26 +363,26 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 switch (jsonStyleLayer.Type.ToLower())
                 {
                     case "raster":
-                        styleLayer.Type = StyleType.Raster;
+                        style.Type = StyleType.Raster;
                         var rasterPaints = StyleLayerConverter.ConvertRasterLayer(jsonStyleLayer);
                         if (rasterPaints != null)
-                            ((List<OMTPaint>)styleLayer.Paints).AddRange(rasterPaints);
+                            ((List<OMTPaint>)style.Paints).AddRange(rasterPaints);
                         break;
                     case "fill":
-                        styleLayer.Type = StyleType.Fill;
+                        style.Type = StyleType.Fill;
                         var fillPaints = StyleLayerConverter.ConvertFillLayer(jsonStyleLayer, spriteAtlas);
                         if (fillPaints != null)
-                            ((List<OMTPaint>)styleLayer.Paints).AddRange(fillPaints);
+                            ((List<OMTPaint>)style.Paints).AddRange(fillPaints);
                         break;
                     case "line":
-                        styleLayer.Type = StyleType.Line;
+                        style.Type = StyleType.Line;
                         var linePaints = StyleLayerConverter.ConvertLineLayer(jsonStyleLayer, spriteAtlas);
                         if (linePaints != null)
-                            ((List<OMTPaint>)styleLayer.Paints).AddRange(linePaints);
+                            ((List<OMTPaint>)style.Paints).AddRange(linePaints);
                         break;
                     case "symbol":
-                        styleLayer.Type = StyleType.Symbol;
-                        styleLayer.SymbolStyler = StyleLayerConverter.ConvertSymbolLayer(jsonStyleLayer, spriteAtlas);
+                        style.Type = StyleType.Symbol;
+                        style.SymbolStyler = StyleLayerConverter.ConvertSymbolLayer(jsonStyleLayer, spriteAtlas);
                         break;
                     case "circle":
                         break;
@@ -386,13 +396,13 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                         //    ((List<OMTPaint>)styleLayer.Paints).AddRange(fillExPaints);
                         break;
                     default:
-                        throw new ArgumentException($"Unknown layer type ${jsonStyleLayer.Type}");
+                        throw new ArgumentException($"Unknown style type ${jsonStyleLayer.Type}");
                 }
 
-                styleLayers.Add(styleLayer);
+                listOfStyles.Add(style);
             }
 
-            return styleLayers;
+            return listOfStyles;
         }
     }
 }

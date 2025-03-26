@@ -1,4 +1,5 @@
 ﻿using Mapsui.Styles;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using SkiaSharp;
 using System.Collections.Generic;
 
@@ -6,7 +7,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public class OMTSprite : Sprite
     {
-        public OMTSprite(KeyValuePair<string, Json.JsonSprite> sprite, int atlasId) : base(atlasId, sprite.Value.X, sprite.Value.Y, sprite.Value.Width, sprite.Value.Height, sprite.Value.PixelRatio)
+        public OMTSprite(SKImage atlasImage, KeyValuePair<string, Json.JsonSprite> sprite) : base(atlasImage, new BitmapRegion(sprite.Value.X, sprite.Value.Y, sprite.Value.Width, sprite.Value.Height))
         {
             Name = sprite.Key;
             if (sprite.Value.Content != null && sprite.Value.Content.Count == 4)
@@ -23,6 +24,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 strech.Bottom = sprite.Value.StrechY[1];
             }
             Strech = strech;
+            PixelRatio = sprite.Value.PixelRatio;
         }
 
         public string Name { get; }
@@ -30,5 +32,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
         public SKRect Content { get; }
 
         public SKRect Strech { get; }
+
+        public float PixelRatio { get; }
     }
 }

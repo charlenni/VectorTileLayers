@@ -1,8 +1,5 @@
 ﻿using BruTile;
-using BruTile.Cache;
-using Mapsui.Styles;
-using Mapsui.VectorTileLayers.Core.Primitives;
-using RBush;
+using Mapsui.Layers;
 using System;
 using System.Collections.Generic;
 
@@ -16,21 +13,25 @@ namespace Mapsui.VectorTileLayers.Core
     /// If there would be a possibility to render/draw the whole Layer only by style, 
     /// then this feature isn't needed.
     /// </remarks>
-    public class BackgroundTileFeature : IFeature
+    public class BackgroundTileFeature : BaseFeature, IFeature
     {
+        public BackgroundTileFeature(/*BackgroundTileFeature backgroundTileFeature*/) : base()
+        {
+            //Tiles = backgroundTileFeature.Tiles == null ? null : new List<TileInfo>(backgroundTileFeature.Tiles);
+        }
+
         public IEnumerable<TileInfo> Tiles { get; set; }
 
-        public object this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int ZOrder { get; set; } = 0;
 
-        public ICollection<IStyle> Styles => null;
+        public override MRect Extent => throw new NotImplementedException();
 
-        public IEnumerable<string> Fields => null;
+        public override object Clone()
+        {
+            throw new NotImplementedException();
+        }
 
-        public MRect Extent { get; set; }
-
-        public IDictionary<IStyle, object> RenderedGeometry => null;
-
-        public void CoordinateVisitor(Action<double, double, CoordinateSetter> visit)
+        public override void CoordinateVisitor(Action<double, double, CoordinateSetter> visit)
         {
         }
 

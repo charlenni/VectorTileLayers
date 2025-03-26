@@ -1,5 +1,6 @@
-﻿using Mapsui.VectorTileLayers.Core.Primitives;
-using Mapsui.VectorTileLayer.Mapbox.Extensions;
+﻿using Mapsui.Rendering.Skia;
+using Mapsui.VectorTileLayer.OpenMapTiles.Extensions;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using Mapsui.VectorTileLayers.OpenMapTiles.Extensions;
 using Mapsui.VectorTileLayers.OpenMapTiles.Json;
 using SkiaSharp;
@@ -45,7 +46,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
                 if (paint.BackgroundPattern.Stops == null && !paint.BackgroundPattern.SingleVal.Contains("{"))
                 {
                     var sprite = spriteAtlas.GetSprite(paint.BackgroundPattern.SingleVal);
-                    if (sprite != null && sprite.Atlas >= 0)
+                    if (sprite != null)
                         brush.SetFixShader(sprite.ToSKImage().ToShader(SKShaderTileMode.Repeat, SKShaderTileMode.Repeat));
                 }
                 else
@@ -55,7 +56,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
                         var name = ReplaceFields(paint.BackgroundPattern.Evaluate(context.Zoom), null);
 
                         var sprite = spriteAtlas.GetSprite(name);
-                        if (sprite != null && sprite.Atlas >= 0)
+                        if (sprite != null)
                         {
                             return sprite.ToSKImage().ToShader(SKShaderTileMode.Repeat, SKShaderTileMode.Repeat);
                         }
@@ -262,7 +263,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
                         var name = paint.FillPattern.SingleVal;
 
                         var sprite = spriteAtlas.GetSprite(name);
-                        if (sprite != null && sprite.Atlas >= 0)
+                        if (sprite != null)
                         {
                             return sprite.ToSKImage().ToShader(SKShaderTileMode.Repeat, SKShaderTileMode.Repeat, SKMatrix.CreateScale(context.Scale, context.Scale));
                         }
@@ -282,7 +283,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles.Converter
                         var name = ReplaceFields(jsonStyleLayer.Paint.FillPattern.Evaluate(context.Zoom), context.Tags);
 
                         var sprite = spriteAtlas.GetSprite(name);
-                        if (sprite != null && sprite.Atlas >= 0)
+                        if (sprite != null)
                         {
                             return sprite.ToSKImage().ToShader(SKShaderTileMode.Repeat, SKShaderTileMode.Repeat, SKMatrix.CreateScale(context.Scale, context.Scale));
                         }

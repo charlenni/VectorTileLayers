@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Mapsui.VectorTileLayers.Core": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

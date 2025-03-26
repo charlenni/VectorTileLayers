@@ -1,4 +1,4 @@
-﻿using Mapsui.Styles;
+﻿using Mapsui.VectorTileLayers.Core.Primitives;
 
 namespace Mapsui.VectorTileLayers.Core.Interfaces
 {

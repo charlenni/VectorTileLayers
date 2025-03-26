@@ -96,7 +96,7 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
         /// <summary>
         /// Style layer of this symbol
         /// </summary>
-        public virtual IStyleLayer Style { get; set; }
+        public virtual IVectorStyle Style { get; set; }
 
         /// <summary>
         /// VectorPaint used to draw this symbol

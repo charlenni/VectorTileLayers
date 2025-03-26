@@ -2,6 +2,7 @@
 using Mapsui.Layers;
 using Mapsui.Logging;
 using Mapsui.Rendering;
+using Mapsui.Rendering.Skia.Cache;
 using Mapsui.Rendering.Skia.SkiaStyles;
 using Mapsui.Styles;
 using Mapsui.Tiling.Extensions;
@@ -21,7 +22,7 @@ namespace Mapsui.VectorTileLayers.Core.Renderer
         {
         }
 
-        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, IRenderCache renderCache, long iteration)
+        public bool Draw(SKCanvas canvas, Viewport viewport, ILayer layer, IFeature feature, IStyle style, RenderService renderService, long iteration)
         {
             try
             {

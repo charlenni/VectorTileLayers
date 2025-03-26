@@ -7,12 +7,12 @@ namespace Mapsui.VectorTileLayers.Core.Primitives
 {
     public class SymbolBucket : IBucket
     {
-        IStyleLayer _styleLayer;
+        IVectorStyle _styleLayer;
         IVectorSymbolFactory _styler;
 
         public List<Symbol> Symbols = new List<Symbol>();
 
-        public SymbolBucket(IStyleLayer styleLayer)
+        public SymbolBucket(IVectorStyle styleLayer)
         {
             _styleLayer = styleLayer;
             _styler = styleLayer.SymbolStyler;

@@ -7,15 +7,15 @@ namespace Mapsui.VectorTileLayers.Core.Styles
 {
     public class VectorTileStyle : TileStyle
     {
-        public VectorTileStyle(float minZoom, float maxZoom, IEnumerable<IStyleLayer> styleLayers) : base(minZoom, maxZoom)
+        public VectorTileStyle(float minZoom, float maxZoom, IEnumerable<IVectorStyle> styleLayers) : base(minZoom, maxZoom)
         {
-            StyleLayers = new List<IStyleLayer>();
+            StyleLayers = new List<IVectorStyle>();
 
             foreach (var styleLayer in styleLayers)
-                ((List<IStyleLayer>)StyleLayers).Add(styleLayer);
+                ((List<IVectorStyle>)StyleLayers).Add(styleLayer);
         }
 
-        public IEnumerable<IStyleLayer> StyleLayers { get; }
+        public IEnumerable<IVectorStyle> StyleLayers { get; }
 
         public void UpdateStyles(Viewport viewport)
         {

@@ -1,8 +1,9 @@
 ﻿using Mapsui.Styles;
+using Mapsui.VectorTileLayers.Core.Primitives;
 using SkiaSharp;
 using System.Collections.Generic;
 
-namespace Mapsui.VectorTileLayer.Mapbox.Extensions
+namespace Mapsui.VectorTileLayer.OpenMapTiles.Extensions
 {
     public static class SpriteExtensions
     {
@@ -11,9 +12,9 @@ namespace Mapsui.VectorTileLayer.Mapbox.Extensions
         public static SKImage ToSKImage(this Sprite sprite)
         {
             if (sprite.Data != null)
-                return (SKImage)sprite.Data;
+                return sprite.Data;
 
-            var atlas = BitmapRegistry.Instance.Get(sprite.Atlas) as SKImage;
+            /* var atlas = BitmapRegistry.Instance.Get(sprite.ImageSource) as SKImage;
 
             if (atlas == null)
                 return SKImage.Create(SKImageInfo.Empty);
@@ -22,12 +23,12 @@ namespace Mapsui.VectorTileLayer.Mapbox.Extensions
 
             if (!images.ContainsKey(hash))
             {
-                images[hash] = atlas.Subset(new SKRectI(sprite.X, sprite.Y, sprite.X + sprite.Width, sprite.Y + sprite.Height));
+                images[hash] = atlas.Subset(new SKRectI(sprite.BitmapRegion.X, sprite.BitmapRegion.Y, sprite.BitmapRegion.X + sprite.BitmapRegion.Width, sprite.BitmapRegion.Y + sprite.BitmapRegion.Height));
             }
 
-            sprite.Data = images[hash];
+            sprite.Data = images[hash]; */
 
-            return (SKImage)sprite.Data;
+            return sprite.Data;
         }
     }
 }

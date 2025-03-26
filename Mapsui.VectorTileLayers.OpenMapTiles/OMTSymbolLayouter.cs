@@ -13,7 +13,7 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
     public static class OMTSymbolLayouter
     {
-        public static RBush<Symbol> Layout(IEnumerable<IStyleLayer> styleLayers, IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
+        public static RBush<Symbol> Layout(IEnumerable<IVectorStyle> styleLayers, IEnumerable<IFeature> vectorTiles, int zoomLevel, int minCol, int minRow, CancellationToken cancelToken)
         {
             RBush<Symbol> tree = new RBush<Symbol>(9);
             Dictionary<TileIndex, MPoint> offsets = new Dictionary<TileIndex, MPoint>();

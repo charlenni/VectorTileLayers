@@ -1,17 +1,16 @@
-﻿using Mapsui.VectorTileLayers.Core.Enums;
+﻿using Mapsui.VectorTileLayer.OpenMapTiles.Extensions;
+using Mapsui.VectorTileLayers.Core.Enums;
+using Mapsui.VectorTileLayers.Core.Extensions;
 using Mapsui.VectorTileLayers.Core.Interfaces;
 using Mapsui.VectorTileLayers.Core.Primitives;
-using Mapsui.VectorTileLayer.Mapbox.Extensions;
 using Mapsui.VectorTileLayers.OpenMapTiles.Expressions;
 using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Topten.RichTextKit;
-using Mapsui.VectorTileLayers.Core.Extensions;
-using System;
-using NetTopologySuite.Geometries;
 
 namespace Mapsui.VectorTileLayers.OpenMapTiles
 {
@@ -439,8 +438,9 @@ namespace Mapsui.VectorTileLayers.OpenMapTiles
                 if (!string.IsNullOrEmpty(iconName))
                 {
                     var sprite = spriteAtlas.GetSprite(iconName);
-                    if (sprite != null)
-                        length = sprite.ToSKImage().Width + (IconPadding != null ? (float)(IconPadding.Evaluate(context)) : 0);
+                    // TODO: Enable when sprite problem is solved
+                    //if (sprite != null)
+                    //    length = sprite.ToSKImage().Width + (IconPadding != null ? (float)(IconPadding.Evaluate(context)) : 0);
                 }
 
                 // Calc positions

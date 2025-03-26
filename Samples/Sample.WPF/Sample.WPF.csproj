@@ -48,10 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapsui.Wpf" Version="4.1.7" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\Mapsui\Mapsui.UI.Wpf\Mapsui.UI.Wpf.csproj" />
     <ProjectReference Include="..\..\Mapsui.VectorTileLayers.Core\Mapsui.VectorTileLayers.Core.csproj" />
     <ProjectReference Include="..\..\Mapsui.VectorTileLayers.OpenMapTiles\Mapsui.VectorTileLayers.OpenMapTiles.csproj" />
   </ItemGroup>
