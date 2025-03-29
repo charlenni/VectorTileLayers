@@ -2,6 +2,7 @@
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
+using Mapsui.Limiting;
 using Mapsui.Logging;
 using Mapsui.Rendering.Skia;
 using Mapsui.Rendering.Skia.SkiaWidgets;
@@ -66,6 +67,8 @@ namespace Sample.WPF
                 HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Center,
                 VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top
             });
+
+            LoggingWidget.ShowLoggingInMap = Mapsui.Widgets.ActiveMode.No;
 
             MapRenderer.RegisterStyleRenderer(typeof(BackgroundTileStyle), new BackgroundTileStyleRenderer());
             MapRenderer.RegisterStyleRenderer(typeof(RasterTileStyle), new RasterTileStyleRenderer());
@@ -194,10 +197,10 @@ namespace Sample.WPF
                 switch (tileLayer.Style)
                 {
                     case BackgroundTileStyle backgroundTileStyle:
-                        //mapControl.Map.Layers.Add(tileLayer);
+                        mapControl.Map.Layers.Add(tileLayer);
                         break;
                     case RasterTileStyle rasterTileStyle:
-                        //mapControl.Map.Layers.Add(tileLayer);
+                        mapControl.Map.Layers.Add(tileLayer);
                         break;
                     case VectorTileStyle vectorTileStyle:
                         mapControl.Map.Layers.Add(tileLayer);
